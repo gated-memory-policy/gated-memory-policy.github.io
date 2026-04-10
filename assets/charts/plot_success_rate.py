@@ -23,12 +23,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # ── Site palette ──────────────────────────────────────────────────────────────
-BG         = "#FFF4EA"
-TEXT       = "#2b2521"
-TEXT_MUTED = "#6e6358"
-ACCENT     = "#BF4646"   # highlight color for "Ours"
-NEUTRAL    = "#C4B5A5"   # baseline bars
-BORDER     = "#d8c8b5"
+BG         = "#ffffff"
+TEXT       = "#1a1a1a"
+TEXT_MUTED = "#666666"
+ACCENT     = "#2563eb"   # highlight color for "Ours"
+NEUTRAL    = "#d1d5db"   # baseline bars (neutral gray)
+BORDER     = "#e5e5e5"
 
 # ── Task definitions ──────────────────────────────────────────────────────────
 # Each task defines its own `entries` list so you can freely add/remove methods.

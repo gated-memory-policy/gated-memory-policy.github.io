@@ -1,8 +1,15 @@
 # Research Project Release Website — Implementation Specification
 
-*Last updated to reflect current implementation.*
+*Reflects the current clean academic design.*
 
-`To launch on local run cd /Users/jinyun/Documents/mem_website && python3 -m http.server 8080. Then visit http://localhost:8080.`
+`To launch locally: cd /Users/jinyun/Documents/mem_website && python3 -m http.server 8080. Then visit http://localhost:8080.`
+
+---
+
+## Design Philosophy
+
+The site follows conventions of top-tier ML conference project pages (Nerfies, DreamFusion, etc.): white background, single muted blue accent, no animations, content-focused layout. Typography uses a serif/sans pairing for academic readability. All decorative elements (gradients, shadows, animations) have been removed in favor of clean lines and neutral colors.
+
 ---
 
 ## File Structure
@@ -72,37 +79,38 @@ mem_website/
 
 | Token | Value | Usage |
 | --- | --- | --- |
-| `--bg` | `#f9f8f5` | Page background |
-| `--bg-alt` | `#f0ede6` | Hero title card, abstract strip, footer |
+| `--bg` | `#ffffff` | Page background (white) |
+| `--bg-alt` | `#f7f7f7` | Footer background |
 | `--text` | `#1a1a1a` | Body and heading text |
-| `--text-muted` | `#6b6560` | Captions, secondary text, inactive tabs |
-| `--accent` | `#c97d3b` | Section labels, "Ours" column headers, config row labels |
-| `--border` | `#ddd8cf` | Dividers, placeholder borders, tab bar underline |
-| `--tab-active` | `#2d4a6e` | Active tab text + underline indicator (deep slate-blue) |
+| `--text-muted` | `#666666` | Captions, secondary text, section labels |
+| `--accent` | `#2563eb` | Active tabs, links, corresponding-author marker |
+| `--accent-rgb` | `37, 99, 235` | RGB form for `rgba()` usage |
+| `--border` | `#e5e5e5` | Dividers, tab bar underline, placeholders |
+| `--tab-active` | `var(--accent)` | Active tab text + underline (same as accent) |
 
-**Rationale:** `--accent` (warm ochre) is used sparingly for scientific emphasis — section taxonomy labels and the "Ours" column to visually distinguish our method. `--tab-active` is intentionally a cool deep navy to contrast with the warm background without looking like a product brand color. The overall palette reads as warm-academic, similar to aged paper.
+Single-accent system: one blue is used for all interactive/emphasis elements. Section labels and config labels use `--text-muted` (gray), not the accent color.
 
 ### Typography
 
-- **Headings** (`h1`–`h4`): `Playfair Display`, serif. `h1` is italic weight-400 for the paper title; `h2`–`h3` are weight-600 upright.
-- **Body / UI**: `DM Sans`, sans-serif, weight 300/400/500.
+- **Headings** (`h1`–`h4`): `Noto Serif`, Georgia, serif. `h2`–`h3` weight-600.
+- **Body / UI**: `Inter`, -apple-system, sans-serif, weight 400/500/600.
 - **Font sizes**:
-  - `h1` (paper title): `clamp(2rem, 5vw, 3.4rem)`, italic
-  - `h2` (section headings): `clamp(1.5rem, 3vw, 2rem)`
-  - `h3` (subsection headings): `1.35rem`
+  - `h1` (paper title): `clamp(2rem, 5vw, 3.4rem)`, weight-600
+  - `h2` (section headings): `clamp(1.85rem, 3.5vw, 2.4rem)`
+  - `h3` (subsection headings): `1.5rem`
   - Body: `17px` / `1.75` line-height
   - Captions (`figcaption`): `0.845rem`, italic, `--text-muted`
-  - Section labels: `0.72rem`, `0.14em` letter-spacing, uppercase, `--accent`
+  - Section labels: `0.72rem`, `0.14em` letter-spacing, uppercase, `--text-muted`
   - Tab buttons: `0.825rem`
-  - Column headers: `0.75rem`, `--text-muted` (or `--accent` for "Ours")
+  - Column headers: `0.75rem`, `--text-muted` (bold for "Ours")
 
 ### Spacing
 
 - **Max content width**: `960px`, centered via `margin: 0 auto`
-- **Section padding**: `80px` top/bottom, `24px` horizontal (collapses to `56px` on mobile)
-- **Section dividers**: `1px solid var(--border)` between consecutive `<section>` elements
+- **Section padding**: `72px` top/bottom, `24px` horizontal (collapses to `40px` on mobile)
+- **Section dividers**: `1px solid var(--border)` between consecutive `.subsection` elements
 - **Video grid gap**: `14px`
-- **Result row margin**: `44px` bottom
+- **Video bleed**: `0px` — videos stay within the content column
 
 ---
 
@@ -111,8 +119,9 @@ mem_website/
 - **Single-file HTML** with external `style.css` and `main.js`. No frameworks, no build step.
 - All `<section>` tags: `width: 100%; max-width: 960px; margin: 0 auto;` — guarantees centering.
 - No client-side routing. Page is top-to-bottom linear scroll.
-- Only external network dependency: Google Fonts (`Playfair Display` + `DM Sans`) via `<link>` in `<head>`.
-- **Responsive**: at `≤ 640px`, all `.three-col` and `.four-col` grids collapse to single column.
+- Only external network dependency: Google Fonts (`Noto Serif` + `Inter`) via `<link>` in `<head>`.
+- **Responsive**: at `<= 640px`, all `.three-col` and `.four-col` grids collapse to single column.
+- **No animations**: no keyframes, no bouncing elements, no gradient decorations.
 
 ---
 
@@ -124,11 +133,11 @@ When an asset is missing, render:
 <div class="placeholder-media">path/to/asset.mp4</div>
 ```
 
-- White background (`#ffffff`), subtle `1.5px` border (`#e8e4de`)
+- Light background (`#fafafa`), subtle `1.5px` border (`#e5e5e5`)
 - `aspect-ratio: 16/9` by default; add class `square` for `1/1`
 - Centered play icon via CSS `::before` pseudo-element (SVG data URI)
 - Chart placeholders: `.placeholder-media.square`
-- Hero video: overridden to dark background (`#181818`), no border, larger icon
+- Hero video: overridden to dark background (`#111`), no border
 
 **To swap in a real asset:**
 
@@ -150,9 +159,9 @@ When an asset is missing, render:
 
 All config-level selectors use a **horizontal underline tab bar** — no filled pill buttons.
 
-- **Inactive**: muted text (`--text-muted`), no border
-- **Hover**: full text color (`--text`)
-- **Active**: deep slate-blue text + `2px` bottom border (`--tab-active: #2d4a6e`)
+- **Inactive**: muted text (`--text-muted`), `opacity: 0.55`
+- **Hover**: full text color (`--text`), `opacity: 0.85`
+- **Active**: accent blue text + `2px` bottom border (`--tab-active`)
 - Tab bar has `border-bottom: 1px solid var(--border)` and `overflow-x: auto; scrollbar-width: none` for overflow cases (e.g. 7-tab pushing row)
 - Active tab sits on top of bar border via `margin-bottom: -1px`
 
@@ -180,12 +189,12 @@ All config-level selectors use a **horizontal underline tab bar** — no filled 
 
 | `data-tabgroup` | Section | Config axis | # tabs |
 | --- | --- | --- | --- |
-| `pushing` | § 4A Cross-Trial Pushing | Friction coefficient | 7 |
-| `casting` | § 4B Cross-Trial Casting | Friction regime | 2 |
-| `flinging` | § 4C Cross-Trial Flinging | Cloth mass | 4 |
-| `cup` | § 5A In-Trial Cup | Object location | 3 |
-| `match-color` | § 5B In-Trial Match Color | Target location | 4 |
-| `place-back` | § 5C In-Trial Place Back | Object location | 4 |
+| `pushing` | Cross-Trial Pushing | Friction coefficient | 7 |
+| `casting` | Cross-Trial Casting | Friction regime | 2 |
+| `flinging` | Cross-Trial Flinging | Cloth mass | 4 |
+| `cup` | In-Trial Cup | Object location | 3 |
+| `match-color` | In-Trial Match Color | Target location | 4 |
+| `place-back` | In-Trial Place Back | Object location | 4 |
 
 ### JS Behavior (`main.js`)
 
@@ -197,46 +206,53 @@ On tab click:
 4. Add `.active` to `.tab-panel[data-tabgroup][data-config]` matching the clicked `data-tab`
 5. Call `video.load()` + `video.play()` on any `<video>` inside the newly active panel (restores autoplay after `display:none`)
 
+Additional JS features:
+
+- **Video autoplay observer**: IntersectionObserver plays/pauses muted videos based on viewport visibility (30% threshold). Respects user interaction — once a user pauses/scrubs a video, auto-control stops for that video.
+- **Sticky TOC nav**: Left-side navigation slides in after hero section leaves viewport, highlights current section via IntersectionObserver.
+- **BibTeX copy**: Clipboard API with execCommand fallback, 2s "Copied!" feedback.
+
 ---
 
 ## Section-by-Section Specification
 
 ### Hero — Title Card (`#hero-title`)
 
-- Full-width, `background: var(--bg-alt)`
-- Paper title: `Playfair Display`, italic, large, centered, `max-width: 820px`
-- Authors line + Institution line below, `--text-muted`
-- Three icon+text link buttons (Paper, Code, Video) with inline SVG icons
-  - Style: outlined pill with `1.5px` border, hover fills to `--text` background
-  - Icons: document (Paper), GitHub octocat (Code), YouTube play (Video)
+- `background: var(--bg)` (white), no full-viewport height
+- `padding: 80px 24px 60px`, centered flex column
+- Paper title: `Noto Serif`, weight-600, `clamp(2rem, 5vw, 3.4rem)`, centered
+- Tagline below with `<strong>` tags for emphasis (no colored underlines)
+- Authors line + Institution line, `--text-muted`
+- Three outline pill link buttons (Paper, arXiv, Code) — all same style, no filled primary button
+  - Style: `1.5px` border, `border-radius: 100px`, hover inverts to dark fill
 
 ### Hero — Teaser Video (`#hero-video`)
 
-- Full viewport width, `min-height: 56.25vw` (16:9), `max-height: 90vh`
-- Dark background `#0f0f0f`, video covers the strip with `object-fit: cover`
+- Inside `#intro-split` (stacked layout with abstract below)
+- Video/iframe with `border-radius: 4px`, no box-shadow
 - No controls shown. Attributes: `autoplay loop muted playsinline`
 - Asset: `assets/videos/teaser.mp4`
 
 ### Abstract (`#abstract`)
 
-- `background: var(--bg-alt)`, centered `<p>`, `max-width: 700px`
-- `font-size: 1.025rem`, `line-height: 1.85`
-- Separated from sections below by `border-bottom: 1px solid var(--border)`
+- Inside `#intro-split`, below teaser video
+- `font-size: 0.88rem`, `line-height: 1.72`, `color: var(--text-muted)`
+- Section label in gray uppercase
 
-### § 2 — Model Architecture (`#architecture`)
+### Model Architecture (`#architecture`)
 
-- Section label: "Method"
-- Full-width figure, `max-width: 860px`, centered via `.fig-centered`
+- Section label: "Method" (gray uppercase)
+- Full-width figure, `max-width: 600px`, centered via `.fig-centered`
 - Asset: `assets/images/architecture.png`
 - Explanatory paragraph below (`.body-text`)
 
-### § 3 — What Is the Policy Attending To? (`#attention`)
+### Attention Visualization (`#attention`)
 
 - Section label: "Interpretability"
-- Intro paragraph → centered video figure (`max-width: 720px`) → follow-up paragraph
+- Intro paragraph, centered video figure (`max-width: 720px`), follow-up paragraph
 - Asset: `assets/videos/attention_vis_cube_pushing.mp4`
 
-### § 4 — Cross-Trial Memory (`#cross-trial`)
+### Cross-Trial Memory (`#cross-trial`)
 
 All three subsections use the tab system. Each `.tab-panel` contains:
 
@@ -244,45 +260,47 @@ All three subsections use the tab system. Each `.tab-panel` contains:
 2. `.video-grid.three-col` (or `.four-col` for Casting) — one `.video-col` per policy
 3. `.row-caption.after` — observation sentence
 
-**4A — Pushing** (`#cross-trial-pushing`): 7 tabs, friction axis, labels `µ = 0.015` … `µ = 0.2`. Three-column grid.
+**Pushing** (`#cross-trial-pushing`): 7 tabs, friction axis. Three-column grid.
 
-**4B — Casting** (`#cross-trial-casting`): 2 tabs (`High Friction` / `Low Friction`). Four-column grid: 3 videos + 1 bar chart (`.placeholder-media.square`). Bar chart assets: `assets/charts/cross_trial/casting/[level]_bar_chart.png`.
+**Casting** (`#cross-trial-casting`): 2 tabs. Four-column grid: 3 videos + 1 bar chart.
 
-**4C — Flinging** (`#cross-trial-flinging`): 4 tabs (`Low` / `Mid-Low` / `Mid-High` / `High`), cloth mass axis. Three-column grid.
+**Flinging** (`#cross-trial-flinging`): 4 tabs, cloth mass axis. Three-column grid.
 
-### § 5 — In-Trial Memory (`#in-trial`)
+### In-Trial Memory (`#in-trial`)
 
-**5A — Cup** (`#in-trial-cup`): 3 tabs (Location A/B/C). Each tab panel additionally includes a `<details class="overlay-details">` accordion below the video grid. Opening the accordion reveals a three-column grid of `.placeholder-media.square` initial position images. Below all tabs: a permanently visible "In-the-Wild" block with a single centered video (`max-width: 640px`).
+**Cup** (`#in-trial-cup`): 3 tabs. Each tab panel includes a `<details class="overlay-details">` accordion for initial position images. Below all tabs: "In-the-Wild" block with single centered video (`max-width: 640px`).
 
-- Initial position images: `assets/images/cup_overlay/[loc_X]/initial_pos.png`
-- In-the-wild video: `assets/videos/in_trial/cup/in_the_wild_ours.mp4`
+**Match Color** (`#in-trial-match-color`): Two blocks:
 
-**5B — Match Color** (`#in-trial-match-color`): Two independent visual blocks:
+1. **Attention visualization** (`.attention-block`) — always visible, `max-width: 720px`.
+2. **Location tabs** — 4 tabs, standard three-column grid.
 
-1. **Attention visualization block** (`.attention-block`) — always visible, not affected by tab selection. Video `assets/videos/in_trial/match_color/attention_vis.mp4`. Has a small-caps `vis-label` above it.
-2. **Location tab selector** — 4 tabs (Location A/B/C/D), standard three-column video grid per panel.
+**Place Back** (`#in-trial-place-back`): 4 tabs. Standard three-column grid.
 
-**5C — Place Back** (`#in-trial-place-back`): 4 tabs (Location A/B/C/D). Standard three-column grid per panel.
-
-### § 6 — How to Train the Gating Mechanism (`#gating-training`)
+### Gating Training (`#gating-training`)
 
 - Section label: "Method"
-- Full-width figure (`max-width: 860px`). Asset: `assets/images/gating_training.png`
+- Full-width figure (`max-width: 600px`). Asset: `assets/images/gating_training.png`
 - Explanatory paragraph below
 
-### § 7 — Robomimic Benchmark Results (`#robomimic`)
+### Robomimic Benchmark (`#robomimic`)
 
 - Section label: "Quantitative Results"
-- Centered figure, `max-width: 720px`. Asset: `assets/charts/robomimic_bar_chart.png`
-- Short explanation paragraph below
+- Centered figure, `max-width: 600px`. Asset: `assets/charts/robomimic_bar_chart.png`
+- Explanation paragraph below
+
+### Team (`#team`)
+
+- Centered grid of author cards (photo + name + affiliation)
+- Author photos: `84px` circle, `1.5px` border, hover changes border to accent blue
+- Corresponding author marked with superscript in accent color
 
 ### Footer (`#footer`)
 
-- `background: var(--bg-alt)`, `max-width: 960px` container
-- ACM/IEEE citation line
-- BibTeX block: `<pre><code id="bibtex-content">` + `Copy BibTeX` button (Clipboard API + execCommand fallback, 2 s feedback, class `.copied` on success)
-- Acknowledgements line
-- Copyright line
+- `background: var(--bg-alt)` (#f7f7f7), `border-top: 1px solid var(--border)`
+- Citation block, BibTeX `<pre>` with dark background (`#1a1a1a`)
+- Copy BibTeX button with Clipboard API + execCommand fallback
+- Acknowledgements + copyright lines
 
 ---
 
@@ -296,33 +314,37 @@ display: grid; width: 100%; gap: 14px;
 /* .four-col  → 1fr 1fr 1fr 1fr */
 ```
 
-Collapses to single column at `≤ 640px`.
+Collapses to single column at `<= 640px`.
 
 ### `.video-col`
 
-Flex column containing: `.col-header` (label) → `<figure>` (video/placeholder + optional figcaption).
+Flex column containing: `.col-header` (label) then `<figure>` (video/placeholder + optional figcaption).
 
-`.col-header.ours` uses `--accent` color and `font-weight: 600` to highlight our method.
+`.col-header.ours` uses `font-weight: 600` (bold) to distinguish our method. No color difference.
 
 ### `.tab-panel` / `.tab-btn`
 
-`display: none` / `display: block` toggled by `main.js`. Initial active state set directly in HTML via `.active` class.
+`display: none` / `display: block` toggled by `main.js`. Initial active state set in HTML via `.active` class.
 
-### `.overlay-details` (Cup § 5A)
+### `.overlay-details` (Cup)
 
-Native `<details><summary>` element — zero JS, browser-native accordion. Summary has a CSS `▸` arrow that rotates 90° when open. Opens a `.three-col` grid of square image placeholders.
+Native `<details><summary>` element — zero JS. Summary has a CSS chevron that rotates 180deg when open. Opens a grid of square image placeholders.
 
-### `.attention-block` (Match Color § 5B)
+### `.attention-block` (Match Color)
 
 Always-visible figure block. `border-bottom: 1px solid var(--border)` separates it from the tab bar below. Max-width `720px`, centered.
 
-### `.in-the-wild-block` (Cup § 5A)
+### `.in-the-wild-block` (Cup)
 
-Full-width sub-block below all cup tabs. `border-top: 1px solid var(--border)`. Centered figure, `max-width: 640px`.
+Sub-block below all cup tabs. `border-top: 1px solid var(--border)`. Centered figure, `max-width: 640px`.
 
 ### `.fig-centered`
 
-`max-width: 860px; margin: 0 auto 1.5rem;`. Used for architecture and gating diagrams.
+`max-width: 600px; margin: 0 auto 1rem;`. Used for architecture, gating, and robomimic figures.
+
+### `.subsection-intro`
+
+Plain text block for task descriptions. `color: var(--text-muted)`, `font-size: 0.88rem`, `max-width: 680px`. No background, no border decoration.
 
 ---
 
@@ -334,18 +356,14 @@ Full-width sub-block below all cup tabs. `border-top: 1px solid var(--border)`. 
 2. Add a new `<button class="tab-btn" data-tab="new_config">` to the relevant tab bar
 3. Add a new `<div class="tab-panel" data-tabgroup="X" data-config="new_config">` with the video grid
 
-### Changing the active tab color
+### Changing the accent color
 
-Edit `--tab-active` in `style.css` (defined in `:root` block, currently `#2d4a6e`).
-
-### Changing the accent color (section labels, "Ours" headers)
-
-Edit `--accent` in `style.css` `:root` (currently `#c97d3b`).
+Edit `--accent` and `--accent-rgb` in `style.css` `:root` block (currently `#2563eb` / `37, 99, 235`). This single change propagates to tabs, links, TOC active state, and author markers.
 
 ### Replacing any placeholder with a real asset
 
 Swap the `<div class="placeholder-media">` for `<video autoplay loop muted playsinline><source src="…" type="video/mp4"></video>` (or `<img src="…">` for images/charts) inside the same `<figure>` element.
 
-### Collapsing a subsection into a single-select dropdown (future UX)
+### Collapsing a subsection into a dropdown (future UX)
 
-The tab bar `.tab-btn`/`.tab-panel` pattern maps directly onto a `<select>` + JS `change` handler. Replace the `.tab-bar` with `<select data-tabgroup="X">` and wire `option[value]` → panel `data-config`. No HTML restructuring needed.
+The tab bar `.tab-btn`/`.tab-panel` pattern maps directly onto a `<select>` + JS `change` handler. Replace the `.tab-bar` with `<select data-tabgroup="X">` and wire `option[value]` to panel `data-config`.

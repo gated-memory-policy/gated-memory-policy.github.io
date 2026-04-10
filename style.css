@@ -4,26 +4,19 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #FFF4EA;
-  --bg-alt:      #EDDCC6;
-  --text:        #2b2521;
-  --text-muted:  #6e6358;
-  --accent:      #BF4646;      /* primary emphasis / CTA */
-  --accent-rgb:  191, 70, 70;
-  --accent-cool: #7EACB5;      /* navigation / state */
-  --accent-cool-rgb: 126, 172, 181;
-  --border:      #d8c8b5;
+  --bg:          #ffffff;
+  --bg-alt:      #f7f7f7;
+  --text:        #1a1a1a;
+  --text-muted:  #666666;
+  --accent:      #2563eb;      /* single academic blue accent */
+  --accent-rgb:  37, 99, 235;
+  --border:      #e5e5e5;
   --max-w:       960px;
   --pad-x:       24px;
+  --tab-active:  var(--accent);
 
-  /* ── Header row (title + description + chart) bleed ─────
-     How far the task-header expands past the column edge.   */
   --task-bleed:  0px;
-
-  /* ── Video row bleed ─────────────────────────────────────
-     How far the 3-video grid expands past the column edge,
-     independently of the header row above it.              */
-  --video-bleed: 300px;
+  --video-bleed: 0px;
 }
 
 html { scroll-behavior: smooth; }
@@ -31,7 +24,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 17px;
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
@@ -60,13 +53,13 @@ section {
    TYPOGRAPHY
 ========================================================= */
 h1, h2, h3, h4 {
-  font-family: 'Roboto Slab', serif;
-  line-height: 1.2;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  line-height: 1.25;
 }
 
 h2 {
   font-size: clamp(1.85rem, 3.5vw, 2.4rem);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.75rem;
 }
 
@@ -84,7 +77,7 @@ p:last-child { margin-bottom: 0; }
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-cool);
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -116,7 +109,7 @@ p:last-child { margin-bottom: 0; }
   top: 0;
   bottom: 0;
   width: 1px;
-  background: linear-gradient(to bottom, rgba(var(--accent-cool-rgb), 0.45), rgba(var(--accent-cool-rgb), 0.16));
+  background: var(--border);
 }
 
 #toc-nav.visible { transform: translateX(0) translateY(-50%); }
@@ -129,7 +122,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .toc-title {
-  font-family: 'Roboto Mono', monospace;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -142,7 +135,7 @@ p:last-child { margin-bottom: 0; }
 .toc-link {
   display: block;
   padding: 7px 10px 7px 11px;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 0.68rem;
   font-weight: 450;
   letter-spacing: 0.08em;
@@ -153,20 +146,19 @@ p:last-child { margin-bottom: 0; }
   border-radius: 5px;
   white-space: normal;
   line-height: 1.35;
-  transition: color 0.14s, border-color 0.14s, background 0.14s, transform 0.14s, opacity 0.14s;
+  transition: color 0.14s, border-color 0.14s, background 0.14s, opacity 0.14s;
 }
 
 .toc-link:hover {
   color: var(--text);
   background: rgba(0, 0, 0, 0.02);
-  transform: translateX(1px);
   opacity: 1;
 }
 
 .toc-link.active {
   color: var(--text);
-  border-left-color: var(--accent-cool);
-  background: rgba(var(--accent-cool-rgb), 0.14);
+  border-left-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
   font-weight: 500;
 }
 
@@ -181,11 +173,9 @@ p:last-child { margin-bottom: 0; }
    HERO — TITLE CARD
 ========================================================= */
 #hero-title {
-  background: #f6ede2;
+  background: var(--bg);
   text-align: center;
-  padding: var(--pad-x);
-  height: 100vh;
-  min-height: 560px;
+  padding: 80px var(--pad-x) 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -194,30 +184,28 @@ p:last-child { margin-bottom: 0; }
 }
 
 #hero-title .paper-title {
-  font-family: 'Roboto Mono', monospace;
-  font-size: min(7vw, 6rem);
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 700;
   font-style: normal;
-  letter-spacing: -0.03em;
-  white-space: nowrap;
-  margin: 0 auto 2.5rem;
-  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 auto 2rem;
+  line-height: 1.15;
   color: var(--text);
 }
 
 .hero-venue {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 0.74rem;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-muted);
   margin-bottom: 1.4rem;
-  opacity: 0.78;
 }
 
 .hero-tagline {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 1.05rem;
   font-weight: 300;
   color: var(--text-muted);
@@ -226,14 +214,6 @@ p:last-child { margin-bottom: 0; }
   line-height: 1.7;
 }
 
-.hero-em {
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 5px;
-  font-weight: 500;
-  color: var(--text);
-}
 
 #hero-title .authors {
   font-size: 1rem;
@@ -263,7 +243,7 @@ p:last-child { margin-bottom: 0; }
   padding: 9px 22px;
   border: 1.5px solid var(--border);
   border-radius: 100px;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text);
@@ -278,17 +258,6 @@ p:last-child { margin-bottom: 0; }
   color: var(--bg);
 }
 
-.btn-link--primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-}
-
-.btn-link--primary:hover {
-  background: #a13a3a;
-  border-color: #a13a3a;
-  color: var(--bg);
-}
 
 .btn-link svg {
   width: 15px;
@@ -296,31 +265,6 @@ p:last-child { margin-bottom: 0; }
   flex-shrink: 0;
 }
 
-/* Animated scroll indicator at the bottom of the hero */
-.hero-scroll-hint {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-muted);
-  opacity: 0.55;
-  animation: hint-bounce 2.2s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.hero-scroll-hint svg {
-  width: 20px;
-  height: 20px;
-}
-
-@keyframes hint-bounce {
-  0%, 100% { transform: translateX(-50%) translateY(0);   opacity: 0.55; }
-  50%       { transform: translateX(-50%) translateY(6px); opacity: 0.85; }
-}
 
 /* =========================================================
    INTRO — VIDEO + ABSTRACT (stacked)
@@ -328,11 +272,9 @@ p:last-child { margin-bottom: 0; }
 #intro-split {
   width: min(1080px, 100%);
   margin: 0 auto;
-  min-height: 100vh;
   padding: 48px var(--pad-x);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 36px;
 }
 
@@ -348,8 +290,7 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
   display: block;
   border: 0;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
 }
 
 /* Override placeholder styles for the dark hero strip */
@@ -359,8 +300,7 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
   background: #111;
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
 }
 
 #hero-video .placeholder-media::before {
@@ -419,7 +359,7 @@ figcaption {
 
 /* Inline math color helpers used in figure captions */
 .math-gray { color: var(--text-muted); font-style: normal; }
-.math-blue { color: var(--accent-cool); font-style: normal; }
+.math-blue { color: var(--accent); font-style: normal; }
 
 /* Centered full-width figures (architecture, gating diagram, robomimic chart) */
 .fig-centered {
@@ -454,8 +394,8 @@ figcaption {
    real assets are available.
 ========================================================= */
 .placeholder-media {
-  background: #fcfbf8;
-  border: 1.5px solid #e5dfd6;
+  background: #fafafa;
+  border: 1.5px solid #e5e5e5;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
@@ -521,7 +461,6 @@ figcaption {
 }
 
 .col-header.ours {
-  color: var(--accent);
   font-weight: 600;
 }
 
@@ -604,7 +543,7 @@ figcaption {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-muted);
   margin-bottom: 6px;
 }
 
@@ -632,26 +571,18 @@ figcaption {
   padding-top: 40px;
 }
 
-/* Separator: gradient line fading at both ends, spanning bleed width */
 .subsection + .subsection::before {
   content: '';
   position: absolute;
   top: 0;
-  left: calc(var(--video-bleed) / -2);
-  right: calc(var(--video-bleed) / -2);
-  height: 3.5px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--border) 6%,
-    var(--border) 94%,
-    transparent
-  );
-  opacity: 0.85;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
 }
 
 .subsection h3 {
-  font-family: 'Roboto Slab', serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 1.75rem;
   font-weight: 600;
   margin-bottom: 0.4rem;
@@ -663,10 +594,6 @@ figcaption {
   margin-bottom: 0.75rem;
   max-width: 680px;
   line-height: 1.65;
-  padding: 0.55rem 0.85rem;
-  border-left: 3px solid var(--border);
-  background: var(--bg-alt);
-  border-radius: 0 6px 6px 0;
 }
 
 /* =========================================================
@@ -675,10 +602,6 @@ figcaption {
    Active indicator: secondary accent (--tab-active).
    Tabs scroll horizontally on overflow (handles 7-level pushing row).
 ========================================================= */
-:root {
-  --tab-active: var(--accent-cool);
-}
-
 .tab-bar {
   display: flex;
   gap: 0;
@@ -697,7 +620,7 @@ figcaption {
   border-bottom: 2px solid transparent;
   margin-bottom: -1px; /* sit on top of the tab-bar border */
   background: none;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 0.825rem;
   font-weight: 400;
   color: var(--text-muted);
@@ -786,7 +709,7 @@ figcaption {
 }
 
 .in-the-wild-block h4 {
-  font-family: 'Roboto Slab', serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -806,7 +729,7 @@ figcaption {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-variant: small-caps;
-  color: var(--accent-cool);
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -839,6 +762,8 @@ figcaption {
   gap: 10px;
   width: 130px;
   text-align: center;
+  text-decoration: none;
+  color: inherit;
 }
 
 .author-photo {
@@ -852,10 +777,13 @@ figcaption {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: border-color 0.2s;
+  transition: border-color 0.1s, box-shadow 0.1s;
 }
 
-.author-photo:hover { border-color: var(--accent-cool); }
+.author-photo:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.3);
+}
 
 /* When a real headshot is added, swap the svg for <img> */
 .author-photo img {
@@ -871,7 +799,7 @@ figcaption {
 }
 
 .author-name {
-  font-family: 'Roboto Slab', serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text);
@@ -881,7 +809,7 @@ figcaption {
 
 .corresponding {
   font-size: 0.75em;
-  color: var(--accent-cool);
+  color: var(--accent);
   vertical-align: super;
   line-height: 0;
   cursor: help;
@@ -912,7 +840,7 @@ figcaption {
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-cool);
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -949,7 +877,7 @@ figcaption {
   border-radius: 5px;
   color: #c8c3b8;
   font-size: 0.75rem;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   cursor: pointer;
   transition: background 0.14s;
 }
@@ -982,7 +910,6 @@ figcaption {
 
   #hero-title { padding: var(--pad-x); }
   #intro-split {
-    min-height: 100svh;
     gap: 24px;
     padding: 36px var(--pad-x);
   }

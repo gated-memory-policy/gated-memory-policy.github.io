@@ -18,23 +18,22 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 # ── Site palette (matches plot_success_rate.py) ───────────────────────────────
-BG         = "#FFF4EA"
-TEXT       = "#2b2521"
-TEXT_MUTED = "#6e6358"
-ACCENT     = "#BF4646"   # used for GMP (ours)
-BORDER     = "#d8c8b5"
+BG         = "#ffffff"
+TEXT       = "#1a1a1a"
+TEXT_MUTED = "#666666"
+ACCENT     = "#2563eb"   # used for GMP (ours)
+BORDER     = "#e5e5e5"
 
-# ── Method colors — warm neutral gradient matching site palette ───────────────
-# 5 baselines step from the lightest warm beige down to near-TEXT_MUTED brown;
-# GMP (ours) uses the site ACCENT red, same as plot_success_rate.py.
-NEUTRAL    = "#C4B5A5"   # matches plot_success_rate.py
+# ── Method colors — neutral gray gradient matching site palette ───────────────
+# 5 baselines step from lightest gray to darkest gray;
+# GMP (ours) uses the site ACCENT blue.
 METHOD_COLORS = [
-    "#DDD3C7",   # No-hist DP    – lightest warm beige
-    NEUTRAL,     # Mid-hist DP   – site NEUTRAL
-    "#A8967F",   # Mid-hist PTP  – medium warm tan
-    "#8A7560",   # Long-hist DP  – deeper warm brown
-    "#6B5848",   # Long-hist PTP – dark brown (near TEXT_MUTED)
-    ACCENT,      # GMP (ours)    – site ACCENT red
+    "#e5e7eb",   # No-hist DP    – lightest gray
+    "#d1d5db",   # Mid-hist DP   – light gray
+    "#9ca3af",   # Mid-hist PTP  – medium gray
+    "#6b7280",   # Long-hist DP  – darker gray
+    "#4b5563",   # Long-hist PTP – darkest gray
+    ACCENT,      # GMP (ours)    – site ACCENT blue
 ]
 
 METHODS = [

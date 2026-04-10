@@ -8,7 +8,7 @@
   <!-- Google Fonts — only external network dependency -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Roboto+Mono:wght@400;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="stylesheet" href="style.css">
@@ -41,7 +41,7 @@
 <div id="hero-title">
   <!-- <p class="hero-venue">RSS 2026</p> -->
   <h1 class="paper-title">Gated Memory Policy</h1>
-  <p class="hero-tagline">Robot policies that blindly extend observation histories overfit and regress. GMP learns <span class="hero-em">when</span> and <span class="hero-em">what</span> to recall, achieving 30.1% higher success rates on non-Markovian manipulation while staying competitive on Markovian tasks.</p>
+  <p class="hero-tagline">Robot policies that blindly extend observation histories overfit and regress. GMP learns <strong>when</strong> and <strong>what</strong> to recall, achieving 30.1% higher success rates on non-Markovian manipulation while staying competitive on Markovian tasks.</p>
 
   <div class="link-buttons">
 
@@ -70,7 +70,7 @@
     </a>
 
     <!-- GitHub — filled/inverted as primary CTA -->
-    <a href="#" class="btn-link btn-link--primary">
+    <a href="#" class="btn-link">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482
                  0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462
@@ -87,13 +87,7 @@
 
   </div>
 
-  <!-- Scroll indicator -->
-  <div class="hero-scroll-hint" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-         stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  </div>
+
 </div><!-- /#hero-title -->
 
 
@@ -897,7 +891,7 @@
      Swap div → <img src="assets/charts/robomimic_bar_chart.png" alt="…">
 ========================================================= -->
 <section id="robomimic">
-  <h2>Robomimic Shows Improvement with Gated Memory</h2>
+  <h2>Matching Robomimic (Markovian) Performance with No-History Policies</h2>
 
   <figure class="fig-centered" style="max-width: 900px;">
     <img src="assets/charts/robomimic_bar_chart_new.svg" alt="RoboMimic benchmark success rates across tasks" style="width:100%;border-radius:6px;">
@@ -919,13 +913,13 @@
 
   <div class="team-grid">
 
-    <div class="author-card">
+    <a class="author-card" href="https://yihuai-gao.github.io/" target="_blank" rel="noopener">
       <div class="author-photo">
         <img src="assets/images/team/yihuai_gao.jpg" alt="Yihuai Gao">
       </div>
       <p class="author-name">Yihuai Gao</p>
       <p class="author-affil">Stanford University</p>
-    </div>
+    </a>
 
     <div class="author-card">
       <div class="author-photo">
@@ -939,21 +933,21 @@
       <p class="author-affil">Stanford University</p>
     </div>
 
-    <div class="author-card">
+    <a class="author-card" href="https://shuangli59.github.io/" target="_blank" rel="noopener">
       <div class="author-photo">
         <img src="assets/images/team/shuang_li.jpg" alt="Shuang Li">
       </div>
       <p class="author-name">Shuang Li</p>
       <p class="author-affil">Stanford University</p>
-    </div>
+    </a>
 
-    <div class="author-card">
+    <a class="author-card" href="https://shurans.github.io/" target="_blank" rel="noopener">
       <div class="author-photo">
         <img src="assets/images/team/shuran_song.jpg" alt="Shuran Song">
       </div>
       <p class="author-name">Shuran Song <span class="corresponding" title="Corresponding author">†</span></p>
       <p class="author-affil">Stanford University</p>
-    </div>
+    </a>
 
   </div>
 </section>
