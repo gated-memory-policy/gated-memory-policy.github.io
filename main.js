@@ -61,18 +61,32 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 
 
 /* ---------------------------------------------------------
-   VIDEO AUTOPLAY — cross-browser via IntersectionObserver
-   • Plays any muted video when ≥30% is visible in viewport.
-   • Pauses when it leaves. Works for active tab panels on
-     page load and after tab switches.
-   • Covers Chrome, Firefox, Safari (desktop + iOS), Edge.
+   VIDEO LAZY-LOAD + AUTOPLAY — IntersectionObserver
+   Videos have preload="none" so nothing downloads on page load.
+   • Preload observer: when a video gets within 800px of the
+     viewport, bump preload to "auto" and call .load() so bytes
+     start arriving before the user sees it.
+   • Play observer: when ≥30% is visible, start playback.
+     Pause when off-screen. If the user clicks pause/scrub,
+     the video is never auto-played again.
 --------------------------------------------------------- */
 (function () {
-  // Track videos the user has interacted with — once they click
-  // pause or scrub, stop all auto-play interference.
   var userTouched = new WeakSet();
+  var preloaded   = new WeakSet();
 
-  var obs = new IntersectionObserver(function (entries) {
+  var preloadObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting && !preloaded.has(entry.target)) {
+        var vid = entry.target;
+        vid.preload = 'auto';
+        vid.load();
+        preloaded.add(vid);
+        preloadObs.unobserve(vid);
+      }
+    });
+  }, { rootMargin: '800px 0px' });
+
+  var playObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting && entry.target.paused && !userTouched.has(entry.target)) {
         entry.target.play().catch(function () {});
@@ -82,9 +96,9 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 
   function observeVideos() {
     document.querySelectorAll('video[autoplay]').forEach(function (vid) {
-      obs.observe(vid);
+      preloadObs.observe(vid);
+      playObs.observe(vid);
 
-      // Once the user clicks pause, never auto-play this video again.
       vid.addEventListener('pause', function () {
         userTouched.add(vid);
       });
