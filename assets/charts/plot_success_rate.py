@@ -11,7 +11,7 @@ Output (relative to this script's directory):
     cross_trial/pushing/success_rate.svg
     cross_trial/casting/success_rate.svg
     cross_trial/flinging/success_rate.svg
-    in_trial/cup/success_rate.svg
+    in_trial/place_back_real/success_rate.svg
     in_trial/match_color/success_rate.svg
     in_trial/place_back/success_rate.svg
 """
@@ -64,7 +64,7 @@ TASKS = {
         {"label": "lh-PTP",      "value": 69,   "err": 0, "ours": False},
         {"label": "Ours\n(GMP)", "value": 81,   "err": 0, "ours": True },
     ],
-    "in_trial/cup": [
+    "in_trial/place_back_real": [
         {"label": "nh-DP",       "value": 10,   "err": 0, "ours": False},
         {"label": "lh-DP",       "value": 62.5, "err": 0, "ours": False},
         {"label": "Ours\n(GMP)", "value": 85,   "err": 0, "ours": True },

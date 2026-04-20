@@ -527,11 +527,11 @@
 
   <!-- ── 5A: CUP ───────────────────────────────────────────
        3 locations. Initial position accordion below each panel.
-       Drop video files: assets/videos/in_trial/cup/[loc_X]/
-       Drop overlay images: assets/images/cup_overlay/[loc_X]/initial_pos.png
-       In-the-wild: assets/videos/in_trial/cup/in_the_wild_ours.mp4
+       Drop video files: assets/videos/in_trial/place_back_real/[loc_N]/
+       Drop overlay images: assets/images/cup_overlay/[loc_N]/initial_pos.png
+       In-the-wild: assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4
   ─────────────────────────────────────────────────────── -->
-  <div class="subsection" id="in-trial-cup">
+  <div class="subsection" id="in-trial-place-back-real">
     <div class="task-header">
       <div class="task-header-text">
         <h3>Continuous Place Back (Real)</h3>
@@ -539,72 +539,102 @@
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/in_trial/cup/success_rate.svg" alt="Success rate bar chart — Cup">
+        <img src="assets/charts/in_trial/place_back_real/success_rate.svg" alt="Success rate bar chart — Place Back (Real)">
       </figure>
     </div><!-- /.task-header -->
 
     <div class="task-videos-full">
-    <div class="tab-bar" role="tablist" data-tabgroup="cup">
-      <button class="tab-btn active" data-tab="loc_A" role="tab">Location A</button>
-      <button class="tab-btn"        data-tab="loc_B" role="tab">Location B</button>
-      <button class="tab-btn"        data-tab="loc_C" role="tab">Location C</button>
+    <div class="tab-bar" role="tablist" data-tabgroup="place-back-real">
+      <button class="tab-btn active" data-tab="loc_1" role="tab">Location 1</button>
+      <button class="tab-btn"        data-tab="loc_2" role="tab">Location 2</button>
+      <button class="tab-btn"        data-tab="loc_3" role="tab">Location 3</button>
+      <button class="tab-btn"        data-tab="loc_4" role="tab">Location 4</button>
+      <button class="tab-btn"        data-tab="loc_5" role="tab">Location 5</button>
     </div>
 
-    <div class="tab-panel active" data-tabgroup="cup" data-config="loc_A">
-      <!-- <p class="row-caption before">[Caption: Object placed at Location A.]</p> -->
+    <div class="tab-panel active" data-tabgroup="place-back-real" data-config="loc_1">
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_A/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_1/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_A/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_1/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_A/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_1/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
-      <!-- <p class="row-caption after">[Observations for Location A.]</p> -->
     </div>
 
-    <div class="tab-panel" data-tabgroup="cup" data-config="loc_B">
-      <!-- <p class="row-caption before">[Caption: Object placed at Location B.]</p> -->
+    <div class="tab-panel" data-tabgroup="place-back-real" data-config="loc_2">
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_B/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_2/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_B/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_2/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_B/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_2/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
-      <!-- <p class="row-caption after">[Observations for Location B.]</p> -->
     </div>
 
-    <div class="tab-panel" data-tabgroup="cup" data-config="loc_C">
-      <!-- <p class="row-caption before">[Caption: Object placed at Location C.]</p> -->
+    <div class="tab-panel" data-tabgroup="place-back-real" data-config="loc_3">
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_C/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_3/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_C/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_3/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/loc_C/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_3/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
-      <!-- <p class="row-caption after">[Observations for Location C.]</p> -->
+    </div>
+
+    <div class="tab-panel" data-tabgroup="place-back-real" data-config="loc_4">
+      <div class="video-grid three-col">
+        <div class="video-col">
+          <div class="col-header ours">Ours (Gated Memory)</div>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_4/ours.mp4" type="video/mp4"></video></figure>
+        </div>
+        <div class="video-col">
+          <div class="col-header">Long-History DP</div>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_4/long_hist_dp.mp4" type="video/mp4"></video></figure>
+        </div>
+        <div class="video-col">
+          <div class="col-header">No-History DP</div>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_4/no_hist_dp.mp4" type="video/mp4"></video></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-tabgroup="place-back-real" data-config="loc_5">
+      <div class="video-grid three-col">
+        <div class="video-col">
+          <div class="col-header ours">Ours (Gated Memory)</div>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_5/ours.mp4" type="video/mp4"></video></figure>
+        </div>
+        <div class="video-col">
+          <div class="col-header">Long-History DP</div>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_5/long_hist_dp.mp4" type="video/mp4"></video></figure>
+        </div>
+        <div class="video-col">
+          <div class="col-header">No-History DP</div>
+          <figure><video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_5/no_hist_dp.mp4" type="video/mp4"></video></figure>
+        </div>
+      </div>
     </div>
 
     <details class="overlay-details">
@@ -620,11 +650,11 @@
     <div class="in-the-wild-block">
       <h4>In-the-Wild Generalization (Ours Only)</h4>
       <figure>
-        <video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/cup/in_the_wild_ours.mp4" type="video/mp4"></video>
+        <video autoplay loop controls muted playsinline preload="auto" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4" type="video/mp4"></video>
         <figcaption>[Caption: Ours policy tested in an uncontrolled real-world setting, demonstrating generalization beyond lab conditions.]</figcaption>
       </figure>
     </div>
-  </div><!-- /#in-trial-cup -->
+  </div><!-- /#in-trial-place-back-real -->
 
 
   <!-- ── 5B: MATCH COLOR ──────────────────────────────────
@@ -891,7 +921,7 @@
      Swap div → <img src="assets/charts/robomimic_bar_chart.png" alt="…">
 ========================================================= -->
 <section id="robomimic">
-  <h2>Matching Robomimic (Markovian) Performance with No-History Policies</h2>
+  <h2>Matching Performance on RoboMimic Tasks</h2>
 
   <figure class="fig-centered" style="max-width: 900px;">
     <img src="assets/charts/robomimic_bar_chart_new.svg" alt="RoboMimic benchmark success rates across tasks" style="width:100%;border-radius:6px;">
