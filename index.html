@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gated Memory Policy</title>
 
-  <!-- Google Fonts — only external network dependency -->
+  <!-- Google Fonts: only external network dependency -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -15,10 +15,7 @@
 </head>
 <body>
 
-<!-- =========================================================
-     STICKY TOC NAV
-     Update href targets and labels to match your sections.
-========================================================= -->
+<!-- STICKY TOC NAV (update href targets and labels to match your sections) -->
 <nav id="toc-nav" aria-label="Page sections">
   <div class="toc-inner">
     <p class="toc-title">On This Page</p>
@@ -34,10 +31,7 @@
 </nav>
 
 
-<!-- =========================================================
-     HERO — TITLE CARD
-     Edit: paper-title · authors · institution · href links
-========================================================= -->
+<!-- HERO TITLE CARD (paper title, authors, institution, link buttons) -->
 <div id="hero-title">
   <!-- <p class="hero-venue">RSS 2026</p> -->
   <h1 class="paper-title">Gated Memory Policy</h1>
@@ -76,7 +70,7 @@
       arXiv
     </a>
 
-    <!-- GitHub — filled/inverted as primary CTA -->
+    <!-- GitHub: filled / inverted as primary CTA -->
     <a href="#" class="btn-link">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482
@@ -92,8 +86,8 @@
       Code
     </a>
 
-    <!-- Hugging Face — checkpoints and datasets -->
-    <a href="#" class="btn-link btn-link-hf" aria-label="Hugging Face — checkpoints and datasets">
+    <!-- Hugging Face: checkpoints and datasets -->
+    <a href="#" class="btn-link btn-link-hf" aria-label="Hugging Face: checkpoints and datasets">
       <img class="hf-logo" src="assets/images/hf-logo.svg" alt="">
       Hugging Face
     </a>
@@ -105,10 +99,7 @@
 
 
 <section id="intro-split">
-  <!-- =========================================================
-       HERO — TEASER VIDEO
-       Replace VIDEO_ID with your YouTube video id.
-  ========================================================= -->
+  <!-- HERO TEASER VIDEO (replace VIDEO_ID with your YouTube id) -->
   <div id="hero-video">
     <iframe
       src="https://www.youtube.com/embed/hUj7krAj2Wk?rel=0&controls=1&fs=1&modestbranding=1&playsinline=1&vq=hd1080"
@@ -121,10 +112,7 @@
   </div>
 
 
-  <!-- =========================================================
-       ABSTRACT
-       Edit: replace placeholder text with paper abstract.
-  ========================================================= -->
+  <!-- ABSTRACT (replace with paper abstract) -->
   <div id="abstract">
     <p>Robotic manipulation tasks exhibit varying memory requirements, ranging from Markovian tasks
        that require no memory to non-Markovian tasks that depend on historical information spanning
@@ -147,23 +135,17 @@
 </section>
 
 
-<!-- =========================================================
-     § 2 — CROSS-TRIAL MEMORY
-     Sub-sections: 4A Pushing · 4B Casting · 4C Flinging
-     All use underline tab bars. One panel visible at a time.
-     Video path pattern:
-       assets/videos/cross_trial/[task]/[config]/[policy].mp4
-         policies: ours.mp4 · long_hist_dp.mp4 · no_hist_dp.mp4
-========================================================= -->
+<!-- CROSS TRIAL MEMORY (Pushing, Casting, Flinging)
+     Underline tab bars, one panel visible at a time.
+     Video path: assets/videos/cross_trial/[task]/[policy]/[config].mp4
+       policies: ours, long_hist_dp, no_hist_dp -->
 <section id="cross-trial">
   <h2>Cross-Trial Memory Tasks</h2>
-  <p class="body-text" style="margin-bottom: 2rem;">In cross-trial tasks, a physical parameter (such as surface friction or object mass) is randomly sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.</p>
+  <p class="body-text">In cross-trial tasks, a physical parameter (such as surface friction or object mass) is randomly sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.</p>
 
 
-  <!-- ── 4A: PUSHING ──────────────────────────────────────
-       7 friction levels. Tab labels use compact µ notation.
-       Drop files into: assets/videos/cross_trial/pushing/friction_[VALUE]/
-  ─────────────────────────────────────────────────────── -->
+  <!-- 4A PUSHING: 7 friction levels, µ notation in labels.
+       Drop files into assets/videos/cross_trial/pushing/friction_[VALUE]/ -->
   <div class="subsection" id="cross-trial-pushing">
     <div class="task-header">
       <div class="task-header-text">
@@ -191,15 +173,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/ours/0.005.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/ours/0.005.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.005.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.005.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.005.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.005.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -208,15 +190,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/ours/0.007.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/ours/0.007.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.007.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.007.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.007.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.007.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -225,15 +207,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/ours/0.009.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/ours/0.009.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.009.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.009.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.009.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.009.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -242,15 +224,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/ours/0.011.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/ours/0.011.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.011.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.011.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.011.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.011.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -259,15 +241,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/ours/0.013.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/ours/0.013.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.013.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.013.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.013.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.013.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -276,15 +258,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/ours/0.015.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/ours/0.015.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.015.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/long_hist_dp/0.015.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.015.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/pushing/no_hist_dp/0.015.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -292,12 +274,10 @@
   </div><!-- /#cross-trial-pushing -->
 
 
-  <!-- ── 4B: CASTING ──────────────────────────────────────
-       2 friction regimes. 3-column video grid + persistent success-rate
-       chart floating right (invariant to friction tab switch).
-       Drop files into: assets/videos/cross_trial/casting/[high|low_friction]/
-       Drop chart into:  assets/charts/cross_trial/casting/success_rate_bar_chart.png
-  ─────────────────────────────────────────────────────── -->
+  <!-- 4B CASTING: 2 friction regimes. 3 column video grid, persistent
+       success rate chart on the right.
+       Video: assets/videos/cross_trial/casting/[high|low_friction]/
+       Chart: assets/charts/cross_trial/casting/success_rate.svg -->
   <div class="subsection" id="cross-trial-casting">
     <div class="task-header">
       <div class="task-header-text">
@@ -322,15 +302,15 @@
           <div class="video-grid three-col">
             <div class="video-col">
               <div class="col-header ours">Ours (Gated Memory)</div>
-              <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/casting/ours/ours_high_friction.mp4" type="video/mp4"></video></figure>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/ours/ours_high_friction.mp4" type="video/mp4"></video></figure>
             </div>
             <div class="video-col">
               <div class="col-header">Long-History DP</div>
-              <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_high_friction.mp4" type="video/mp4"></video></figure>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_high_friction.mp4" type="video/mp4"></video></figure>
             </div>
             <div class="video-col">
               <div class="col-header">No-History DP</div>
-              <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_high_friction.mp4" type="video/mp4"></video></figure>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_high_friction.mp4" type="video/mp4"></video></figure>
             </div>
           </div>
         </div>
@@ -339,15 +319,15 @@
           <div class="video-grid three-col">
             <div class="video-col">
               <div class="col-header ours">Ours (Gated Memory)</div>
-              <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/casting/ours/ours_low_friction.mp4" type="video/mp4"></video></figure>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/ours/ours_low_friction.mp4" type="video/mp4"></video></figure>
             </div>
             <div class="video-col">
               <div class="col-header">Long-History DP</div>
-              <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_low_friction.mp4" type="video/mp4"></video></figure>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_low_friction.mp4" type="video/mp4"></video></figure>
             </div>
             <div class="video-col">
               <div class="col-header">No-History DP</div>
-              <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_low_friction.mp4" type="video/mp4"></video></figure>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_low_friction.mp4" type="video/mp4"></video></figure>
             </div>
           </div>
         </div>
@@ -355,10 +335,8 @@
   </div><!-- /#cross-trial-casting -->
 
 
-  <!-- ── 4C: FLINGING ─────────────────────────────────────
-       4 cloth mass levels.
-       Drop files into: assets/videos/cross_trial/flinging/[mass_level]/
-  ─────────────────────────────────────────────────────── -->
+  <!-- 4C FLINGING: cloth mass levels.
+       Drop files into assets/videos/cross_trial/flinging/[mass_level]/ -->
   <div class="subsection" id="cross-trial-flinging">
     <div class="task-header">
       <div class="task-header-text">
@@ -387,15 +365,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/0.1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/0.1.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.1.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.1.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -404,15 +382,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/0.15.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/0.15.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.15.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.15.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.15.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.15.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -421,15 +399,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/0.2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/0.2.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.2.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.2.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -438,15 +416,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/0.3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/0.3.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.3.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.3.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -455,15 +433,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/0.5.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/0.5.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.5.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/0.5.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.5.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/0.5.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -472,15 +450,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/1.0.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/1.0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/1.0.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/1.0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/1.0.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/1.0.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -489,15 +467,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/ours/2.0.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/ours/2.0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/long_hist_dp/2.0.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/long_hist_dp/2.0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/cross_trial/flinging/no_hist_dp/2.0.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/flinging/no_hist_dp/2.0.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -507,24 +485,18 @@
 </section><!-- /#cross-trial -->
 
 
-<!-- =========================================================
-     § 5 — IN-TRIAL MEMORY
-     Sub-sections: 5A Cup · 5B Match Color · 5C Place Back
-     Video path pattern:
-       assets/videos/in_trial/[task]/[location]/[policy].mp4
-         policies: ours.mp4 · long_hist_dp.mp4 · no_hist_dp.mp4
-========================================================= -->
+<!-- IN TRIAL MEMORY (Cup, Match Color, Place Back)
+     Video path: assets/videos/in_trial/[task]/[location]/[policy].mp4
+       policies: ours, long_hist_dp, no_hist_dp -->
 <section id="in-trial">
   <h2>In-Trial Memory Tasks</h2>
-  <p class="body-text" style="margin-bottom: 2rem;">In-trial tasks require the robot to recall a cue observed earlier within a single episode (such as an object's starting position or a bin's color). The relevant context appears only once; the policy must encode and retain it to succeed at a later decision point. GMP's lightweight cross-attention module constructs effective latent memory on demand, gating out irrelevant history to stay focused.</p>
+  <p class="body-text">In-trial tasks require the robot to recall a cue observed earlier within a single episode (such as an object's starting position or a bin's color). The relevant context appears only once; the policy must encode and retain it to succeed at a later decision point. GMP's lightweight cross-attention module constructs effective latent memory on demand, gating out irrelevant history to stay focused.</p>
 
 
-  <!-- ── 5A: CUP ───────────────────────────────────────────
-       3 locations. Initial position accordion below each panel.
-       Drop video files: assets/videos/in_trial/place_back_real/[loc_N]/
-       Drop overlay images: assets/images/cup_overlay/[loc_N]/initial_pos.png
-       In-the-wild: assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4
-  ─────────────────────────────────────────────────────── -->
+  <!-- 5A CUP: multiple locations, initial position accordion below.
+       Video: assets/videos/in_trial/place_back_real/[loc_N]/
+       Overlay: assets/images/cup_overlay/[loc_N]/initial_pos.png
+       In the wild: assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4 -->
   <div class="subsection" id="in-trial-place-back-real">
     <div class="task-header">
       <div class="task-header-text">
@@ -550,15 +522,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_1/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_1/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_1/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_1/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_1/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_1/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -567,15 +539,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_2/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_2/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_2/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_2/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_2/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_2/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -584,15 +556,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_3/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_3/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_3/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_3/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_3/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_3/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -601,15 +573,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_4/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_4/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_4/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_4/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_4/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_4/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -618,43 +590,43 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_5/ours.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_5/ours.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_5/long_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_5/long_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/loc_5/no_hist_dp.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back_real/loc_5/no_hist_dp.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
 
     <details class="overlay-details">
       <summary>Show Initial Cup Position Distribution</summary>
-      <figure style="margin-top: 0.85rem; width: 100%;">
-        <img src="assets/images/pos_overlay.png" alt="Initial cup position distribution across all locations" style="width: 100%; display: block;">
+      <figure>
+        <img src="assets/images/pos_overlay.png" alt="Initial cup position distribution across all locations">
         <figcaption>Initial cup position distribution across all locations</figcaption>
       </figure>
     </details>
     </div><!-- /.task-videos-full -->
 
-    <!-- In-the-wild (Ours only) — always visible below the tabs -->
+    <!-- In the wild (Ours only): always visible below the tabs.
+         Swap the .placeholder-media div back to a <video> once the real
+         clip lives at assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4 -->
     <div class="in-the-wild-block">
       <h4>In-the-Wild Generalization (Ours Only)</h4>
       <figure>
-        <video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4" type="video/mp4"></video>
+        <div class="placeholder-media">assets/videos/in_trial/place_back_real/in_the_wild_ours.mp4</div>
         <figcaption>[Caption: Ours policy tested in an uncontrolled real-world setting, demonstrating generalization beyond lab conditions.]</figcaption>
       </figure>
     </div>
   </div><!-- /#in-trial-place-back-real -->
 
 
-  <!-- ── 5B: MATCH COLOR ──────────────────────────────────
-       4 locations × 3 policies.
-       Drop files: assets/videos/in_trial/match_color/[policy]/[0-3].mp4
-  ─────────────────────────────────────────────────────── -->
+  <!-- 5B MATCH COLOR: 4 locations x 3 policies.
+       Drop files: assets/videos/in_trial/match_color/[policy]/[0-3].mp4 -->
   <div class="subsection" id="in-trial-match-color">
     <div class="task-header">
       <div class="task-header-text">
@@ -680,15 +652,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/ours/1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/ours/0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/long_hist_dp/1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/long_hist_dp/0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/no_hist_dp/1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/no_hist_dp/0.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -697,15 +669,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/ours/2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/ours/1.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/long_hist_dp/2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/long_hist_dp/1.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/no_hist_dp/2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/no_hist_dp/1.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -714,15 +686,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/ours/3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/ours/2.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/long_hist_dp/3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/long_hist_dp/2.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/no_hist_dp/3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/no_hist_dp/2.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -731,15 +703,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/ours/4.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/ours/3.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/long_hist_dp/4.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/long_hist_dp/3.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/match_color/no_hist_dp/4.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/match_color/no_hist_dp/3.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -747,10 +719,8 @@
   </div><!-- /#in-trial-match-color -->
 
 
-  <!-- ── 5C: PLACE BACK ───────────────────────────────────
-       4 locations × 3 policies.
-       Drop files: assets/videos/in_trial/place_back/[policy]/[0-3].mp4
-  ─────────────────────────────────────────────────────── -->
+  <!-- 5C PLACE BACK: 4 locations x 3 policies.
+       Drop files: assets/videos/in_trial/place_back/[policy]/[0-3].mp4 -->
   <div class="subsection" id="in-trial-place-back">
     <div class="task-header">
       <div class="task-header-text">
@@ -775,15 +745,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/ours/1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/ours/0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/long_hist_dp/1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/long_hist_dp/0.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/no_hist_dp/1.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/no_hist_dp/0.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -792,15 +762,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/ours/2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/ours/1.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/long_hist_dp/2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/long_hist_dp/1.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/no_hist_dp/2.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/no_hist_dp/1.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -809,15 +779,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/ours/3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/ours/2.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/long_hist_dp/3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/long_hist_dp/2.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/no_hist_dp/3.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/no_hist_dp/2.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -826,15 +796,15 @@
       <div class="video-grid three-col">
         <div class="video-col">
           <div class="col-header ours">Ours (Gated Memory)</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/ours/4.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/ours/3.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">Long-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/long_hist_dp/4.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/long_hist_dp/3.mp4" type="video/mp4"></video></figure>
         </div>
         <div class="video-col">
           <div class="col-header">No-History DP</div>
-          <figure><video autoplay loop controls muted playsinline preload="none" style="width:100%;border-radius:6px;"><source src="assets/videos/in_trial/place_back/no_hist_dp/4.mp4" type="video/mp4"></video></figure>
+          <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/in_trial/place_back/no_hist_dp/3.mp4" type="video/mp4"></video></figure>
         </div>
       </div>
     </div>
@@ -844,9 +814,7 @@
 </section><!-- /#in-trial -->
 
 
-<!-- =========================================================
-     § 6 — METHOD (Architecture + Gating Mechanism side-by-side)
-========================================================= -->
+<!-- METHOD (Architecture + Gating Mechanism, zigzag layout) -->
 <section id="method">
   <h2>Method</h2>
 
@@ -885,14 +853,12 @@
 </section>
 
 
-<!-- =========================================================
-     INTERPRETABILITY — ATTENTION VISUALIZATIONS
-     Combined: cube-pushing (cross-trial) + match-color (in-trial)
-========================================================= -->
+<!-- INTERPRETABILITY: attention visualizations
+     Combined cube pushing (cross trial) and match color (in trial). -->
 <section id="attention">
   <h2>What Is the Policy Attending To?</h2>
 
-  <p class="body-text" style="margin-bottom: 2rem;">We visualize causal cross-attention weights to understand which past timesteps the policy attends to when computing the next action. The gated memory mechanism actively selects the most informative historical context, confirming that the policy learns structured, interpretable recall rather than attending uniformly across history.</p>
+  <p class="body-text">We visualize causal cross-attention weights to understand which past timesteps the policy attends to when computing the next action. The gated memory mechanism actively selects the most informative historical context, confirming that the policy learns structured, interpretable recall rather than attending uniformly across history.</p>
 
   <div class="tab-bar" role="tablist" data-tabgroup="attn-vis">
     <button class="tab-btn active" data-tab="cube-pushing" role="tab">Cube Pushing</button>
@@ -900,8 +866,8 @@
   </div>
 
   <div class="tab-panel active" data-tabgroup="attn-vis" data-config="cube-pushing">
-    <figure style="max-width:720px;margin:0 auto 1rem;">
-      <video autoplay loop muted playsinline controls preload="none" style="width:100%;border-radius:6px;">
+    <figure>
+      <video autoplay loop muted playsinline controls preload="none">
         <source src="assets/videos/attention_vis_cube_pushing.mp4" type="video/mp4">
       </video>
       <figcaption>Visualization of gated cross-attention weights for each 8-step action trajectory throughout one episode. <span class="math-blue">Blue</span> indicates the memory gate is on (μ<sub>t</sub>=1) and <span class="math-gray">gray</span> indicates the memory gate is off (μ<sub>t</sub>=0). During the pushing stage in Trial 4, attention focuses primarily on the outcomes from Trial 3 (undershoot) and Trial 2 (overshoot). The policy uses these past outcomes to adjust its action and achieve a successful push.</figcaption>
@@ -909,8 +875,8 @@
   </div>
 
   <div class="tab-panel" data-tabgroup="attn-vis" data-config="match-color">
-    <figure style="max-width:720px;margin:0 auto 1rem;">
-      <video autoplay loop muted playsinline controls preload="none" style="width:100%;border-radius:6px;">
+    <figure>
+      <video autoplay loop muted playsinline controls preload="none">
         <source src="assets/videos/attention_vis_match_color.mp4" type="video/mp4">
       </video>
       <figcaption>We visualize the gated cross-attention weights for each 8-step action chunk. At <em>t</em>=80, when the robot is placing the cube back, the attention focuses primarily on <em>t</em>=48, when the robot first observed the bin colors. <span class="math-blue">Blue</span> indicates the memory gate is on (μ<sub>t</sub>=1); <span class="math-gray">gray</span> indicates the gate is off (μ<sub>t</sub>=0).</figcaption>
@@ -919,10 +885,7 @@
 </section>
 
 
-<!-- =========================================================
-     § 7 — BENCHMARK PERFORMANCE
-     Two stacked horizontal blocks: RoboMimic and Mikasa-Robo.
-========================================================= -->
+<!-- BENCHMARK PERFORMANCE: two stacked blocks (RoboMimic, Mikasa Robo) -->
 <section id="benchmark">
   <h2>Benchmark Performance</h2>
 
@@ -944,11 +907,9 @@
 </section>
 
 
-<!-- =========================================================
-     § 8 — FAQ
-     Edit each question/answer below. Add or remove .faq-item
-     blocks as needed. Pure <details>/<summary> — no JS.
-========================================================= -->
+<!-- FAQ
+     Edit each question and answer. Add or remove .faq-item blocks.
+     Pure <details>/<summary>, no JS. -->
 <section id="faq">
   <h2>Questions &amp; Answers</h2>
 
@@ -1000,11 +961,9 @@
 </section>
 
 
-<!-- =========================================================
-     TEAM
-     Replace each .author-photo svg with:
-       <img src="assets/images/team/firstname_lastname.jpg" alt="Name">
-========================================================= -->
+<!-- TEAM
+     Replace each .author-photo svg with
+       <img src="assets/images/team/firstname_lastname.jpg" alt="Name"> -->
 <section id="team">
   <h2>Team</h2>
 
@@ -1050,10 +1009,7 @@
 </section>
 
 
-<!-- =========================================================
-     FOOTER
-     Edit: citation · BibTeX entry · acknowledgements · year
-========================================================= -->
+<!-- FOOTER (citation, BibTeX, acknowledgements, year) -->
 <footer id="footer">
   <div class="container">
 

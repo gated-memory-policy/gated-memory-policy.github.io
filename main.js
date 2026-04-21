@@ -1,23 +1,19 @@
-/* =========================================================
-   main.js — Minimal interaction for the research page
-   1. Tab switching  (all experiment subsections)
-   2. Autoplay all muted videos via IntersectionObserver
-      (cross-browser: Chrome, Firefox, Safari, Edge)
-   3. BibTeX copy button (Footer)
-========================================================= */
+/*
+ * main.js
+ *   1. Tab switching
+ *   2. Video preload + playback (three layer design)
+ *   3. Scroll reveal
+ *   4. Sticky TOC nav with section highlight
+ *   5. BibTeX copy button
+ */
 
-/* ---------------------------------------------------------
-   TAB SWITCHING
-   Generic: works for every .tab-bar[data-tabgroup] on the page.
-   Tab groups: pushing · casting · flinging · cup · match-color · place-back
-
-   HTML contract:
-     .tab-bar[data-tabgroup="X"]  →  button[data-tab="VALUE"]
-     .tab-panel[data-tabgroup="X"][data-config="VALUE"]
-
-   When a panel is revealed, any <video> inside it is loaded
-   and played so autoplay resumes after display:none.
---------------------------------------------------------- */
+/* TAB SWITCHING
+ * Contract:
+ *   .tab-bar[data-tabgroup="X"]         container
+ *   .tab-btn[data-tab="V"]              buttons within that bar
+ *   .tab-panel[data-tabgroup="X"][data-config="V"]   matching panel
+ * Activating a panel calls video.load() so autoplay resumes after display:none.
+ */
 document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   var group = tabBar.dataset.tabgroup;
 
@@ -25,29 +21,20 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     btn.addEventListener('click', function () {
       var targetConfig = btn.dataset.tab;
 
-      // Deactivate all buttons in this group
       tabBar.querySelectorAll('.tab-btn').forEach(function (b) {
         b.classList.remove('active');
       });
-
-      // Deactivate all panels in this group
       document.querySelectorAll('.tab-panel[data-tabgroup="' + group + '"]').forEach(function (panel) {
         panel.classList.remove('active');
       });
-
-      // Activate the clicked button
       btn.classList.add('active');
 
-      // Activate the matching panel (keyed by data-config)
       var activePanel = document.querySelector(
         '.tab-panel[data-tabgroup="' + group + '"][data-config="' + targetConfig + '"]'
       );
-
       if (activePanel) {
         activePanel.classList.add('active');
-
-        // Load all videos so the progress bar has buffered data to scrub.
-        // Only call play() on videos with the autoplay attribute.
+        // load() reattaches media pipeline after display:none; play() only on autoplay videos.
         activePanel.querySelectorAll('video').forEach(function (video) {
           video.load();
           if (video.hasAttribute('autoplay')) {
@@ -60,105 +47,137 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 });
 
 
-/* ---------------------------------------------------------
-   VIDEO SECTION-CHAINED PRELOAD + VISIBLE-ONLY AUTOPLAY
-   Videos have preload="none" in HTML. Preloading happens in
-   three stages to avoid flooding the network all at once:
-     1. On window.load → preload #cross-trial videos
-     2. When #cross-trial enters viewport → preload #in-trial
-     3. When #in-trial enters viewport   → preload #attention
-   Playback is gated by an IntersectionObserver so only visible
-   videos play — keeps CPU/GPU quiet with many autoplays on page.
---------------------------------------------------------- */
+/* VIDEO PRELOAD + PLAYBACK
+ *   1. INTENT    Rolling window in DOM order, plus visibility and tab
+ *                switch hooks, decides what to queue.
+ *   2. PREFETCH  Idle scheduled, concurrency capped drain. Low
+ *                fetchPriority so user critical work wins.
+ *   3. PLAYBACK  Visible videos play; pause on exit. Late visible
+ *                videos jump the queue.
+ */
 (function () {
-  var userTouched = new WeakSet();
-  var preloaded   = new WeakSet();
+  var AHEAD = 15, MAX_INFLIGHT = 4, VISIBLE = 0.25, MARGIN = '400px 0px';
 
-  var playObs = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      var vid = entry.target;
-      if (entry.isIntersecting && vid.paused && !userTouched.has(vid)) {
-        vid.play().catch(function () {});
-      } else if (!entry.isIntersecting && !vid.paused) {
-        vid.pause();
-      }
+  var conn = navigator.connection;
+  if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ''))) {
+    AHEAD = 2; MAX_INFLIGHT = 2;
+  }
+  var schedule = window.requestIdleCallback
+    ? function (cb) { requestIdleCallback(cb, { timeout: 1500 }); }
+    : function (cb) { setTimeout(cb, 80); };
+
+  var videos = [], frontier = -1, inflight = 0, queue = [];
+  var state = new WeakMap();  // vid state: 'queued' | 'loading' | 'ready'
+  var userPaused = new WeakSet();
+
+  // Prefetch layer
+  function onDone() {
+    if (state.get(this) === 'ready') return;
+    state.set(this, 'ready');
+    inflight--;
+    this.removeEventListener('canplaythrough', onDone);
+    this.removeEventListener('error', onDone);
+    if (queue.length) schedule(pump);
+  }
+  function pump() {
+    while (inflight < MAX_INFLIGHT && queue.length) {
+      var v = queue.shift();
+      if (!v || state.get(v) !== 'queued') continue;
+      state.set(v, 'loading');
+      inflight++;
+      v.preload = 'auto';
+      if ('fetchPriority' in v) v.fetchPriority = 'low';
+      v.addEventListener('canplaythrough', onDone);
+      v.addEventListener('error', onDone);
+      try { v.load(); } catch (e) { onDone.call(v); }
+    }
+  }
+
+  // Intent layer
+  function enqueue(v, front) {
+    var s = state.get(v);
+    if (s === 'loading' || s === 'ready') return;
+    if (s === 'queued') {
+      if (!front) return;
+      var i = queue.indexOf(v);
+      if (i > 0) queue.splice(i, 1);
+    }
+    state.set(v, 'queued');
+    front ? queue.unshift(v) : queue.push(v);
+    schedule(pump);
+  }
+  function advance(to) {
+    to = Math.min(to, videos.length - 1);
+    while (frontier < to) enqueue(videos[++frontier]);
+  }
+
+  var nearObs = new IntersectionObserver(function (es, self) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      advance(videos.indexOf(e.target) + AHEAD);
+      self.unobserve(e.target);
     });
-  }, { threshold: 0.3 });
+  }, { rootMargin: MARGIN });
 
-  function wireVideos() {
-    document.querySelectorAll('video[autoplay]').forEach(function (vid) {
-      playObs.observe(vid);
-      vid.addEventListener('pause', function () {
-        // Only real user pauses count — ignore our own off-screen auto-pauses.
-        var r = vid.getBoundingClientRect();
-        if (r.top < window.innerHeight && r.bottom > 0) {
-          userTouched.add(vid);
-        }
+  // Tab click bubbles to document after the per button handler flipped .active,
+  // so the newly active panel is already queryable at this point.
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest && ev.target.closest('.tab-btn');
+    if (!btn) return;
+    var bar = btn.closest('.tab-bar');
+    var group = bar && bar.dataset.tabgroup;
+    if (!group) return;
+    var panel = document.querySelector(
+      '.tab-panel.active[data-tabgroup="' + group + '"]'
+    );
+    panel && panel.querySelectorAll('video[autoplay]').forEach(function (v) {
+      enqueue(v, true);
+    });
+  });
+
+  // Playback layer
+  var playObs = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting) {
+        if (state.get(v) !== 'ready') enqueue(v, true);
+        if (v.paused && !userPaused.has(v)) v.play().catch(function () {});
+      } else if (!v.paused) v.pause();
+    });
+  }, { threshold: VISIBLE });
+
+  // Boot
+  function wire() {
+    videos = [].slice.call(document.querySelectorAll('video[autoplay]'));
+    videos.forEach(function (v) {
+      nearObs.observe(v);
+      playObs.observe(v);
+      v.addEventListener('pause', function () {
+        var r = v.getBoundingClientRect();
+        if (r.top < innerHeight && r.bottom > 0) userPaused.add(v);
       });
     });
+    advance(AHEAD - 1);   // seed
   }
-
-  function preloadSection(selector) {
-    var videos = document.querySelectorAll(selector + ' video');
-    videos.forEach(function (vid, i) {
-      if (preloaded.has(vid)) return;
-      preloaded.add(vid);
-      // Tiny DOM-order stagger so earlier videos win the connection pool.
-      setTimeout(function () {
-        vid.preload = 'auto';
-        vid.load();
-      }, i * 15);
-    });
-  }
-
-  function onceVisible(sectionId, cb) {
-    var el = document.getElementById(sectionId);
-    if (!el) { cb(); return; }
-    var obs = new IntersectionObserver(function (entries, self) {
-      if (entries.some(function (e) { return e.isIntersecting; })) {
-        self.disconnect();
-        cb();
-      }
-    }, { rootMargin: '400px 0px' }); // fire a bit before the section is on-screen
-    obs.observe(el);
-  }
-
-  function startChain() {
-    preloadSection('#cross-trial');
-    onceVisible('cross-trial', function () {
-      preloadSection('#in-trial');
-      onceVisible('in-trial', function () {
-        preloadSection('#attention');
-      });
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wireVideos);
-  } else {
-    wireVideos();
-  }
-
-  if (document.readyState === 'complete') {
-    startChain();
-  } else {
-    window.addEventListener('load', startChain);
-  }
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', wire)
+    : wire();
 })();
 
 
-/* ---------------------------------------------------------
-   SCROLL REVEAL
-   Adds .reveal to major content blocks so they fade/rise
-   into view as they approach the viewport. Respects
-   prefers-reduced-motion via CSS.
---------------------------------------------------------- */
+/* SCROLL REVEAL
+ * Adds .reveal to content blocks so they fade up as they enter the viewport.
+ * Major section headings also get .momentum when the user was scrolling
+ * fast at the moment of entry, so fast flicks feel like arriving at a new
+ * chapter with force, while slow scrolling feels soft.
+ * prefers-reduced-motion is respected in CSS.
+ */
 (function () {
-  // Subsection-level reveals — subtle (used inside a major section)
+  // Subtle reveals inside a major section
   var subtleTargets = document.querySelectorAll(
     '.subsection, #method > *, #benchmark > *, #faq .faq-item, #team > *'
   );
-  // Major-section-level reveals — bigger "drag" feel at section boundaries
+  // Bigger entrance at major section boundaries
   var majorTargets = document.querySelectorAll(
     '#cross-trial > h2, #cross-trial > p.body-text,' +
     '#in-trial > h2, #in-trial > p.body-text,' +
@@ -169,11 +188,48 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     '#team > h2'
   );
 
+  // Cumulative scroll distance over the last WINDOW_MS. This is a better
+  // signal than instantaneous velocity: a trackpad flick fires many scroll
+  // events with small deltas each, but their sum is large. The heading
+  // observer below reads this sum at reveal time to decide soft vs forceful
+  // entrance.
+  var WINDOW_MS      = 300;
+  var FAST_DISTANCE  = 120;  // px of scroll within WINDOW_MS to qualify
+  var samples = [[performance.now(), window.scrollY]];
+  window.addEventListener('scroll', function () {
+    var now = performance.now();
+    samples.push([now, window.scrollY]);
+    while (samples.length > 1 && samples[0][0] < now - WINDOW_MS) samples.shift();
+  }, { passive: true });
+
+  function recentScroll() {
+    var total = 0;
+    for (var i = 1; i < samples.length; i++) {
+      total += Math.abs(samples[i][1] - samples[i - 1][1]);
+    }
+    return total;
+  }
+
   var obs = new IntersectionObserver(function (entries, self) {
     entries.forEach(function (e) {
-      if (e.isIntersecting) {
-        e.target.classList.add('is-visible');
-        self.unobserve(e.target);
+      if (!e.isIntersecting) return;
+      var el = e.target;
+      var isMajor = el.classList.contains('reveal-major');
+      var gravitational = isMajor && recentScroll() > FAST_DISTANCE;
+      self.unobserve(el);
+      if (gravitational) {
+        // Commit the momentum "from" state for one frame before flipping
+        // to is-visible, otherwise the transition starts from the base
+        // reveal-major position and the drop is invisible.
+        el.classList.add('momentum');
+        void el.offsetWidth;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            el.classList.add('is-visible');
+          });
+        });
+      } else {
+        el.classList.add('is-visible');
       }
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
@@ -193,11 +249,10 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 })();
 
 
-/* ---------------------------------------------------------
-   STICKY TOC NAV
-   Slides in after the hero leaves the viewport.
-   Highlights the current section via IntersectionObserver.
---------------------------------------------------------- */
+/* STICKY TOC NAV
+ * Slides in after the hero leaves the viewport. Highlights the current
+ * section via IntersectionObserver.
+ */
 (function () {
   var nav = document.getElementById('toc-nav');
   if (!nav) return;
@@ -205,8 +260,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   var firstMainSection = document.getElementById('cross-trial');
   var links = nav.querySelectorAll('.toc-link');
 
-  /* Show after intro blocks (hero + video + abstract), i.e., at first content section.
-     Hide again when the footer enters the viewport. */
+  // Visible once the first content section enters view, hidden at the footer.
   var footer = document.getElementById('footer');
   if (firstMainSection) {
     var updateNavVisibility = function () {
@@ -221,14 +275,14 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     window.addEventListener('resize', updateNavVisibility);
   }
 
-  /* Collect section elements paired with their nav links */
+  // Pair each link with its target section.
   var sections = [];
   links.forEach(function (link) {
     var el = document.getElementById(link.getAttribute('href').slice(1));
     if (el) sections.push({ el: el, link: link });
   });
 
-  /* Highlight whichever section is in the upper portion of the viewport */
+  // Highlight whichever section is in the upper portion of the viewport.
   var sectionObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (!entry.isIntersecting) return;
@@ -241,12 +295,10 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 })();
 
 
-/* ---------------------------------------------------------
-   BIBTEX COPY BUTTON
-   Called inline via onclick="copyBibtex(this)" on the button.
-   Uses the Clipboard API with an execCommand fallback for
-   older browsers.
---------------------------------------------------------- */
+/* BIBTEX COPY BUTTON
+ * Wired inline via onclick="copyBibtex(this)". Uses the Clipboard API,
+ * falling back to execCommand for older browsers.
+ */
 function copyBibtex(btn) {
   var text = document.getElementById('bibtex-content').innerText;
 
