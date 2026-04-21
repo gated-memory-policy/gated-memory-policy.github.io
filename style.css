@@ -1043,57 +1043,34 @@ a.author-card:hover .author-photo {
   color: var(--text-soft);
 }
 
-/* SCROLL REVEAL
- * Subsections and sections fade up as they approach the viewport.
- * JS toggles .is-visible. */
-.reveal {
+/* SECTION SLIDE IN
+ * JS adds .section-reveal to each top level section, then flips .is-visible
+ * when the section enters the viewport. The whole section slides up as one
+ * block so the next chapter feels like it glides in from below. */
+.section-reveal {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  transform: translateY(90px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.reveal.is-visible {
+.section-reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Major section entrance: bigger drag feel between top level sections
-   (Cross Trial, In Trial, Method, etc). */
-.reveal-major {
-  opacity: 0;
-  transform: translateY(44px);
-  transition: opacity 1s var(--ease-out) 0.05s,
-              transform 1s var(--ease-out) 0.05s;
-}
-
-.reveal-major.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Gravitational variant: JS adds .momentum at reveal time when recent
- * scroll distance is high. Large drop, soft scale in, long decelerating
- * tail so the heading feels like settling under its own weight. */
-.reveal-major.momentum {
-  opacity: 0;
-  transform: translateY(420px) scale(0.96);
-  filter: blur(2px);
-  transition: opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0s,
-              transform 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0s,
-              filter 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0s;
-}
-
-.reveal-major.momentum.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+@media (prefers-reduced-motion: reduce) {
+  .section-reveal,
+  .section-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* MAJOR SECTIONS
  * Extra vertical padding on top level sections gives the eye breathing
- * room between chapters. Scrolling uses the browser default; the "force"
- * felt when flicking between sections comes from the .reveal-major.momentum
- * entrance animation (see SCROLL REVEAL in main.js). */
+ * room between chapters. */
 #cross-trial,
 #in-trial,
 #method,
@@ -1136,14 +1113,6 @@ a.author-card:hover .author-photo {
   outline-width: 1.5px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal.is-visible {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
 
 /* METHOD
  * Zigzag layout: figure on one side, caption on the other, alternating

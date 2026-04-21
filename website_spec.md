@@ -16,7 +16,7 @@ python3 -m http.server 8080
 mem_website/
   index.html          all page content
   style.css           all visual styling
-  main.js             tab switching, video preload, scroll reveal, TOC, BibTeX
+  main.js             tab switching, video preload, section reveal, TOC, BibTeX
   website_spec.md     this file
   assets/
     favicon.png
@@ -63,7 +63,8 @@ All tokens live in `style.css` under `:root`. Changing them propagates site wide
 
 ### Motion
 
-- Reveal animations fade up elements as they enter the viewport. `prefers-reduced-motion` disables them (see the bottom of `style.css`).
+- Scrolling uses the browser default. No snap, no hijacking.
+- Each top level section slides up and fades in when it enters the viewport (see `.section-reveal` in `style.css`). `prefers-reduced-motion` disables it.
 - Tab underline slides in via `transform: scaleX`.
 - Link hover shows a sliding arrow indicator.
 
@@ -145,14 +146,9 @@ Goal: user never sees a buffering spinner; Chrome's decoder pool is never floode
 
 Save-Data and 2G connections downshift to `AHEAD=2, MAX_INFLIGHT=2`.
 
-### 3. Scroll reveal
+### 3. Section slide in
 
-Two flavors:
-
-- `.reveal` (subtle): 18px rise, 0.6s ease. Applied to subsections, method blocks, benchmark blocks, FAQ items, team cards.
-- `.reveal-major` (stronger): 44px rise, 1s ease. Applied to major section headings and intros.
-
-Elements already in the viewport at load are not animated.
+One `IntersectionObserver` watches each top level section (`#cross-trial`, `#in-trial`, `#method`, `#attention`, `#benchmark`, `#faq`, `#team`). When a section enters the viewport (`threshold: 0.04`), `.is-visible` is added and the whole section slides up 90px and fades in over 0.9s. Fires once per section. Sections already in the viewport on load are not animated.
 
 ### 4. Sticky TOC nav
 
@@ -208,4 +204,3 @@ Wrap the section in `<!--` ... `-->` or remove it. Also remove its `.toc-link` e
 1. Add `<section id="new-section">...</section>` in the DOM order you want.
 2. Add `.toc-link` to `#toc-nav`.
 3. If it should get the chapter break padding, append `#new-section` to the selector list in the MAJOR SECTIONS block of `style.css`.
-4. If it should animate on scroll reveal, add `#new-section > h2` to the major targets array in `main.js`.

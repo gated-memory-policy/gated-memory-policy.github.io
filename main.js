@@ -2,7 +2,7 @@
  * main.js
  *   1. Tab switching
  *   2. Video preload + playback (three layer design)
- *   3. Scroll reveal
+ *   3. Section slide in on scroll
  *   4. Sticky TOC nav with section highlight
  *   5. BibTeX copy button
  */
@@ -165,87 +165,30 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 })();
 
 
-/* SCROLL REVEAL
- * Adds .reveal to content blocks so they fade up as they enter the viewport.
- * Major section headings also get .momentum when the user was scrolling
- * fast at the moment of entry, so fast flicks feel like arriving at a new
- * chapter with force, while slow scrolling feels soft.
- * prefers-reduced-motion is respected in CSS.
+/* SECTION SLIDE IN
+ * Each top level section slides up as it enters the viewport so the next
+ * chapter feels like sliding in from below. Fires once per section. No
+ * velocity gate, no snap, no hijacking of scroll itself.
  */
 (function () {
-  // Subtle reveals inside a major section
-  var subtleTargets = document.querySelectorAll(
-    '.subsection, #method > *, #benchmark > *, #faq .faq-item, #team > *'
+  var sections = document.querySelectorAll(
+    '#cross-trial, #in-trial, #method, #attention, #benchmark, #faq, #team'
   );
-  // Bigger entrance at major section boundaries
-  var majorTargets = document.querySelectorAll(
-    '#cross-trial > h2, #cross-trial > p.body-text,' +
-    '#in-trial > h2, #in-trial > p.body-text,' +
-    '#method > h2,' +
-    '#attention > h2, #attention > p.body-text,' +
-    '#benchmark > h2,' +
-    '#faq > h2,' +
-    '#team > h2'
-  );
-
-  // Cumulative scroll distance over the last WINDOW_MS. This is a better
-  // signal than instantaneous velocity: a trackpad flick fires many scroll
-  // events with small deltas each, but their sum is large. The heading
-  // observer below reads this sum at reveal time to decide soft vs forceful
-  // entrance.
-  var WINDOW_MS      = 300;
-  var FAST_DISTANCE  = 120;  // px of scroll within WINDOW_MS to qualify
-  var samples = [[performance.now(), window.scrollY]];
-  window.addEventListener('scroll', function () {
-    var now = performance.now();
-    samples.push([now, window.scrollY]);
-    while (samples.length > 1 && samples[0][0] < now - WINDOW_MS) samples.shift();
-  }, { passive: true });
-
-  function recentScroll() {
-    var total = 0;
-    for (var i = 1; i < samples.length; i++) {
-      total += Math.abs(samples[i][1] - samples[i - 1][1]);
-    }
-    return total;
-  }
 
   var obs = new IntersectionObserver(function (entries, self) {
     entries.forEach(function (e) {
       if (!e.isIntersecting) return;
-      var el = e.target;
-      var isMajor = el.classList.contains('reveal-major');
-      var gravitational = isMajor && recentScroll() > FAST_DISTANCE;
-      self.unobserve(el);
-      if (gravitational) {
-        // Commit the momentum "from" state for one frame before flipping
-        // to is-visible, otherwise the transition starts from the base
-        // reveal-major position and the drop is invisible.
-        el.classList.add('momentum');
-        void el.offsetWidth;
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            el.classList.add('is-visible');
-          });
-        });
-      } else {
-        el.classList.add('is-visible');
-      }
+      e.target.classList.add('is-visible');
+      self.unobserve(e.target);
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.04 });
 
-  function wire(els, className) {
-    els.forEach(function (el) {
-      var rect = el.getBoundingClientRect();
-      var aboveFold = rect.top < window.innerHeight && rect.bottom > 0;
-      if (aboveFold) return;
-      el.classList.add(className);
-      obs.observe(el);
-    });
-  }
-
-  wire(subtleTargets, 'reveal');
-  wire(majorTargets, 'reveal-major');
+  sections.forEach(function (s) {
+    var rect = s.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) return;
+    s.classList.add('section-reveal');
+    obs.observe(s);
+  });
 })();
 
 
