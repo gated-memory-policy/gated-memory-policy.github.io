@@ -61,54 +61,88 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 
 
 /* ---------------------------------------------------------
-   VIDEO LAZY-LOAD + AUTOPLAY — IntersectionObserver
-   Videos have preload="none" so nothing downloads on page load.
-   • Preload observer: when a video gets within 800px of the
-     viewport, bump preload to "auto" and call .load() so bytes
-     start arriving before the user sees it.
-   • Play observer: when ≥30% is visible, start playback.
-     Pause when off-screen. If the user clicks pause/scrub,
-     the video is never auto-played again.
+   VIDEO SECTION-CHAINED PRELOAD + VISIBLE-ONLY AUTOPLAY
+   Videos have preload="none" in HTML. Preloading happens in
+   three stages to avoid flooding the network all at once:
+     1. On window.load → preload #cross-trial videos
+     2. When #cross-trial enters viewport → preload #in-trial
+     3. When #in-trial enters viewport   → preload #attention
+   Playback is gated by an IntersectionObserver so only visible
+   videos play — keeps CPU/GPU quiet with many autoplays on page.
 --------------------------------------------------------- */
 (function () {
   var userTouched = new WeakSet();
   var preloaded   = new WeakSet();
 
-  var preloadObs = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (entry.isIntersecting && !preloaded.has(entry.target)) {
-        var vid = entry.target;
-        vid.preload = 'auto';
-        vid.load();
-        preloaded.add(vid);
-        preloadObs.unobserve(vid);
-      }
-    });
-  }, { rootMargin: '800px 0px' });
-
   var playObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      if (entry.isIntersecting && entry.target.paused && !userTouched.has(entry.target)) {
-        entry.target.play().catch(function () {});
+      var vid = entry.target;
+      if (entry.isIntersecting && vid.paused && !userTouched.has(vid)) {
+        vid.play().catch(function () {});
+      } else if (!entry.isIntersecting && !vid.paused) {
+        vid.pause();
       }
     });
   }, { threshold: 0.3 });
 
-  function observeVideos() {
+  function wireVideos() {
     document.querySelectorAll('video[autoplay]').forEach(function (vid) {
-      preloadObs.observe(vid);
       playObs.observe(vid);
-
       vid.addEventListener('pause', function () {
-        userTouched.add(vid);
+        // Only real user pauses count — ignore our own off-screen auto-pauses.
+        var r = vid.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) {
+          userTouched.add(vid);
+        }
+      });
+    });
+  }
+
+  function preloadSection(selector) {
+    var videos = document.querySelectorAll(selector + ' video');
+    videos.forEach(function (vid, i) {
+      if (preloaded.has(vid)) return;
+      preloaded.add(vid);
+      // Tiny DOM-order stagger so earlier videos win the connection pool.
+      setTimeout(function () {
+        vid.preload = 'auto';
+        vid.load();
+      }, i * 15);
+    });
+  }
+
+  function onceVisible(sectionId, cb) {
+    var el = document.getElementById(sectionId);
+    if (!el) { cb(); return; }
+    var obs = new IntersectionObserver(function (entries, self) {
+      if (entries.some(function (e) { return e.isIntersecting; })) {
+        self.disconnect();
+        cb();
+      }
+    }, { rootMargin: '400px 0px' }); // fire a bit before the section is on-screen
+    obs.observe(el);
+  }
+
+  function startChain() {
+    preloadSection('#cross-trial');
+    onceVisible('cross-trial', function () {
+      preloadSection('#in-trial');
+      onceVisible('in-trial', function () {
+        preloadSection('#attention');
       });
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', observeVideos);
+    document.addEventListener('DOMContentLoaded', wireVideos);
   } else {
-    observeVideos();
+    wireVideos();
+  }
+
+  if (document.readyState === 'complete') {
+    startChain();
+  } else {
+    window.addEventListener('load', startChain);
   }
 })();
 
