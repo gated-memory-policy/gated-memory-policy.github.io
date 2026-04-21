@@ -342,10 +342,10 @@ section > .body-text { margin-bottom: 2rem; }
 
 
 #hero-title .authors {
-  font-size: 1.02rem;
+  font-size: 1.2rem;
   color: var(--text-soft);
   font-weight: 450;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
   letter-spacing: -0.005em;
 }
 
@@ -378,7 +378,7 @@ section > .body-text { margin-bottom: 2rem; }
 }
 
 #hero-title .institution {
-  font-size: 0.875rem;
+  font-size: 1.15rem;
   color: var(--text-muted);
   letter-spacing: 0;
   margin-bottom: 1.75rem;

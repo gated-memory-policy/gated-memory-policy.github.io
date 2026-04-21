@@ -18,10 +18,11 @@ mem_website/
   style.css           all visual styling
   main.js             tab switching, video preload, section reveal, TOC, BibTeX
   website_spec.md     this file
+  scripts/            python chart generators (plot_success_rate.py, plot_robomimic.py)
   assets/
     favicon.png
     images/           team headshots, architecture/gating PNGs, hf-logo.svg, overlays
-    charts/           SVG bar charts + the python scripts that generate them
+    charts/           SVG bar charts (output of scripts/plot_*.py)
     videos/           teaser + cross_trial/ + in_trial/ + attention_vis_*.mp4
 ```
 
@@ -183,12 +184,12 @@ Clipboard API with an `execCommand` fallback. Button shows "Copied!" for 2 secon
 
 ### Change the accent color
 
-Edit `--accent` and `--accent-rgb` under `:root` in `style.css`. Tabs, links, author marker, focus ring all update together. Rerun the chart generators (`assets/charts/plot_*.py`) so chart SVGs match.
+Edit `--accent` and `--accent-rgb` under `:root` in `style.css`. Tabs, links, author marker, focus ring all update together. Rerun the chart generators (`scripts/plot_*.py`) so chart SVGs match.
 
 ### Regenerate charts
 
 ```bash
-cd /Users/jinyun/Documents/mem_website/assets/charts
+cd /Users/jinyun/Documents/mem_website/scripts
 python plot_success_rate.py   # per task success rate bars + mikasa benchmark
 python plot_robomimic.py      # robomimic grouped bar chart
 ```

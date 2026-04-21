@@ -3,11 +3,11 @@ plot_robomimic.py
 Recreates the RoboMimic grouped bar chart in the site's style.
 
 Usage:
-    cd /path/to/mem_website/assets/charts
+    cd /path/to/mem_website/scripts
     python plot_robomimic.py
 
 Output:
-    robomimic_bar_chart_new.svg
+    ../assets/charts/robomimic_bar_chart_new.svg
 """
 
 import os
@@ -24,13 +24,14 @@ TEXT_MUTED = "#8a7a66"   # warm brown-gray
 ACCENT     = "#b5552a"   # warm terracotta — matches site --accent
 BORDER     = "#e6d7bd"
 
-# ── Method colors — warm beige gradient, ACCENT terracotta for ours ──────────
+# ── Method colors — warm beige gradient, BC-RNN rust, ACCENT for ours ────────
 METHOD_COLORS = [
     "#e3d4b8",   # No-hist DP    – lightest warm beige
     "#d3c09d",   # Mid-hist DP
     "#b9a37c",   # Mid-hist PTP
     "#9a8560",   # Long-hist DP
     "#7a6545",   # Long-hist PTP – darkest warm brown
+    "#d0a18c",   # BC-RNN        – dusty rose, muted so GMP keeps the eye
     ACCENT,      # GMP (ours)    – warm terracotta
 ]
 
@@ -40,10 +41,11 @@ METHODS = [
     "Mid-hist PTP",
     "Long-hist DP",
     "Long-hist PTP",
+    "BC-RNN",
     "GMP (ours)",
 ]
 
-# ── Data (read off the original chart) ────────────────────────────────────────
+# ── Data (read off exp7_robomimic.jpg) ────────────────────────────────────────
 # Rows = tasks, columns = methods in order above
 TASKS = [
     "Tool Hang\n(ph)",
@@ -54,12 +56,12 @@ TASKS = [
 ]
 
 DATA = [
-    #  nh    mh-DP  mh-PTP  lh-DP  lh-PTP  GMP
-    [  83,    85,    84,     43,    28,     81 ],  # Tool Hang (ph)
-    [  95,    98,   100,     89,    90,     88 ],  # Transport (ph)
-    [  71,    80,    86,     58,    55,     68 ],  # Transport (mh)
-    [  99,    97,    95,     86,    90,     98 ],  # Square (ph)
-    [  90,    86,    87,     69,    65,     88 ],  # Square (mh)
+    #  nh    mh-DP  mh-PTP  lh-DP  lh-PTP  BC-RNN  GMP
+    [  82,    79,    83,     42,    32,     65,    79 ],  # Tool Hang (ph)
+    [  95,    98,    99,     93,    90,     88,    87 ],  # Transport (ph)
+    [  73,    80,    87,     58,    55,     52,    69 ],  # Transport (mh)
+    [  98,    97,    99,     86,    90,     96,    98 ],  # Square (ph)
+    [  90,    86,    87,     69,    65,     81,    88 ],  # Square (mh)
 ]
 
 # ── Global font settings (matches plot_success_rate.py) ───────────────────────
@@ -159,8 +161,9 @@ for text, method in zip(legend.get_texts(), METHODS):
         text.set_fontweight("bold")
 
 # ── Save ──────────────────────────────────────────────────────────────────────
-out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "robomimic_bar_chart_new.svg")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+charts_dir = os.path.abspath(os.path.join(script_dir, "..", "assets", "charts"))
+out_path = os.path.join(charts_dir, "robomimic_bar_chart_new.svg")
 plt.tight_layout(pad=0.3)
 fig.savefig(out_path, format="svg", bbox_inches="tight",
             facecolor=BG, transparent=False)

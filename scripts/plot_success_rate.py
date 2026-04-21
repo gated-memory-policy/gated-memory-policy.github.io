@@ -4,16 +4,17 @@ Generates one success-rate SVG bar chart per task.
 Styled to match the Gated Memory Policy website palette.
 
 Usage:
-    cd /path/to/mem_website/assets/charts
+    cd /path/to/mem_website/scripts
     python plot_success_rate.py
 
-Output (relative to this script's directory):
+Output (written under ../assets/charts/):
     cross_trial/pushing/success_rate.svg
     cross_trial/casting/success_rate.svg
     cross_trial/flinging/success_rate.svg
     in_trial/place_back_real/success_rate.svg
     in_trial/match_color/success_rate.svg
     in_trial/place_back/success_rate.svg
+    mikasa_benchmark.svg
 """
 
 import os
@@ -265,11 +266,12 @@ def plot_mikasa(out_path: str) -> None:
 
 # ── Run ───────────────────────────────────────────────────────────────────────
 script_dir = os.path.dirname(os.path.abspath(__file__))
+charts_dir = os.path.abspath(os.path.join(script_dir, "..", "assets", "charts"))
 
 for task_rel, entries in TASKS.items():
-    out = os.path.join(script_dir, task_rel, "success_rate.svg")
+    out = os.path.join(charts_dir, task_rel, "success_rate.svg")
     plot_task(out, entries)
 
-plot_mikasa(os.path.join(script_dir, "mikasa_benchmark.svg"))
+plot_mikasa(os.path.join(charts_dir, "mikasa_benchmark.svg"))
 
 print("Done.")
