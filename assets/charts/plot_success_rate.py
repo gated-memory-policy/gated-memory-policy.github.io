@@ -22,13 +22,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ── Site palette ──────────────────────────────────────────────────────────────
-BG         = "#ffffff"
-TEXT       = "#1a1a1a"
-TEXT_MUTED = "#666666"
-ACCENT     = "#2563eb"   # highlight color for "Ours"
-NEUTRAL    = "#d1d5db"   # baseline bars (neutral gray)
-BORDER     = "#e5e5e5"
+# ── Site palette (warm cream/beige — academic press tone) ───────────────────
+BG         = "#faf7f0"   # matches site --bg (main page background)
+TEXT       = "#2a2218"   # warm near-black, readable on cream
+TEXT_MUTED = "#8a7a66"   # lighter warm brown-gray (softer, less heavy)
+ACCENT     = "#b5552a"   # warm terracotta — matches site --accent
+NEUTRAL    = "#d9cab0"   # lighter warm beige baseline bars (readable on cream)
+BORDER     = "#e6d7bd"   # soft warm hairline
 
 # ── Task definitions ──────────────────────────────────────────────────────────
 # Each task defines its own `entries` list so you can freely add/remove methods.
@@ -169,11 +169,107 @@ def plot_task(out_path: str, entries: list) -> None:
     print(f"  Saved → {out_path}")
 
 
+# =============================================================================
+# MIKASA-ROBO BENCHMARK — grouped bar chart, 5 tasks × 6 methods
+# Replots exp10_mikasa.jpg with the site's warm palette
+# =============================================================================
+MIKASA_TASKS   = ["ShellGameTouch", "InterceptMedium", "RememberColor3",
+                  "RememberColor5", "RememberColor9"]
+MIKASA_METHODS = ["Octo-small", "OpenVLA", "SpatialVLA", "π0", "MemoryVLA",
+                  "GMP (ours)"]
+
+# values[method][task]
+MIKASA_VALUES = [
+    [46, 39, 45, 17, 11],   # Octo-small
+    [47, 14, 59, 16,  6],   # OpenVLA
+    [23, 27, 27, 17, 11],   # SpatialVLA
+    [33, 42, 35, 22, 15],   # π0
+    [88, 24, 44, 30, 20],   # MemoryVLA
+    [98, 83, 80, 61, 17],   # GMP (ours)
+]
+
+# Warm-family shades for the 5 baselines, terracotta ACCENT reserved for ours
+MIKASA_COLORS = ["#d8c8ad", "#c7b391", "#b29a73", "#9a7f56", "#7a5f3d", ACCENT]
+
+
+def plot_mikasa(out_path: str) -> None:
+    n_tasks   = len(MIKASA_TASKS)
+    n_methods = len(MIKASA_METHODS)
+
+    fig, ax = plt.subplots(figsize=(11.5, 2.7))
+    fig.set_facecolor(BG)
+    ax.set_facecolor(BG)
+
+    task_positions = np.arange(n_tasks)
+    bar_width      = 0.13
+    offsets = (np.arange(n_methods) - (n_methods - 1) / 2) * bar_width * 1.04
+
+    for i, method in enumerate(MIKASA_METHODS):
+        color   = MIKASA_COLORS[i]
+        is_ours = (method == "GMP (ours)")
+        bars = ax.bar(
+            task_positions + offsets[i],
+            MIKASA_VALUES[i],
+            bar_width,
+            color=color,
+            zorder=3,
+            linewidth=0,
+            label=method,
+        )
+        for bar, val in zip(bars, MIKASA_VALUES[i]):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 1.4,
+                str(val),
+                ha="center", va="bottom",
+                fontsize=8.5,
+                color=ACCENT if is_ours else TEXT_MUTED,
+                fontweight="bold" if is_ours else "normal",
+            )
+
+    ax.set_ylim(0, 112)
+    ax.set_yticks([0, 25, 50, 75, 100])
+    ax.set_yticklabels(["0", "25", "50", "75", "100"], fontsize=11, color=TEXT_MUTED)
+
+    ax.set_xticks(task_positions)
+    ax.set_xticklabels(MIKASA_TASKS, fontsize=11.5, color=TEXT)
+
+    ax.set_ylabel("Success Rate (%)", fontsize=11, color=TEXT_MUTED, labelpad=6)
+
+    ax.yaxis.grid(True, color=BORDER, linewidth=0.45, zorder=0)
+    ax.set_axisbelow(True)
+    for spine in ["top", "right", "left"]:
+        ax.spines[spine].set_visible(False)
+    ax.spines["bottom"].set_color(BORDER)
+    ax.spines["bottom"].set_linewidth(0.6)
+    ax.tick_params(axis="both", length=0, pad=4)
+
+    ax.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.28),
+        ncol=6,
+        frameon=False,
+        fontsize=10,
+        labelcolor=TEXT,
+        handlelength=1.4,
+        handleheight=1.1,
+        columnspacing=1.6,
+    )
+
+    plt.tight_layout()
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    fig.savefig(out_path, format="svg", bbox_inches="tight", facecolor=BG)
+    plt.close(fig)
+    print(f"  Saved → {out_path}")
+
+
 # ── Run ───────────────────────────────────────────────────────────────────────
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 for task_rel, entries in TASKS.items():
     out = os.path.join(script_dir, task_rel, "success_rate.svg")
     plot_task(out, entries)
+
+plot_mikasa(os.path.join(script_dir, "mikasa_benchmark.svg"))
 
 print("Done.")

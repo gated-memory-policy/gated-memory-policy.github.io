@@ -17,23 +17,21 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
-# ── Site palette (matches plot_success_rate.py) ───────────────────────────────
-BG         = "#ffffff"
-TEXT       = "#1a1a1a"
-TEXT_MUTED = "#666666"
-ACCENT     = "#2563eb"   # used for GMP (ours)
-BORDER     = "#e5e5e5"
+# ── Site palette (warm cream/beige — matches plot_success_rate.py) ──────────
+BG         = "#faf7f0"   # matches site --bg (main page background)
+TEXT       = "#2a2218"   # warm near-black
+TEXT_MUTED = "#8a7a66"   # warm brown-gray
+ACCENT     = "#b5552a"   # warm terracotta — matches site --accent
+BORDER     = "#e6d7bd"
 
-# ── Method colors — neutral gray gradient matching site palette ───────────────
-# 5 baselines step from lightest gray to darkest gray;
-# GMP (ours) uses the site ACCENT blue.
+# ── Method colors — warm beige gradient, ACCENT terracotta for ours ──────────
 METHOD_COLORS = [
-    "#e5e7eb",   # No-hist DP    – lightest gray
-    "#d1d5db",   # Mid-hist DP   – light gray
-    "#9ca3af",   # Mid-hist PTP  – medium gray
-    "#6b7280",   # Long-hist DP  – darker gray
-    "#4b5563",   # Long-hist PTP – darkest gray
-    ACCENT,      # GMP (ours)    – site ACCENT blue
+    "#e3d4b8",   # No-hist DP    – lightest warm beige
+    "#d3c09d",   # Mid-hist DP
+    "#b9a37c",   # Mid-hist PTP
+    "#9a8560",   # Long-hist DP
+    "#7a6545",   # Long-hist PTP – darkest warm brown
+    ACCENT,      # GMP (ours)    – warm terracotta
 ]
 
 METHODS = [
@@ -80,7 +78,7 @@ group_gap = 0.18          # extra gap between task groups
 group_w   = n_methods * bar_w + group_gap
 
 fig_w = 13.0
-fig_h = 3.8
+fig_h = 2.4
 
 fig, ax = plt.subplots(figsize=(fig_w, fig_h))
 fig.set_facecolor(BG)
@@ -143,8 +141,8 @@ for method, color in zip(METHODS, METHOD_COLORS):
 
 legend = ax.legend(
     handles=patches,
-    loc="lower center",
-    bbox_to_anchor=(0.5, -0.32),
+    loc="upper center",
+    bbox_to_anchor=(0.5, -0.30),
     ncol=n_methods,
     frameon=False,
     fontsize=10.5,

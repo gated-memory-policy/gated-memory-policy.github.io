@@ -148,6 +148,52 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 
 
 /* ---------------------------------------------------------
+   SCROLL REVEAL
+   Adds .reveal to major content blocks so they fade/rise
+   into view as they approach the viewport. Respects
+   prefers-reduced-motion via CSS.
+--------------------------------------------------------- */
+(function () {
+  // Subsection-level reveals — subtle (used inside a major section)
+  var subtleTargets = document.querySelectorAll(
+    '.subsection, #method > *, #benchmark > *, #faq .faq-item, #team > *'
+  );
+  // Major-section-level reveals — bigger "drag" feel at section boundaries
+  var majorTargets = document.querySelectorAll(
+    '#cross-trial > h2, #cross-trial > p.body-text,' +
+    '#in-trial > h2, #in-trial > p.body-text,' +
+    '#method > h2,' +
+    '#attention > h2, #attention > p.body-text,' +
+    '#benchmark > h2,' +
+    '#faq > h2,' +
+    '#team > h2'
+  );
+
+  var obs = new IntersectionObserver(function (entries, self) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-visible');
+        self.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  function wire(els, className) {
+    els.forEach(function (el) {
+      var rect = el.getBoundingClientRect();
+      var aboveFold = rect.top < window.innerHeight && rect.bottom > 0;
+      if (aboveFold) return;
+      el.classList.add(className);
+      obs.observe(el);
+    });
+  }
+
+  wire(subtleTargets, 'reveal');
+  wire(majorTargets, 'reveal-major');
+})();
+
+
+/* ---------------------------------------------------------
    STICKY TOC NAV
    Slides in after the hero leaves the viewport.
    Highlights the current section via IntersectionObserver.
@@ -156,7 +202,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   var nav = document.getElementById('toc-nav');
   if (!nav) return;
 
-  var firstMainSection = document.getElementById('architecture');
+  var firstMainSection = document.getElementById('cross-trial');
   var links = nav.querySelectorAll('.toc-link');
 
   /* Show after intro blocks (hero + video + abstract), i.e., at first content section.
