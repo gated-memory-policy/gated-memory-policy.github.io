@@ -2,10 +2,9 @@
  * main.js
  *   1. Tab switching
  *   2. Video preload + playback (three layer design)
- *   3. YouTube facade (click to load teaser iframe)
- *   4. Section slide in on scroll
- *   5. Sticky TOC nav with section highlight
- *   6. BibTeX copy button
+ *   3. Section slide in on scroll
+ *   4. Sticky TOC nav with section highlight
+ *   5. BibTeX copy button
  */
 
 /* TAB SWITCHING
@@ -187,29 +186,6 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
 })();
 
 
-/* YOUTUBE FACADE
- * The teaser shows a thumbnail on first paint; the real iframe is only
- * fetched when the user clicks. Saves ~500KB of YouTube JS/CSS and frees
- * bandwidth for the first row of comparison videos.
- */
-(function () {
-  var el = document.getElementById('hero-video');
-  if (!el || !el.dataset.ytid) return;
-  var load = function () {
-    el.innerHTML = '<iframe src="https://www.youtube.com/embed/' +
-      el.dataset.ytid +
-      '?autoplay=1&rel=0&controls=1&fs=1&modestbranding=1&playsinline=1&vq=hd1080" ' +
-      'title="Teaser video" allowfullscreen ' +
-      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
-      'referrerpolicy="strict-origin-when-cross-origin"></iframe>';
-  };
-  el.addEventListener('click', load);
-  el.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); load(); }
-  });
-})();
-
-
 /* SECTION SLIDE IN
  * Each top level section slides up as it enters the viewport so the next
  * chapter feels like sliding in from below. Fires once per section. No
@@ -217,7 +193,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
  */
 (function () {
   var sections = document.querySelectorAll(
-    '#cross-trial, #in-trial, #in-the-wild, #method, #attention, #benchmark, #faq, #team'
+    '#cross-trial, #in-trial, #in-the-wild, #method, #attention, #benchmark, #faq, #team, #acknowledgments'
   );
 
   var obs = new IntersectionObserver(function (entries, self) {

@@ -1,20 +1,39 @@
 """
 make_in_the_wild_grid.py
-Tiles N iPhone trial videos (HEVC/HLG) into a single wide SDR grid for the
-In-the-Wild section. Two stage pipeline:
+Tiles labeled iPhone trial videos (HEVC/HLG) into a single wide SDR grid for
+the In-the-Wild section.
 
+Filename labels (suffix after IMG_XXXX_):
+    contains 'p'  -> perturbation trial
+    contains 'f'  -> failed trial
+    e.g. IMG_2161_p_f.MOV  = perturbation + fail
+
+Grid (COLS x ROWS = 8 x 5):
+    left  4 cols (20 cells) -> no-perturbation clips, sorted by filename
+    right 4 cols (20 cells) -> perturbation clips, sorted by filename
+
+Per-clip timeline:
+    [0, nat_dur]              : clip plays, no tint
+    [nat_dur, nat_dur+FADE_IN]: tint fades in (green = ok, red = fail)
+    [nat_dur+FADE_IN, total]  : frozen last frame + peak tint
+Total grid length = max(nat_dur across selected clips) + DIM_TAIL, so every
+cell (including the longest) shows at least DIM_TAIL seconds of outcome tint.
+
+Two-stage pipeline:
     Stage 1 (per input, cached):
         HEVC HLG -> Hable tonemap -> bt709 SDR -> scale to cell
-                 -> clone last frame to DUR -> H.264 CRF 17 mezzanine
-                 (visually lossless at this size)
+                 -> clone-pad to total
+                 -> overlay outcome tint (alpha fades in at nat_dur)
+                 -> H.264 CRF 17 mezzanine
 
     Stage 2 (single):
-        xstack the 40 mezzanines into COLS x ROWS grid
-        -> H.264 CRF 23, faststart, no audio
+        xstack 40 mezzanines in (no-pert | pert) row-major order
+        -> H.264 CRF 23, fastdecode, faststart, no audio
 
-Mezzanines live in scripts/.mezz/ and are reused on subsequent runs (much
-faster iteration when tweaking the layout or CRF). Delete that directory
-to force a rebuild, or touch a source .MOV to invalidate just that cell.
+Mezzanines cache in scripts/.mezz/; the cache key encodes cell size, fps,
+total duration, fade/alpha, and success/fail so cells rebuild only when
+something that affects their pixels changes. Delete scripts/.mezz/ to
+force a full rebuild.
 
 Usage:
     cd /path/to/mem_website/scripts
@@ -24,6 +43,7 @@ Usage:
 """
 
 import os
+import re
 import subprocess
 import sys
 
@@ -35,16 +55,34 @@ COLS     = int(os.environ.get("COLS",    8))
 ROWS     = int(os.environ.get("ROWS",    5))
 CELL_W   = int(os.environ.get("CELL_W",  240))   # grid width  = COLS * CELL_W
 CELL_H   = int(os.environ.get("CELL_H",  136))   # grid height = ROWS * CELL_H (must be even)
-DUR      = float(os.environ.get("DUR",   15))    # seconds; short clips freeze to fill
 FPS      = int(os.environ.get("FPS",     30))
-CRF      = int(os.environ.get("CRF",     23))    # final grid quality
+CRF      = int(os.environ.get("CRF",     20))    # final grid quality (lower = cleaner, bigger)
 MEZZ_CRF = int(os.environ.get("MEZZ_CRF", 17))   # mezzanine (visually lossless at cell size)
-PRESET   = os.environ.get("PRESET",      "medium")
+PRESET   = os.environ.get("PRESET",      "slow") # slow squeezes ~15-20% more bits at same CRF
+
+# Outcome tint timing
+FADE_IN    = float(os.environ.get("FADE_IN",    0.30))
+DIM_TAIL   = float(os.environ.get("DIM_TAIL",   0.80))  # min visible dim for longest clip
+TINT_ALPHA = float(os.environ.get("TINT_ALPHA", 0.50))  # peak dim opacity
+GREEN_HEX  = "0x4caf50"  # success
+RED_HEX    = "0xf44336"  # failure
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT  = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 MEZZ_DIR   = os.path.join(SCRIPT_DIR, ".mezz")
 OUT_PATH   = os.path.join(REPO_ROOT, OUT_REL)
+
+assert COLS % 2 == 0, "COLS must be even so the no-pert / pert split is balanced."
+HALF            = COLS // 2
+NEEDED_PER_HALF = ROWS * HALF  # 20
+
+
+def parse_labels(path: str):
+    """Return (has_perturbation, has_fail) from IMG_XXXX_<suffix>.ext."""
+    stem = os.path.splitext(os.path.basename(path))[0]
+    m = re.match(r"^IMG_\d+(.*)$", stem)
+    suffix = (m.group(1) if m else "").lower()
+    return ("p" in suffix, "f" in suffix)
 
 
 def probe_duration(path: str) -> float:
@@ -57,9 +95,13 @@ def probe_duration(path: str) -> float:
     return float(out)
 
 
-def mezz_path(src: str) -> str:
+def mezz_path(src: str, total_dur: float, has_f: bool) -> str:
     stem = os.path.splitext(os.path.basename(src))[0]
-    tag  = f"{CELL_W}x{CELL_H}_dur{int(DUR)}_fps{FPS}"
+    tag  = (f"{CELL_W}x{CELL_H}_fps{FPS}"
+            f"_tot{int(round(total_dur * 1000))}"
+            f"_fi{int(round(FADE_IN * 1000))}"
+            f"_a{int(round(TINT_ALPHA * 100))}"
+            f"_{'f' if has_f else 's'}")
     return os.path.join(MEZZ_DIR, f"{stem}__{tag}.mp4")
 
 
@@ -67,19 +109,33 @@ def needs_build(src: str, dst: str) -> bool:
     return not os.path.exists(dst) or os.path.getmtime(src) > os.path.getmtime(dst)
 
 
-def build_mezzanine(src: str, dst: str) -> None:
-    """Stage 1: one input -> one 240x136 SDR mezzanine. Short clips freeze
-    on their last frame to fill DUR; longer clips are trimmed at DUR."""
-    vf = (
+def build_mezzanine(src: str, dst: str, nat_dur: float,
+                    total_dur: float, has_f: bool) -> None:
+    """Stage 1: one input -> one SDR mezzanine. Clip plays, freezes on its
+    last frame, then an outcome tint fades in over FADE_IN and holds to
+    total_dur."""
+    color_hex = RED_HEX if has_f else GREEN_HEX
+    src_chain = (
         "zscale=t=linear:npl=100,format=gbrpf32le,"
         "zscale=p=bt709,tonemap=tonemap=hable:desat=0,"
         "zscale=t=bt709:m=bt709:r=tv,format=yuv420p,"
         f"scale={CELL_W}:{CELL_H}:flags=bicubic,setsar=1,fps={FPS},"
-        f"tpad=stop_mode=clone:stop_duration={DUR},trim=0:{DUR},setpts=PTS-STARTPTS"
+        f"tpad=stop_mode=clone:stop_duration={total_dur},trim=0:{total_dur},"
+        "setpts=PTS-STARTPTS"
+    )
+    # Tint is a solid-color source whose alpha is scaled to TINT_ALPHA and
+    # then fades in from 0 starting at nat_dur. Overlay composites it over
+    # the clip's frozen tail.
+    fc = (
+        f"[0:v]{src_chain}[v];"
+        f"color=c={color_hex}:s={CELL_W}x{CELL_H}:d={total_dur}:r={FPS},"
+        f"format=yuva420p,colorchannelmixer=aa={TINT_ALPHA},"
+        f"fade=t=in:st={nat_dur}:d={FADE_IN}:alpha=1[tint];"
+        f"[v][tint]overlay=format=auto:shortest=0[out]"
     )
     subprocess.run(
         ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-i", src, "-vf", vf, "-an",
+         "-i", src, "-filter_complex", fc, "-map", "[out]", "-an",
          "-c:v", "libx264", "-crf", str(MEZZ_CRF), "-preset", PRESET,
          "-pix_fmt", "yuv420p", dst],
         check=True,
@@ -98,9 +154,8 @@ def build_grid(mezzanines: list[str]) -> None:
     )
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     # -tune fastdecode:   lower decoder cost in the browser, smoother playback
-    # -g 30:              keyframe every second so native <video loop> can
-    #                     restart from frame 0 without a multi-frame IDR wait
-    # -profile:v main:    widely GPU-accelerated on every mainstream browser
+    # -g FPS:             keyframe every second so <video loop> restarts fast
+    # -profile:v main:    broadly GPU-accelerated across browsers
     subprocess.run(
         ["ffmpeg", "-hide_banner", "-y"]
         + [arg for m in mezzanines for arg in ("-i", m)]
@@ -114,24 +169,47 @@ def build_grid(mezzanines: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    needed = COLS * ROWS
-    files  = sorted(os.path.join(IN_DIR, f) for f in os.listdir(IN_DIR)
-                    if f.lower().endswith((".mov", ".mp4", ".m4v")))
-    if len(files) < needed:
-        sys.exit(f"Need {needed} clips in {IN_DIR}, found {len(files)}.")
-    files = files[:needed]
+    all_files = sorted(os.path.join(IN_DIR, f) for f in os.listdir(IN_DIR)
+                       if f.lower().endswith((".mov", ".mp4", ".m4v")))
+
+    no_pert, pert = [], []
+    for f in all_files:
+        (pert if parse_labels(f)[0] else no_pert).append(f)
+
+    print(f"Found {len(all_files)} clips in {IN_DIR} "
+          f"({len(no_pert)} no-perturbation, {len(pert)} perturbation).")
+    if len(no_pert) < NEEDED_PER_HALF:
+        sys.exit(f"Need {NEEDED_PER_HALF} no-perturbation clips, found {len(no_pert)}.")
+    if len(pert) < NEEDED_PER_HALF:
+        sys.exit(f"Need {NEEDED_PER_HALF} perturbation clips, found {len(pert)}.")
+    no_pert = no_pert[:NEEDED_PER_HALF]
+    pert    = pert[:NEEDED_PER_HALF]
+
+    # Row-major grid order: for each row, 4 no-pert (left) then 4 pert (right).
+    ordered: list[str] = []
+    for r in range(ROWS):
+        ordered.extend(no_pert[r*HALF : (r+1)*HALF])
+        ordered.extend(pert[r*HALF    : (r+1)*HALF])
+
+    durations = {src: probe_duration(src) for src in ordered}
+    max_dur   = max(durations.values())
+    total_dur = max_dur + DIM_TAIL
+    print(f"Max clip duration {max_dur:.2f}s -> grid duration {total_dur:.2f}s "
+          f"(incl. {DIM_TAIL:.2f}s minimum dim tail).")
 
     os.makedirs(MEZZ_DIR, exist_ok=True)
     mezzanines = []
-    for i, src in enumerate(files, 1):
-        dst = mezz_path(src)
+    for i, src in enumerate(ordered, 1):
+        has_f = parse_labels(src)[1]
+        dst   = mezz_path(src, total_dur, has_f)
+        tag   = "fail" if has_f else "ok"
         if needs_build(src, dst):
-            print(f"  [{i:>2}/{needed}] mezzanine  {os.path.basename(src)}")
-            build_mezzanine(src, dst)
+            print(f"  [{i:>2}/{len(ordered)}] mezzanine  {os.path.basename(src)}  ({tag})")
+            build_mezzanine(src, dst, durations[src], total_dur, has_f)
         else:
-            print(f"  [{i:>2}/{needed}] cached     {os.path.basename(src)}")
+            print(f"  [{i:>2}/{len(ordered)}] cached     {os.path.basename(src)}  ({tag})")
         mezzanines.append(dst)
 
-    print(f"Stacking {needed} cells -> {COLS*CELL_W}x{ROWS*CELL_H} grid, CRF {CRF}")
+    print(f"Stacking {len(mezzanines)} cells -> {COLS*CELL_W}x{ROWS*CELL_H} grid, CRF {CRF}")
     build_grid(mezzanines)
     print(f"Wrote {OUT_PATH}")

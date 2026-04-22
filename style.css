@@ -313,10 +313,13 @@ section > .body-text { margin-bottom: 2rem; }
 }
 
 /* HERO TITLE CARD */
+/* Full-viewport hero: title, authors, institution, tagline, buttons fill
+ * the first screen. Next section (#intro-split) starts on the second. */
 #hero-title {
   background: var(--bg);
   text-align: center;
-  padding: 72px var(--pad-x) 44px;
+  padding: 40px var(--pad-x);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -475,96 +478,30 @@ section > .body-text { margin-bottom: 2rem; }
 }
 
 
-/* INTRO: teaser video + abstract, stacked */
-#intro-split {
-  width: min(1080px, 100%);
-  margin: 0 auto;
-  padding: 20px var(--pad-x) 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* YouTube facade: thumbnail + play button until clicked. */
-#hero-video {
-  position: relative;
-  max-width: 680px;
-  width: 100%;
-  margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  border-radius: 4px;
-  overflow: hidden;
-  background: #000;
-  cursor: pointer;
-}
-
-#hero-video img,
-#hero-video iframe {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border: 0;
-}
-
-#hero-video img { object-fit: cover; }
-
-#hero-video .yt-play {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 68px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.72);
-  pointer-events: none;
-  transition: background 0.18s ease, transform 0.18s ease;
-}
-
-#hero-video .yt-play::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 54%;
-  transform: translate(-50%, -50%);
-  width: 0;
-  height: 0;
-  border-left: 18px solid #fff;
-  border-top: 11px solid transparent;
-  border-bottom: 11px solid transparent;
-}
-
-#hero-video:hover .yt-play,
-#hero-video:focus-visible .yt-play {
-  background: var(--accent);
-  transform: translate(-50%, -50%) scale(1.05);
-}
-
+/* ABSTRACT (folded into the hero, below the buttons).
+ * Left-aligned prose; wider than a typical reading column so the
+ * whole hero (title, authors, buttons, abstract) has a chance of
+ * fitting in a single viewport. Tighter line-height for the same
+ * reason. */
 #abstract {
-  background: transparent;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-}
-
-#abstract .section-label {
-  margin-bottom: 0.75rem;
+  max-width: 960px;
+  margin: 1.6rem auto 0;
+  text-align: left;
 }
 
 #abstract p {
-  max-width: none;
   margin: 0;
   text-align: justify;
   text-align-last: left;
   hyphens: auto;
   -webkit-hyphens: auto;
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: var(--text-soft);
-  line-height: 1.72;
+  line-height: 1.6;
 }
 
 #abstract p + p {
-  margin-top: 0.75rem;
+  margin-top: 0.6rem;
 }
 
 /* FIGURES & MEDIA */
@@ -854,9 +791,52 @@ figcaption {
   max-width: 280px;
 }
 
-/* IN THE WILD: own chapter, banner-style grid video */
+/* IN THE WILD: own chapter, banner-style grid video.
+ * Compact vertical padding + compact labels so section-label + h2 + lede
+ * + labels + full-bleed grid fit in a typical laptop viewport. */
+#in-the-wild {
+  padding-top: 48px !important;
+  padding-bottom: 48px !important;
+}
+
 #in-the-wild .full-bleed {
-  margin-top: 1.8rem;
+  margin-top: 0;
+}
+
+/* Two equal-width titles above the full-bleed grid; each mirrors its half
+ * of the 8-column grid (left 4 cols = no-pert, right 4 cols = pert).
+ * Eyebrow (accent, uppercase, monospace) matches .section-label; title
+ * underneath uses the site's Inter heading treatment. */
+.wild-labels {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: 1.6rem;
+  margin-bottom: 0.9rem;
+  display: flex;
+}
+.wild-label {
+  flex: 1;
+  text-align: center;
+  padding: 0 1.5rem;
+}
+.wild-label-eyebrow {
+  display: block;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.wild-label-title {
+  display: block;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.3rem;
+  font-weight: 650;
+  color: var(--text);
+  letter-spacing: -0.018em;
 }
 
 /* FULL BLEED MEDIA
@@ -1088,7 +1068,8 @@ a.author-card:hover .author-photo {
 #attention,
 #benchmark,
 #faq,
-#team {
+#team,
+#acknowledgments {
   padding-top: 140px;
   padding-bottom: 140px;
 }
@@ -1101,11 +1082,24 @@ a.author-card:hover .author-photo {
   #attention,
   #benchmark,
   #faq,
-  #team {
+  #team,
+  #acknowledgments {
     padding-top: 88px;
     padding-bottom: 88px;
   }
 }
+
+/* Acknowledgments: constrain to a reading column so the prose doesn't
+ * sprawl the full container width like a section intro does. */
+#acknowledgments {
+  max-width: 860px;
+  margin: 0 auto;
+}
+#acknowledgments .body-text {
+  max-width: none;
+  margin-bottom: 1rem;
+}
+#acknowledgments .body-text:last-child { margin-bottom: 0; }
 
 /* FOCUS STATES (keyboard accessibility, branded) */
 :focus-visible {
@@ -1134,7 +1128,7 @@ a.author-card:hover .author-photo {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 56px;
   align-items: start;
-  margin-top: 72px;
+  margin-top: 90px;
 }
 
 .method-row:first-of-type { margin-top: 1rem; }
