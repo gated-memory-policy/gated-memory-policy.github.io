@@ -1074,6 +1074,12 @@ a.author-card:hover .author-photo {
   padding-bottom: 140px;
 }
 
+/* Team + Acknowledgments share a single viewport: collapse the gap
+ * between them and shorten their outer padding so both fit above the
+ * footer without scroll on ~900px+ displays. */
+#team { padding-bottom: 56px; }
+#acknowledgments { padding-top: 0; padding-bottom: 88px; }
+
 @media (max-width: 768px) {
   #cross-trial,
   #in-trial,
@@ -1087,6 +1093,8 @@ a.author-card:hover .author-photo {
     padding-top: 88px;
     padding-bottom: 88px;
   }
+  #team { padding-bottom: 40px; }
+  #acknowledgments { padding-top: 0; padding-bottom: 64px; }
 }
 
 /* Acknowledgments: constrain to a reading column so the prose doesn't

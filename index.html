@@ -142,6 +142,67 @@
   <p class="body-text">In cross-trial tasks, a physical parameter (such as surface friction or object mass) is randomly sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.</p>
 
 
+  <!-- 4B CASTING: 2 friction regimes. 3 column video grid, persistent
+       success rate chart on the right.
+       Video: assets/videos/cross_trial/casting/[high|low_friction]/
+       Chart: assets/charts/cross_trial/casting/success_rate.svg -->
+  <div class="subsection" id="cross-trial-casting">
+    <div class="task-header">
+      <div class="task-header-text">
+        <h3>Iterative Casting (Real)</h3>
+        <p class="subsection-intro">The robot needs to cast the object with an unknown friction coefficient so that the object stops sliding between two green lines.
+          The robot stops at the same position in each trial and adaptively adjusts its casting speed. In each episode, the robot is allowed 3 casting attempts. The
+          episode is considered successful if the last 2 trials are successful.</p>
+      </div>
+      <figure class="task-chart">
+        <div class="col-header">Success Rate</div>
+        <img src="assets/charts/cross_trial/casting/success_rate.svg" alt="Success rate bar chart — Casting">
+      </figure>
+    </div><!-- /.task-header -->
+
+    <div class="task-videos-full">
+        <div class="tab-bar" role="tablist" data-tabgroup="casting">
+          <button class="tab-btn active" data-tab="high_friction" role="tab">High Friction</button>
+          <button class="tab-btn"        data-tab="low_friction"  role="tab">Low Friction</button>
+        </div>
+
+        <div class="tab-panel active" data-tabgroup="casting" data-config="high_friction">
+          <div class="video-grid three-col">
+            <div class="video-col">
+              <div class="col-header ours">Ours (Gated Memory)</div>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/ours/ours_high_friction.mp4" type="video/mp4"></video></figure>
+            </div>
+            <div class="video-col">
+              <div class="col-header">Long-History DP</div>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_high_friction.mp4" type="video/mp4"></video></figure>
+            </div>
+            <div class="video-col">
+              <div class="col-header">No-History DP</div>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_high_friction.mp4" type="video/mp4"></video></figure>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-tabgroup="casting" data-config="low_friction">
+          <div class="video-grid three-col">
+            <div class="video-col">
+              <div class="col-header ours">Ours (Gated Memory)</div>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/ours/ours_low_friction.mp4" type="video/mp4"></video></figure>
+            </div>
+            <div class="video-col">
+              <div class="col-header">Long-History DP</div>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_low_friction.mp4" type="video/mp4"></video></figure>
+            </div>
+            <div class="video-col">
+              <div class="col-header">No-History DP</div>
+              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_low_friction.mp4" type="video/mp4"></video></figure>
+            </div>
+          </div>
+        </div>
+    </div><!-- /.task-videos-full -->
+  </div><!-- /#cross-trial-casting -->
+
+
   <!-- 4A PUSHING: 7 friction levels, µ notation in labels.
        Drop files into assets/videos/cross_trial/pushing/friction_[VALUE]/ -->
   <div class="subsection" id="cross-trial-pushing">
@@ -270,67 +331,6 @@
     </div>
     </div><!-- /.task-videos-full -->
   </div><!-- /#cross-trial-pushing -->
-
-
-  <!-- 4B CASTING: 2 friction regimes. 3 column video grid, persistent
-       success rate chart on the right.
-       Video: assets/videos/cross_trial/casting/[high|low_friction]/
-       Chart: assets/charts/cross_trial/casting/success_rate.svg -->
-  <div class="subsection" id="cross-trial-casting">
-    <div class="task-header">
-      <div class="task-header-text">
-        <h3>Iterative Casting (Real)</h3>
-        <p class="subsection-intro">The robot needs to cast the object with an unknown friction coefficient so that the object stops sliding between two green lines.
-          The robot stops at the same position in each trial and adaptively adjusts its casting speed. In each episode, the robot is allowed 3 casting attempts. The
-          episode is considered successful if the last 2 trials are successful.</p>
-      </div>
-      <figure class="task-chart">
-        <div class="col-header">Success Rate</div>
-        <img src="assets/charts/cross_trial/casting/success_rate.svg" alt="Success rate bar chart — Casting">
-      </figure>
-    </div><!-- /.task-header -->
-
-    <div class="task-videos-full">
-        <div class="tab-bar" role="tablist" data-tabgroup="casting">
-          <button class="tab-btn active" data-tab="high_friction" role="tab">High Friction</button>
-          <button class="tab-btn"        data-tab="low_friction"  role="tab">Low Friction</button>
-        </div>
-
-        <div class="tab-panel active" data-tabgroup="casting" data-config="high_friction">
-          <div class="video-grid three-col">
-            <div class="video-col">
-              <div class="col-header ours">Ours (Gated Memory)</div>
-              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/ours/ours_high_friction.mp4" type="video/mp4"></video></figure>
-            </div>
-            <div class="video-col">
-              <div class="col-header">Long-History DP</div>
-              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_high_friction.mp4" type="video/mp4"></video></figure>
-            </div>
-            <div class="video-col">
-              <div class="col-header">No-History DP</div>
-              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_high_friction.mp4" type="video/mp4"></video></figure>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-panel" data-tabgroup="casting" data-config="low_friction">
-          <div class="video-grid three-col">
-            <div class="video-col">
-              <div class="col-header ours">Ours (Gated Memory)</div>
-              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/ours/ours_low_friction.mp4" type="video/mp4"></video></figure>
-            </div>
-            <div class="video-col">
-              <div class="col-header">Long-History DP</div>
-              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/long_hist_dp/long_hist_low_friction.mp4" type="video/mp4"></video></figure>
-            </div>
-            <div class="video-col">
-              <div class="col-header">No-History DP</div>
-              <figure><video autoplay loop muted playsinline preload="none"><source src="assets/videos/cross_trial/casting/no_hist_dp/no_hist_low_friction.mp4" type="video/mp4"></video></figure>
-            </div>
-          </div>
-        </div>
-    </div><!-- /.task-videos-full -->
-  </div><!-- /#cross-trial-casting -->
 
 
   <!-- 4C FLINGING: cloth mass levels.
@@ -1027,8 +1027,9 @@
 <section id="acknowledgments">
   <span class="section-label">Acknowledgments</span>
   <h2>Thanks</h2>
-  <p class="body-text">The authors would like to thank the many individuals and organizations whose contributions made this work possible. We are especially grateful to <strong>Austin Patel</strong> for developing the excellent <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment, to <strong>Chiling Han</strong> for assistance with the baseline experiments, and to <strong>Mengda Xu</strong> and <strong>Huy Ha</strong> for their guidance on MuJoCo simulation. We also thank all members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for their thoughtful feedback on manuscript writing and presentation, along with Yuejiang Liu, Moo Jin Kim, John Yao, Shang Yang, Genghan Zhang, and Dongchen Han for insightful discussions throughout the course of this research.</p>
-  <p class="body-text">We gratefully acknowledge the institutional and hardware support that made this work possible: <strong>TRI</strong> for providing the UR5 robot, <strong>ARX</strong> for the X5 robot, <strong>Apple</strong> for the iPhone 15 Pro, and <strong>Stanford Marlowe</strong> for computational resources. This work was further supported in part by NSF Awards #2143601, #2037101, and #2132519. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of the sponsors.</p>
+  <p class="body-text">The authors would like to thank the many individuals and organizations whose contributions made this work possible. We are especially grateful to <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the excellent <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment, to <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments, and to <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for their guidance on MuJoCo simulation. We also thank all members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for their thoughtful feedback on manuscript writing and presentation, along with <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, John Yao, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for insightful discussions throughout the course of this research.</p>
+  <p class="body-text">We would like to thank TRI for providing the UR5 robot hardware and ARX for the X5 robot hardware. We thank Apple for providing the iPhone 15 Pro. We also thank Stanford Marlowe for providing computational resources.</p>
+  <p class="body-text">This work was supported in part by NSF Awards #2143601, #2037101, and #2132519. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of the sponsors.</p>
 </section>
 
 
