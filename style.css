@@ -615,13 +615,13 @@ figure video {
   display: block;
 }
 
-/* Uniform cell box across comparison grids: source clips vary in native
- * aspect (casting/flinging 4:3, pushing 16:9), which would otherwise make
- * the box shrink/grow per subsection. Lock every cell to 16:9 and cover
- * the frame so all three cross-trial and in-trial grids share one size. */
+/* Each video renders at its source clip's native aspect ratio. Heights
+ * will differ per subsection (casting/flinging clips are 4:3 and render
+ * taller; pushing clips are 16:9 and render shorter), but nothing is
+ * cropped and no letterbox bars appear. */
 .video-grid figure video {
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
+  aspect-ratio: auto;
+  object-fit: fill;
 }
 
 figcaption {
@@ -863,39 +863,44 @@ figcaption {
 .overlay-details summary {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   -webkit-appearance: none;
   appearance: none;
   list-style: none;
-  font-size: 0.78rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
+  letter-spacing: -0.005em;
+  text-transform: none;
+  color: var(--accent);
   cursor: pointer;
   user-select: none;
-  padding: 0;
+  padding: 2px 0;
   border: none;
-  background: none;
-  transition: color 0.15s;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.18s var(--ease-out), gap 0.18s var(--ease-out);
 }
 
 .overlay-details summary::-webkit-details-marker { display: none; }
 .overlay-details summary::marker { display: none; }
 
-.overlay-details summary:hover { color: var(--text); }
+.overlay-details summary:hover {
+  border-bottom-color: var(--accent);
+  gap: 9px;
+}
 
 .overlay-details summary::after {
   content: '';
   display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e6358' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b5552a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
   flex-shrink: 0;
-  transition: transform 0.2s;
+  transition: transform 0.2s var(--ease-out);
 }
 
 .overlay-details[open] summary::after { transform: rotate(180deg); }
@@ -1190,9 +1195,8 @@ a.author-card:hover .author-photo {
 /* MAJOR SECTIONS
  * Extra vertical padding on top level sections gives the eye breathing
  * room between chapters. */
-/* Uniform vertical rhythm across major sections: 40px top/bottom means
- * ~80px of breathing room between any two sections (slightly less than
- * the doubled base padding so the page reads tight without cramping). */
+/* Uniform vertical rhythm across major sections: 52px top/bottom means
+ * ~104px of breathing room between any two sections. */
 #cross-trial,
 #in-trial,
 #in-the-wild,
@@ -1202,15 +1206,15 @@ a.author-card:hover .author-photo {
 #faq,
 #team,
 #acknowledgments {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: 52px;
+  padding-bottom: 52px;
 }
 
-/* In-the-Wild is a full-bleed banner and needs to fit in one viewport on
- * typical laptops, so it gets tighter padding than the uniform rhythm. */
+/* In-the-Wild is a full-bleed banner and needs to stay compact, but its
+ * bottom gap to the Method section below deserves the full rhythm. */
 #in-the-wild {
-  padding-top: 24px !important;
-  padding-bottom: 24px !important;
+  padding-top: 32px !important;
+  padding-bottom: 48px !important;
 }
 
 @media (max-width: 768px) {
@@ -1223,12 +1227,12 @@ a.author-card:hover .author-photo {
   #faq,
   #team,
   #acknowledgments {
-    padding-top: 28px;
-    padding-bottom: 28px;
+    padding-top: 36px;
+    padding-bottom: 36px;
   }
   #in-the-wild {
-    padding-top: 16px !important;
-    padding-bottom: 16px !important;
+    padding-top: 20px !important;
+    padding-bottom: 32px !important;
   }
 }
 
@@ -1974,8 +1978,8 @@ a.author-card:hover .author-photo {
 
 .vid-time {
   position: absolute;
-  left: 10px;
-  bottom: 22px;
+  right: 10px;
+  top: 10px;
   display: flex;
   align-items: baseline;
   gap: 4px;
@@ -2252,3 +2256,69 @@ a.author-card:hover .author-photo {
     margin: 0 auto;
   }
 }
+
+
+/* ALWAYS-ON PROGRESS HINT for every video except the full-bleed banner.
+ * Viewers need to see where they are in a clip without having to hover,
+ * so the hairline, fill, and time readout stay visible. The knob + pill
+ * still only reveal on hover so the rest of the UI stays minimal. */
+.vid-track::before,
+.vid-fill {
+  opacity: 1;
+}
+
+.vid-time {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Muted corner shade keeps the always-on progress line legible over
+ * bright frames without the full hover gradient. Kept light and low so
+ * the shade stays subtle even on larger (4:3) video tiles. */
+.vid-controls::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.06) 65%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 180ms var(--ease-out);
+}
+
+.vid-host:hover .vid-controls::after {
+  opacity: 0;
+}
+
+/* Full-bleed banner (#in-the-wild hero video) keeps its original
+ * hover-only behavior so the cinematic framing isn't cluttered. */
+.vid-host-bleed .vid-track::before,
+.vid-host-bleed .vid-fill,
+.vid-host-bleed .vid-time {
+  opacity: 0;
+}
+
+.vid-host-bleed .vid-time { transform: translateY(-3px); }
+
+.vid-host-bleed:hover .vid-track::before,
+.vid-host-bleed:hover .vid-fill,
+.vid-host-bleed:hover .vid-time,
+.vid-host-bleed .vid-controls.is-scrub .vid-track::before,
+.vid-host-bleed .vid-controls.is-scrub .vid-fill,
+.vid-host-bleed .vid-controls.is-scrub .vid-time {
+  opacity: 1;
+}
+
+.vid-host-bleed:hover .vid-time,
+.vid-host-bleed .vid-controls.is-scrub .vid-time {
+  transform: translateY(0);
+}
+
+.vid-host-bleed .vid-controls::after { display: none; }
