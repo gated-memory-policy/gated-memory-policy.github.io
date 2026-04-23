@@ -44,6 +44,14 @@
   --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
+  /* Spacing scale. One ladder used throughout the site so section,
+   * subsection, row and item gaps nest cleanly instead of drifting. */
+  --space-xs:    8px;
+  --space-sm:    16px;
+  --space-md:    24px;
+  --space-lg:    48px;
+  --space-xl:    80px;
+  --space-2xl:   128px;
 }
 
 html { scroll-behavior: smooth; }
@@ -195,7 +203,7 @@ code {
   color: var(--text-soft);
   font-size: 1.0625rem;
   font-weight: 400;
-  line-height: 1.9;
+  line-height: 1.82;
   text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
@@ -410,30 +418,17 @@ section > .body-text { margin-bottom: 2rem; }
 
 #post-header .pub-meta time {
   font-variant-numeric: tabular-nums;
+  color: inherit;
 }
 
 #post-header .pub-meta-sep {
+  color: inherit;
   opacity: 0.55;
 }
 
 #post-header .pub-meta-updated {
   letter-spacing: 0.12em;
   opacity: 0.78;
-}
-
-#post-header .pub-meta time {
-  font-variant-numeric: tabular-nums;
-  color: inherit;
-}
-
-#post-header .pub-meta-sep {
-  color: inherit;
-  opacity: 0.6;
-}
-
-#post-header .pub-meta-updated {
-  font-style: italic;
-  opacity: 0.85;
 }
 
 #post-header .link-buttons {
@@ -461,7 +456,7 @@ section > .body-text { margin-bottom: 2rem; }
   border: 1px solid var(--border-hi);
   border-radius: 100px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: -0.005em;
   color: var(--text);
@@ -568,10 +563,10 @@ figure video {
 }
 
 figcaption {
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   font-style: normal;
   color: var(--text-muted);
-  text-align: center;
+  text-align: left;
   margin-top: 0.85rem;
   line-height: 1.6;
   letter-spacing: -0.005em;
@@ -622,12 +617,14 @@ figcaption {
 
 /* Column label above each video ("Ours", "Long-History DP", etc.) */
 .col-header {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   text-align: center;
   color: var(--text-muted);
   margin-bottom: 6px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 .col-header.ours {
@@ -665,10 +662,11 @@ figcaption {
 }
 
 .task-chart figcaption {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   text-align: center;
   margin-top: 6px;
-  line-height: 1.4;
+  line-height: 1.45;
+  color: var(--text-muted);
 }
 
 /* Video rows: negative margins on both sides push the block wider than its parent */
@@ -756,7 +754,7 @@ figcaption {
   border-radius: 0;
   background: transparent;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: -0.008em;
   color: var(--text-muted);
@@ -1096,7 +1094,7 @@ a.author-card:hover .author-photo {
 }
 
 .footer-copyright {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -1251,6 +1249,9 @@ a.author-card:hover .author-photo {
 }
 
 .method-caption h3 {
+  font-size: 1.2rem;
+  font-weight: 650;
+  letter-spacing: -0.014em;
   color: var(--text);
   margin: 0 0 0.6rem;
   padding-bottom: 0.55rem;
@@ -1356,7 +1357,7 @@ a.author-card:hover .author-photo {
   user-select: none;
   padding: 22px 44px 22px 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.02rem;
+  font-size: 1.05rem;
   font-weight: 550;
   letter-spacing: -0.012em;
   color: var(--text);
@@ -1423,7 +1424,7 @@ a.author-card:hover .author-photo {
   display: block;
 }
 .faq-video figcaption {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   text-align: center;
   margin-top: 0.5rem;
@@ -1507,7 +1508,7 @@ a.author-card:hover .author-photo {
   aspect-ratio: 1 / 1;
   padding: 24px 22px 20px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--surface);
   display: flex;
   flex-direction: column;
@@ -1530,7 +1531,7 @@ a.author-card:hover .author-photo {
 }
 
 .taxonomy-card h3 {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 650;
   margin: 0 0 0.55rem;
   color: var(--text);
@@ -1553,8 +1554,8 @@ a.author-card:hover .author-photo {
 }
 
 .taxonomy-card p {
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.65;
   color: var(--text-soft);
   margin: 0;
 }
@@ -1619,7 +1620,7 @@ a.author-card:hover .author-photo {
 }
 
 .design-list > li h3 {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 650;
   margin: 0 0 0.55rem;
   color: var(--text);
@@ -1643,7 +1644,7 @@ a.author-card:hover .author-photo {
 .task-tag {
   display: inline-block;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1663,7 +1664,7 @@ a.author-card:hover .author-photo {
 /* GROUP HEADER within MemMimic (In-Trial Tasks / Cross-Trial Tasks).
  * Sits between the section h2 and the per-task h3s. */
 .group-header {
-  font-size: 1.55rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.02em;
@@ -1820,7 +1821,7 @@ a.author-card:hover .author-photo {
 }
 
 .cta-question {
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   font-style: italic;
   margin: 0;
@@ -2183,17 +2184,17 @@ a.author-card:hover .author-photo {
   align-items: center;
   gap: 1px;
   padding: 3px 4px;
-  background: rgba(18, 14, 10, 0.68);
+  background: rgba(26, 22, 18, 0.55);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
   backdrop-filter: blur(10px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   opacity: 0;
   transform: translateY(3px);
   transition: opacity 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
               transform 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   pointer-events: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 10px rgba(26, 22, 18, 0.18);
 }
 
 .vid-time {
@@ -2204,14 +2205,14 @@ a.author-card:hover .author-photo {
   align-items: baseline;
   gap: 4px;
   padding: 5px 10px;
-  background: rgba(18, 14, 10, 0.68);
+  background: rgba(26, 22, 18, 0.55);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
   backdrop-filter: blur(10px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  color: #f6f1e4;
+  color: #faf7f0;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
   font-weight: 500;
@@ -2221,7 +2222,7 @@ a.author-card:hover .author-photo {
   transition: opacity 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
               transform 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
   pointer-events: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 10px rgba(26, 22, 18, 0.18);
   white-space: nowrap;
 }
 
@@ -2253,15 +2254,15 @@ a.author-card:hover .author-photo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #f6f1e4;
+  color: #faf7f0;
   cursor: pointer;
   border-radius: 999px;
   transition: background 140ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
               color 140ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
-.vid-btn:hover { background: rgba(255, 255, 255, 0.14); }
-.vid-btn:active { background: rgba(255, 255, 255, 0.22); }
+.vid-btn:hover { background: rgba(255, 255, 255, 0.16); }
+.vid-btn:active { background: rgba(255, 255, 255, 0.24); }
 .vid-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 1px; }
 
 .vid-btn svg {
