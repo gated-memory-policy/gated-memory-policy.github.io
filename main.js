@@ -12,8 +12,23 @@
  *   .tab-bar[data-tabgroup="X"]         container
  *   .tab-btn[data-tab="V"]              buttons within that bar
  *   .tab-panel[data-tabgroup="X"][data-config="V"]   matching panel
- * Activating a panel calls video.load() so autoplay resumes after display:none.
+ * Activating a panel resumes autoplay videos without forcing load(), because
+ * load() resets currentTime and breaks custom scrubbing.
  */
+function guardedVideoLoad(video) {
+  if (!video) return false;
+  // load() resets the media element to t=0. Do not call it while the user
+  // is scrubbing, or after metadata is already present and seeking works.
+  if (video.dataset.scrubbing === '1') return false;
+  if (video.readyState > 0 || video.duration > 0) return false;
+  try {
+    video.load();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   var group = tabBar.dataset.tabgroup;
 
@@ -34,11 +49,13 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
       );
       if (activePanel) {
         activePanel.classList.add('active');
-        // load() reattaches media pipeline after display:none; play() only on autoplay videos.
         activePanel.querySelectorAll('video').forEach(function (video) {
-          video.load();
+          video.preload = 'auto';
           if (video.hasAttribute('autoplay')) {
+            video.muted = true;
             video.play().catch(function () {});
+          } else {
+            guardedVideoLoad(video);
           }
         });
       }
@@ -90,6 +107,11 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     while (inflight < MAX_INFLIGHT && queue.length) {
       var v = queue.shift();
       if (!v || state.get(v) !== 'queued') continue;
+      if (v.dataset.scrubbing === '1') {
+        queue.push(v);
+        schedule(pump);
+        return;
+      }
       state.set(v, 'loading');
       inflight++;
       v.preload = 'auto';
@@ -98,7 +120,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
       v.addEventListener('loadeddata', onDone);
       v.addEventListener('error', onDone);
       timers.set(v, setTimeout(onDone.bind(v), 8000));
-      try { v.load(); } catch (e) { onDone.call(v); }
+      if (!guardedVideoLoad(v)) onDone.call(v);
     }
   }
 
@@ -161,10 +183,11 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
           if (v.hasAttribute('autoplay')) {
             enqueue(v, true);
             v.muted = true;
+            if (v.dataset.userPaused === '1') return;
             if (v.paused) v.play().catch(function () {});
           } else {
             v.preload = 'auto';
-            try { v.load(); } catch (e) {}
+            guardedVideoLoad(v);
           }
         });
       });
@@ -189,11 +212,17 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   // re-entry. Scrolling back to a previously seen video resumes it.
   // Safari requires the muted *property* (not just the attribute) to be true
   // at the moment play() is called, or its autoplay policy rejects the call.
+  //
+  // Custom-controls flags:
+  //   data-user-paused="1"  user clicked our pause button; skip auto play
+  //   data-scrubbing="1"    user is dragging our progress bar; skip auto pause
   var playObs = new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       var v = e.target;
+      if (v.dataset.scrubbing === '1') return;   // never fight an active drag
       if (e.isIntersecting) {
         if (state.get(v) !== 'ready') enqueue(v, true);
+        if (v.dataset.userPaused === '1') return;
         if (v.paused) { v.muted = true; v.play().catch(function () {}); }
       } else if (!v.paused) v.pause();
     });
@@ -289,20 +318,30 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     window.addEventListener('resize', updateNavVisibility);
   }
 
-  // Pair each link with its target section.
+  // Group links by target section so multiple links pointing to the same
+  // section (e.g., "MemMimic" parent + "Cross-Trial Tasks" sublink) all
+  // light up together.
   var sections = [];
+  var byId = {};
   links.forEach(function (link) {
-    var el = document.getElementById(link.getAttribute('href').slice(1));
-    if (el) sections.push({ el: el, link: link });
+    var id = link.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (!byId[id]) { byId[id] = { el: el, links: [] }; sections.push(byId[id]); }
+    byId[id].links.push(link);
   });
 
-  // Highlight whichever section is in the upper portion of the viewport.
+  // MemMimic parent stays active whenever any of its children is in view.
+  var MEM_CHILDREN = { 'cross-trial': 1, 'in-trial': 1 };
+  var memParent = document.querySelector('.toc-link.toc-parent');
+
   var sectionObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (!entry.isIntersecting) return;
       links.forEach(function (l) { l.classList.remove('active'); });
       var match = sections.find(function (s) { return s.el === entry.target; });
-      if (match) match.link.classList.add('active');
+      if (match) match.links.forEach(function (l) { l.classList.add('active'); });
+      if (memParent && MEM_CHILDREN[entry.target.id]) memParent.classList.add('active');
     });
   }, { rootMargin: '-15% 0px -75% 0px' });
   sections.forEach(function (s) { sectionObs.observe(s.el); });
@@ -345,3 +384,346 @@ function fallbackCopy(text, callback) {
   document.body.removeChild(ta);
   callback();
 }
+
+
+/* CUSTOM VIDEO CONTROLS
+ * Hover-reveal progress + play/rate/fullscreen pill on every <video>.
+ * Autoplay/autoloop stays wired through the IntersectionObserver above;
+ * this module coordinates via two data flags:
+ *   - data-user-paused="1"   user hit our pause button; skip auto-play
+ *   - data-scrubbing="1"     user is dragging the track; skip auto-pause
+ */
+(function () {
+  var RATES = [0.5, 1, 1.5, 2];
+
+  var SVG_PLAY  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5-13-7.5z" fill="currentColor"/></svg>';
+  var SVG_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="4.5" width="3.5" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="3.5" height="15" rx="1" fill="currentColor"/></svg>';
+  var SVG_FS    = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 9 4 4 9 4"/><polyline points="20 9 20 4 15 4"/><polyline points="4 15 4 20 9 20"/><polyline points="20 15 20 20 15 20"/></svg>';
+  var SVG_FS_EXIT = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 4 9 9 4 9"/><polyline points="15 4 15 9 20 9"/><polyline points="4 15 9 15 9 20"/><polyline points="20 15 15 15 15 20"/></svg>';
+
+  function makeBtn(cls, html, label) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = cls;
+    b.innerHTML = html;
+    b.setAttribute('aria-label', label);
+    return b;
+  }
+
+  function attach(video) {
+    if (video.dataset.customControls === '1') return;
+    video.dataset.customControls = '1';
+    // We render our own UI; kill any native controls.
+    video.removeAttribute('controls');
+    video.controls = false;
+
+    // Always wrap the video in a fresh .vid-host div so the overlay only
+    // covers the video rect (never a sibling <figcaption> below it).
+    var host = video.parentElement;
+    if (!host.classList.contains('vid-host')) {
+      var wrap = document.createElement('div');
+      wrap.className = 'vid-host';
+      host.insertBefore(wrap, video);
+      wrap.appendChild(video);
+      host = wrap;
+    }
+    if (video.classList.contains('full-bleed')) host.classList.add('vid-host-bleed');
+
+    var overlay = document.createElement('div');
+    overlay.className = 'vid-controls';
+
+    var track = document.createElement('div');
+    track.className = 'vid-track';
+    var fill  = document.createElement('div');
+    fill.className = 'vid-fill';
+    var knob  = document.createElement('div');
+    knob.className = 'vid-knob';
+    var range = document.createElement('input');
+    range.className = 'vid-range';
+    range.type = 'range';
+    range.min = '0';
+    range.max = '1000';
+    range.step = '1';
+    range.value = '0';
+    range.setAttribute('aria-label', 'Seek video');
+    track.appendChild(fill);
+    track.appendChild(knob);
+    track.appendChild(range);
+
+    var time = document.createElement('div');
+    time.className = 'vid-time';
+    var timeCur = document.createElement('span');
+    timeCur.className = 'vid-time-cur';
+    timeCur.textContent = '0:00';
+    var timeSep = document.createElement('span');
+    timeSep.className = 'vid-time-sep';
+    timeSep.textContent = '/';
+    var timeTot = document.createElement('span');
+    timeTot.className = 'vid-time-tot';
+    timeTot.textContent = '0:00';
+    time.appendChild(timeCur);
+    time.appendChild(timeSep);
+    time.appendChild(timeTot);
+
+    var pill = document.createElement('div');
+    pill.className = 'vid-pill';
+    var btnPlay = makeBtn('vid-btn vid-btn-play', SVG_PLAY, 'Play/Pause');
+    var btnRate = makeBtn('vid-btn vid-btn-rate', '1×', 'Playback speed');
+    var btnFs   = makeBtn('vid-btn vid-btn-fs', SVG_FS, 'Fullscreen');
+    pill.appendChild(btnPlay);
+    pill.appendChild(btnRate);
+    pill.appendChild(btnFs);
+
+    overlay.appendChild(track);
+    overlay.appendChild(time);
+    overlay.appendChild(pill);
+    host.appendChild(overlay);
+
+    // Initial rate index picks up any existing data-playbackrate default.
+    var seedRate = parseFloat(video.dataset.playbackrate);
+    var rateIdx = 1;
+    if (seedRate > 0) {
+      var i = RATES.indexOf(seedRate);
+      if (i >= 0) rateIdx = i;
+    }
+    btnRate.textContent = RATES[rateIdx] + '×';
+
+    var RANGE_MAX = 1000;
+    var scrubbing = false;
+
+    function syncPlayIcon() {
+      btnPlay.innerHTML = video.paused ? SVG_PLAY : SVG_PAUSE;
+    }
+    function fmtTime(t) {
+      if (!isFinite(t) || t < 0) t = 0;
+      var total = Math.floor(t);
+      var m = Math.floor(total / 60);
+      var s = total % 60;
+      return m + ':' + (s < 10 ? '0' + s : s);
+    }
+    function syncFill() {
+      if (scrubbing) return;
+      var d = video.duration;
+      if (!(d > 0)) {
+        fill.style.width = '0%';
+        knob.style.left = '0%';
+        timeCur.textContent = '0:00';
+        timeTot.textContent = '0:00';
+        return;
+      }
+      var pct = Math.max(0, Math.min(100, (video.currentTime / d) * 100));
+      fill.style.width = pct + '%';
+      knob.style.left = pct + '%';
+      range.value = String(Math.round((pct / 100) * RANGE_MAX));
+      timeCur.textContent = fmtTime(video.currentTime);
+      timeTot.textContent = fmtTime(d);
+    }
+    video.addEventListener('play', syncPlayIcon);
+    video.addEventListener('pause', syncPlayIcon);
+    video.addEventListener('timeupdate', syncFill);
+    video.addEventListener('loadedmetadata', syncFill);
+    video.addEventListener('durationchange', syncFill);
+    syncPlayIcon();
+    syncFill();
+
+    // Smoother scrubber while hovering the host: cheap RAF only when
+    // we're actively engaged with a video, otherwise we rely on the
+    // browser's 4Hz timeupdate event.
+    var hoverRafId = 0;
+    function tickHover() {
+      if (!video.paused) syncFill();
+      hoverRafId = requestAnimationFrame(tickHover);
+    }
+    host.addEventListener('pointerenter', function () {
+      if (!hoverRafId) hoverRafId = requestAnimationFrame(tickHover);
+    });
+    host.addEventListener('pointerleave', function () {
+      if (hoverRafId) { cancelAnimationFrame(hoverRafId); hoverRafId = 0; }
+    });
+
+    function togglePlay() {
+      if (video.paused) {
+        video.dataset.userPaused = '';
+        video.muted = true;
+        video.play().catch(function () {});
+      } else {
+        video.dataset.userPaused = '1';
+        video.pause();
+      }
+    }
+
+    // Click anywhere on the video surface toggles play/pause.
+    video.addEventListener('click', function () { togglePlay(); });
+
+    btnPlay.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      togglePlay();
+    });
+
+    btnRate.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      rateIdx = (rateIdx + 1) % RATES.length;
+      var r = RATES[rateIdx];
+      video.playbackRate = r;
+      if (video.dataset.playbackrate) video.dataset.playbackrate = String(r);
+      btnRate.textContent = r + '×';
+    });
+
+    btnFs.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fsEl) {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else if (host.requestFullscreen) {
+        host.requestFullscreen().catch(function () {
+          if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+        });
+      } else if (host.webkitRequestFullscreen) {
+        host.webkitRequestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      }
+    });
+    function syncFsIcon() {
+      var active = (document.fullscreenElement === host) ||
+                   (document.webkitFullscreenElement === host);
+      btnFs.innerHTML = active ? SVG_FS_EXIT : SVG_FS;
+    }
+    document.addEventListener('fullscreenchange', syncFsIcon);
+    document.addEventListener('webkitfullscreenchange', syncFsIcon);
+
+    // Scrubber. A transparent native <input type=range> sits on top of
+    // .vid-track; the browser owns drag capture and thumb movement. We
+    // commit on every `input` event (drag preview + tap-to-position).
+    // seekToPct no-ops while duration is unknown, so an early drag moves
+    // the knob visually and starts seeking once loadedmetadata fires.
+    var wasPlaying = false;
+
+    function rangePct() {
+      var v = parseFloat(range.value);
+      if (!(v >= 0)) v = 0;
+      return Math.max(0, Math.min(1, v / RANGE_MAX));
+    }
+    function renderPct(pct) {
+      var s = (pct * 100) + '%';
+      fill.style.width = s;
+      knob.style.left = s;
+      range.value = String(Math.round(pct * RANGE_MAX));
+      var d = video.duration;
+      if (d > 0) timeCur.textContent = fmtTime(pct * d);
+    }
+    function seekToPct(pct) {
+      var d = video.duration;
+      if (!(d > 0)) return;
+      // Clamp just below the end so a near-end seek on a looped clip
+      // cannot wrap to 0 before the frame lands.
+      var t = Math.min(pct * d, Math.max(0, d - 0.05));
+      try { video.currentTime = t; } catch (e) {}
+    }
+
+    range.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      scrubbing = true;
+      wasPlaying = !video.paused;
+      overlay.classList.add('is-scrub');
+      video.dataset.scrubbing = '1';
+      if (video.preload !== 'auto') video.preload = 'auto';
+      if (wasPlaying) video.pause();
+      ev.stopPropagation();
+    });
+    range.addEventListener('input', function (ev) {
+      var pct = rangePct();
+      renderPct(pct);
+      seekToPct(pct);
+      ev.stopPropagation();
+    });
+
+    function endScrub() {
+      if (!scrubbing) return;
+      scrubbing = false;
+      overlay.classList.remove('is-scrub');
+      syncFill();
+      if (wasPlaying) {
+        video.muted = true;
+        video.play().catch(function () {});
+      }
+      // Hold data-scrubbing briefly so a late IntersectionObserver pass
+      // doesn't auto-pause the video we just told to resume.
+      setTimeout(function () {
+        if (!scrubbing) video.dataset.scrubbing = '';
+      }, 260);
+    }
+    range.addEventListener('change', endScrub);
+    range.addEventListener('pointerup', endScrub);
+    range.addEventListener('pointercancel', endScrub);
+    range.addEventListener('blur', endScrub);
+    range.addEventListener('click', function (ev) { ev.stopPropagation(); });
+  }
+
+  function wireAll() {
+    document.querySelectorAll('video').forEach(attach);
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', wireAll)
+    : wireAll();
+})();
+
+
+/* METHOD IMAGE LIGHTBOX
+ * Click any .method-img img to open a centered zoomed view on a dimmed
+ * backdrop. Close with a click on the backdrop, the × button, or Esc.
+ */
+(function () {
+  var overlay = null;
+
+  function close() {
+    if (!overlay) return;
+    overlay.classList.remove('is-open');
+    var node = overlay;
+    setTimeout(function () { if (node && node.parentNode) node.parentNode.removeChild(node); }, 200);
+    overlay = null;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onKey);
+  }
+
+  function onKey(ev) {
+    if (ev.key === 'Escape') close();
+  }
+
+  function open(src, alt) {
+    close();
+    overlay = document.createElement('div');
+    overlay.className = 'img-lightbox';
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = alt || '';
+    overlay.appendChild(img);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'img-lightbox-close';
+    btn.setAttribute('aria-label', 'Close');
+    btn.textContent = '×';
+    overlay.appendChild(btn);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    // next frame so the transition fires
+    requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+    overlay.addEventListener('click', function (ev) {
+      if (ev.target === img) return;   // clicking on the image itself doesn't dismiss
+      close();
+    });
+    btn.addEventListener('click', function (ev) { ev.stopPropagation(); close(); });
+    document.addEventListener('keydown', onKey);
+  }
+
+  function wire() {
+    document.querySelectorAll('.method-img img').forEach(function (img) {
+      img.addEventListener('click', function () { open(img.src, img.alt); });
+    });
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', wire)
+    : wire();
+})();

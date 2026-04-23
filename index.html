@@ -19,16 +19,16 @@
 <nav id="toc-nav" aria-label="Page sections">
   <div class="toc-inner">
     <p class="toc-title">On This Page</p>
-    <a class="toc-link" href="#abstract">Abstract</a>
-    <a class="toc-link" href="#cross-trial">Cross-Trial Tasks</a>
-    <a class="toc-link" href="#in-trial">In-Trial Tasks</a>
-    <a class="toc-link" href="#in-the-wild">Generalization</a>
+    <a class="toc-link" href="#abstract">Overview</a>
+    <a class="toc-link toc-parent" href="#cross-trial">MemMimic</a>
+    <a class="toc-link toc-sublink" href="#cross-trial">Cross-Trial Tasks</a>
+    <a class="toc-link toc-sublink" href="#in-trial">In-Trial Tasks</a>
+    <a class="toc-link" href="#in-the-wild">In-the-Wild</a>
     <a class="toc-link" href="#method">Method</a>
-    <a class="toc-link" href="#attention">Attention Visualization</a>
-    <a class="toc-link" href="#benchmark">Benchmark</a>
-    <a class="toc-link" href="#faq">Questions &amp; Answers</a>
+    <a class="toc-link" href="#attention">Causal Attention</a>
+    <a class="toc-link" href="#benchmark">Other Benchmarks</a>
+    <a class="toc-link" href="#faq">FAQ</a>
     <a class="toc-link" href="#team">Team</a>
-    <a class="toc-link" href="#acknowledgments">Acknowledgments</a>
   </div>
 </nav>
 
@@ -44,7 +44,11 @@
     <a href="https://shurans.github.io/" target="_blank" rel="noopener">Shuran Song</a><span class="corresponding" title="Corresponding author">†</span>
   </p>
   <p class="institution">Stanford University</p>
-  <p class="hero-tagline">Robot policies that blindly extend observation histories overfit and regress. GMP learns <strong>when</strong> and <strong>what</strong> to recall, achieving <span class="highlight">30.1% higher success rates</span> on non-Markovian manipulation while staying competitive on Markovian tasks.</p>
+  <p class="pub-meta">
+    <time datetime="2026-04-22">Published April 22, 2026</time>
+    <span class="pub-meta-sep" aria-hidden="true">&middot;</span>
+    <span class="pub-meta-updated">Updated <time datetime="2026-04-23">April 23, 2026</time></span>
+  </p>
 
   <div class="link-buttons">
 
@@ -61,14 +65,8 @@
     </a>
 
     <!-- arXiv -->
-    <a href="https://arxiv.org/abs/2604.18933" target="_blank" rel="noopener" class="btn-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        <line x1="9" y1="9" x2="15" y2="9"/>
-        <line x1="9" y1="13" x2="13" y2="13"/>
-      </svg>
+    <a href="https://arxiv.org/abs/2604.18933" target="_blank" rel="noopener" class="btn-link" aria-label="arXiv preprint">
+      <img class="arxiv-logo" src="assets/images/arxiv-logomark.svg" alt="">
       arXiv
     </a>
 
@@ -115,6 +113,50 @@
        single or multiple interaction trials. Surprisingly, simply extending observation histories of
        a visuomotor policy often leads to a significant performance drop due to distribution shift
        and overfitting.</p>
+
+    <!-- TEASER FIGURE (Fig. 1): visual distillation of the three memory
+         regimes. Sits inside the abstract so it reads as part of the
+         opening argument. Photos in assets/images/teaser/. -->
+    <figure class="teaser-figure">
+      <div class="tf-headers">
+        <div class="tf-header">
+          <span class="tf-title-row">
+            <span class="tf-letter">(a)</span>
+            <span class="tf-title">No Memory</span>
+          </span>
+          <span class="tf-sub">Markovian</span>
+        </div>
+        <div class="tf-header">
+          <span class="tf-title-row">
+            <span class="tf-letter">(b)</span>
+            <span class="tf-title">In-Trial Memory</span>
+          </span>
+          <span class="tf-sub">Working Memory</span>
+        </div>
+        <div class="tf-header">
+          <span class="tf-title-row">
+            <span class="tf-letter">(c)</span>
+            <span class="tf-title">Cross-Trial Memory</span>
+          </span>
+          <span class="tf-sub">Reference Memory</span>
+        </div>
+      </div>
+
+      <div class="tf-photos">
+        <img src="assets/images/teaser/markovian.svg" alt="Markovian task example">
+        <img src="assets/images/teaser/in-trial.svg" alt="In-trial memory task example">
+        <img src="assets/images/teaser/cross-trial.svg" alt="Cross-trial memory task example">
+      </div>
+
+      <div class="tf-descriptions">
+        <p><em>Tool Hang</em>.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> The robot inserts a hook into a base and hangs a wrench on it. Precision-heavy, but every action is determined by the current frame, so history adds no signal.</p>
+        <p><em><a href="#in-trial-place-back-real">Continuous Place Back</a>.</em> After placing a cup on a saucer, the robot returns it to within 5&nbsp;cm of where it started. The start position is seen only once, so the policy must hold it in <a href="https://dictionary.apa.org/working-memory" target="_blank" rel="noopener">working memory</a> across the motion.</p>
+        <p><em><a href="#cross-trial-casting">Iterative Casting</a>.</em> The robot casts an object to stop between two green lines across three attempts. Friction is hidden but fixed, so the policy infers it from earlier outcomes and adjusts across trials via <a href="https://www.sciencedirect.com/topics/psychology/reference-memory" target="_blank" rel="noopener">reference memory</a>.</p>
+      </div>
+
+      <figcaption><strong>Memory requirements in robot manipulation</strong> range from (a) <em>Markovian</em> tasks requiring no memory, to (b) <em>in-trial</em> memory that retains a single-episode cue, and (c) <em>cross-trial</em> memory that aggregates information across attempts. Naively extending policy history degrades performance on Markovian tasks and grows expensive for cross-trial memory. GMP selectively recalls task-relevant history, achieving strong performance across all three regimes.</figcaption>
+    </figure>
+
     <p>To address these issues, we propose <em>Gated Memory Policy</em> (GMP), a visuomotor
        policy that learns both <strong>when</strong> to recall memory and <strong>what</strong> to recall. To learn
        when to recall memory, GMP employs a learned memory gate mechanism that selectively activates
@@ -124,8 +166,10 @@
        noise into historical actions, mitigating sensitivity to noisy or inaccurate histories during
        both training and inference.</p>
     <p>On our proposed non-Markovian benchmark <em>MemMimic</em>, GMP achieves a
-       <strong>30.1% average success rate improvement</strong> over long-history baselines, while
-       maintaining competitive performance on Markovian tasks in RoboMimic. All code and data will
+       <strong>30.1% average success rate improvement</strong> over long-history baselines
+       (including <a href="https://arxiv.org/abs/2303.04137" target="_blank" rel="noopener">Diffusion Policy</a>
+       with long history, and the LSTM-based <a href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener">BC-RNN</a>), while
+       maintaining competitive performance on Markovian tasks in RoboMimic<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a>. All code and data will
        be publicly available.</p>
   </div>
 
@@ -138,8 +182,9 @@
      Video path: assets/videos/cross_trial/[task]/[policy]/[config].mp4
        policies: ours, long_hist_dp, no_hist_dp -->
 <section id="cross-trial">
+  <span class="section-label">MemMimic Benchmark</span>
   <h2>Cross-Trial Memory Tasks</h2>
-  <p class="body-text">In cross-trial tasks, a physical parameter (such as surface friction or object mass) is randomly sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.</p>
+  <p class="body-text">In cross-trial tasks, a physical parameter (such as surface friction or object mass) is sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Tasks T4&ndash;T6, Figs. 8&ndash;10">6</a></p>
 
 
   <!-- 4B CASTING: 2 friction regimes. 3 column video grid, persistent
@@ -156,7 +201,7 @@
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/cross_trial/casting/success_rate.svg" alt="Success rate bar chart — Casting">
+        <img src="assets/charts/cross_trial/casting/success_rate.svg" alt="Success rate bar chart,Casting">
       </figure>
     </div><!-- /.task-header -->
 
@@ -214,7 +259,7 @@
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/cross_trial/pushing/success_rate.svg" alt="Success rate bar chart — Pushing">
+        <img src="assets/charts/cross_trial/pushing/success_rate.svg" alt="Success rate bar chart,Pushing">
       </figure>
     </div><!-- /.task-header -->
 
@@ -340,11 +385,11 @@
       <div class="task-header-text">
         <h3>Iterative Flinging (Sim)</h3>
         <p class="subsection-intro">The robot must fling the cloth so that its far edge lands in the target (black) area.
-          In each episode, the cloth's mass is randomly sampled between 0.1 kg and 2.0 kg, and the robot is allowed five flings. Flinging too slowly prevents the cloth from fully extending, while flinging too fast causes it to fold back on itself—both resulting in failure. An episode is considered successful if the last 3 trials are all successful.</p>
+          In each episode, the cloth's mass is randomly sampled between 0.1 kg and 2.0 kg, and the robot is allowed five flings. Flinging too slowly prevents the cloth from fully extending, while flinging too fast causes it to fold back on itself; both result in failure. An episode is considered successful if the last 3 trials are all successful.</p>
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/cross_trial/flinging/success_rate.svg" alt="Success rate bar chart — Flinging">
+        <img src="assets/charts/cross_trial/flinging/success_rate.svg" alt="Success rate bar chart,Flinging">
       </figure>
     </div><!-- /.task-header -->
 
@@ -487,8 +532,9 @@
      Video path: assets/videos/in_trial/[task]/[location]/[policy].mp4
        policies: ours, long_hist_dp, no_hist_dp -->
 <section id="in-trial">
+  <span class="section-label">MemMimic Benchmark</span>
   <h2>In-Trial Memory Tasks</h2>
-  <p class="body-text">In-trial tasks require the robot to recall a cue observed earlier within a single episode (such as an object's starting position or a bin's color). The relevant context appears only once; the policy must encode and retain it to succeed at a later decision point. GMP's lightweight cross-attention module constructs effective latent memory on demand, gating out irrelevant history to stay focused.</p>
+  <p class="body-text">In-trial tasks require the robot to recall a cue observed earlier within a single episode (such as an object's starting position or a bin's color). The relevant context appears only once; the policy must encode and retain it until a later decision point. GMP's lightweight cross-attention module constructs an effective latent memory on demand, gating out irrelevant history to stay focused.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Tasks T1&ndash;T3, Figs. 4&ndash;6">7</a></p>
 
 
   <!-- 5A CUP: multiple locations, initial position accordion below.
@@ -503,7 +549,7 @@
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/in_trial/place_back_real/success_rate.svg" alt="Success rate bar chart — Place Back (Real)">
+        <img src="assets/charts/in_trial/place_back_real/success_rate.svg" alt="Success rate bar chart,Place Back (Real)">
       </figure>
     </div><!-- /.task-header -->
 
@@ -623,7 +669,7 @@
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/in_trial/match_color/success_rate.svg" alt="Success rate bar chart — Match Color">
+        <img src="assets/charts/in_trial/match_color/success_rate.svg" alt="Success rate bar chart,Match Color">
       </figure>
     </div><!-- /.task-header -->
 
@@ -717,7 +763,7 @@
       </div>
       <figure class="task-chart">
         <div class="col-header">Success Rate</div>
-        <img src="assets/charts/in_trial/place_back/success_rate.svg" alt="Success rate bar chart — Place Back">
+        <img src="assets/charts/in_trial/place_back/success_rate.svg" alt="Success rate bar chart,Place Back">
       </figure>
     </div><!-- /.task-header -->
 
@@ -808,10 +854,10 @@
 <section id="in-the-wild">
   <span class="section-label">Generalization</span>
   <h2>In-the-Wild Results</h2>
-  <p class="body-text">40 outdoor Continuous Place Back trials run end-to-end with Gated Memory Policy, across backgrounds, lighting, surfaces, and cup placements never seen in training. Some include <span class="highlight">human perturbation</span>, where we flip the cup over by hand mid-task.</p>
+  <p class="body-text">To stress-test robustness in the wild, we deploy GMP outdoors on <em><a href="#in-trial-place-back-real">Continuous Place Back</a></em>, one of our <a href="#in-trial">in-trial memory tasks</a>. The robot places the cup on the saucer and returns it to within 5&nbsp;cm of where it started. Because the start position is visible <strong>only once, at the beginning of the episode</strong>, and leaves the camera view the moment the cup is lifted, the policy must <span class="highlight">retain the start location in memory</span> for the entire pick-and-place. We show two variants side by side: a clean version on the left, and a perturbation version on the right in which a human flips the cup over by ~90 degrees mid-task, forcing the policy to right the cup and still find its way back. Trials span backgrounds, lighting, surfaces, and cup placements never seen in training, collected and deployed via <a href="https://austinapatel.github.io/" target="_blank" rel="noopener"><em>iPhUMI</em></a>. All clips play at <strong>1&times; real-time speed</strong>.</p>
 
-  <!-- Left half of the grid (cols 0-3) = no-perturbation trials;
-       right half (cols 4-7) = perturbation trials. Labels mirror that. -->
+  <!-- Left half of the grid (cols 0-3) = Continuous Place Back outdoors;
+       right half (cols 4-7) = Flip and Place Back (T3' in the paper). -->
   <div class="wild-labels">
     <div class="wild-label">
       <span class="wild-label-eyebrow">Continuous Place Back</span>
@@ -819,7 +865,7 @@
     </div>
     <div class="wild-label">
       <span class="wild-label-eyebrow">Continuous Place Back</span>
-      <span class="wild-label-title">With Perturbation</span>
+      <span class="wild-label-title">With Human Perturbation</span>
     </div>
   </div>
 
@@ -836,13 +882,15 @@
 <section id="method">
   <h2>Method</h2>
 
+  <p class="body-text">GMP decomposes the memory problem into two coupled decisions: <strong>when</strong> to read history, and <strong>what</strong> to read. A binary memory gate μ<sub>t</sub>, conditioned on the current observation, controls the former; when the gate is active, a cross-attention block reads from a cache of per-frame summary tokens to produce the latter. A third component augments cached action traces with diffusion noise one step cleaner than the prediction target, stabilizing predictions under imperfect history at deployment.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B">4</a></p>
+
   <div class="method-row">
     <figure class="method-img">
       <img src="assets/images/architecture.svg" alt="Model architecture diagram">
     </figure>
     <div class="method-caption">
       <h3>Model Architecture</h3>
-      <p>The gated attention module features three key designs: (1) Binary memory gate μ<sub>t</sub> that determines whether history cross-attention is skipped or applied. (2) Noised history action condition to improve robustness and reduce overfitting. (3) Cached history tokens during inference time to reduce computational cost.</p>
+      <p>A <a href="https://arxiv.org/abs/2212.09748" target="_blank" rel="noopener">Diffusion Transformer</a> backbone with a cross-attention module for history conditioning. Each past frame is summarized as one aggregated visual token (via attention pooling over a pretrained <a href="https://arxiv.org/abs/2502.14786" target="_blank" rel="noopener">SigLIP2-B/16</a> ViT) paired with its action tokens; these are cached across denoising steps, so inference cost stays <strong>linear</strong> in history length. When μ<sub>t</sub>=0, history attention is skipped entirely and cost is constant.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 5, Fig. 14">8</a></p>
     </div>
   </div>
 
@@ -852,20 +900,13 @@
     </figure>
     <div class="method-caption">
       <h3>Gating Mechanism</h3>
-      <p>
-        We split the dataset into <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>.
-        <strong>1)</strong> Train two policies on <em>D</em><sub>train</sub> with memory gate always off
-        <span class="math-gray">π</span> or always on <span class="math-blue">π<sub>mem</sub></span>.
-        <strong>2)</strong> Evaluate the two policies on <em>D</em><sub>val</sub> for <em>N</em> rounds and
-        calculate the error of the predicted actions at each timestep <em>t</em>.
-        <strong>3)</strong> At timestep <em>t</em>, if the error of the no-memory policy
-        <span class="math-gray">δ<sub>t</sub></span> is significantly larger than the error of the
-        memory policy <span class="math-blue">δ<sup>mem</sup><sub>t</sub></span>, we label
-        <em>memory-required</em> (μ<sub>t</sub>=1) for this timestep; otherwise, μ<sub>t</sub>=0.
-        This stage is referred to as <em>Calibration</em> of the memory gate.
-        <strong>4)</strong> We freeze the memory gate weights and retrain the policy on the full
-        dataset to obtain the final Gated Memory Policy π<sub>gated</sub>.
-      </p>
+      <p>Joint training of gate + policy collapses to always-on (overfitting Markovian tasks) or always-off (failing non-Markovian ones). We calibrate the gate offline instead:</p>
+      <ol class="method-steps">
+        <li>Split the dataset into <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>. Train two policies on <em>D</em><sub>train</sub>: gate always off <span class="math-gray">π</span>, always on <span class="math-blue">π<sub>mem</sub></span>.</li>
+        <li>Roll both on <em>D</em><sub>val</sub> for <em>N</em> samples; record per-timestep action-prediction error.</li>
+        <li>Label a timestep <em>memory-required</em> (μ<sub>t</sub>=1) where <span class="math-gray">δ<sub>t</sub></span> exceeds <span class="math-blue">δ<sup>mem</sup><sub>t</sub></span> by ratio threshold θ; otherwise μ<sub>t</sub>=0. Train the gate MLP on these labels with BCE loss.</li>
+        <li>Freeze the gate; retrain the policy on the full dataset to obtain π<sub>gated</sub>.</li>
+      </ol>
     </div>
   </div>
 </section>
@@ -876,7 +917,7 @@
 <section id="attention">
   <h2>What Is the Policy Attending To?</h2>
 
-  <p class="body-text">We visualize causal cross-attention weights to understand which past timesteps the policy attends to when computing the next action. The gated memory mechanism actively selects the most informative historical context, confirming that the policy learns structured, interpretable recall rather than attending uniformly across history.</p>
+  <p class="body-text">We visualize causal cross-attention weights to understand which past timesteps the policy attends to when computing the next action. Across tasks, attention concentrates on frames that carry task-relevant information (the moment a cue was first observed, or the outcome of a prior trial) rather than spreading uniformly across the available history.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 2, Figs. 4c, 8c">5</a></p>
 
   <div class="tab-bar" role="tablist" data-tabgroup="attn-vis">
     <button class="tab-btn active" data-tab="cube-pushing" role="tab">Cube Pushing</button>
@@ -912,7 +953,7 @@
     <figure class="benchmark-chart">
       <img src="assets/charts/robomimic_bar_chart_new.svg" alt="RoboMimic benchmark success rates across tasks">
     </figure>
-    <p class="benchmark-caption">We evaluate 3 tasks from the RoboMimic benchmarks: <em>Tool Hang, Square, and Transport</em>. (ph, mh) indicate that the data were collected from proficient-human (ph) or multi-human (mh). While most long-history policies experience performance drops on these Markovian tasks, GMP maintains competitive performance by leveraging the gating mechanism.</p>
+    <p class="benchmark-caption">We evaluate 3 tasks from the RoboMimic<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> benchmarks: <em>Tool Hang, Square, and Transport</em>. (ph, mh) indicate that the data were collected from proficient-human (ph) or multi-human (mh). While most long-history policies experience performance drops on these Markovian tasks, GMP maintains competitive performance by leveraging the gating mechanism.</p>
   </div>
 
   <div class="benchmark-block">
@@ -920,7 +961,7 @@
     <figure class="benchmark-chart">
       <img src="assets/charts/mikasa_benchmark.svg" alt="Mikasa-Robo benchmark success rates across 5 memory-dependent tasks">
     </figure>
-    <p class="benchmark-caption">We evaluate 5 tasks on the MIKASA-Robo benchmark, outperforming prior work MemoryVLA by 26.6% on average. The baseline performance statistics are reported in MIKASA-Robo and MemoryVLA.</p>
+    <p class="benchmark-caption">We evaluate 5 tasks on the MIKASA-Robo<a class="fn-ref" href="https://sites.google.com/view/memorybenchrobots/" target="_blank" rel="noopener" data-fn="MIKASA-Robo &middot; Cherepanov et al., 2025">2</a> benchmark, outperforming prior work MemoryVLA<a class="fn-ref" href="https://arxiv.org/abs/2508.19236" target="_blank" rel="noopener" data-fn="MemoryVLA &middot; retrieval-based memory for VLA policies">3</a> by 26.6% on average. The baseline performance statistics are reported in MIKASA-Robo and MemoryVLA.</p>
   </div>
 </section>
 
@@ -936,14 +977,14 @@
     <details class="faq-item">
       <summary>When is the memory gate helpful, and when should I train it?</summary>
       <div class="faq-answer">
-        <p>The memory gate helps when the policy significantly overfits to history observations. This typically happens in tasks that require high precision manipulation and where there is not enough data to cover the expanded input space that memory introduces. A concrete example is <em>Tool Hang</em> in RoboMimic. The gate also helps when reactiveness matters: it reduces runtime and makes the model more efficient. That said, for most of the memory intensive tasks in our benchmark, adding the gate does not significantly improve performance. A practical approach is to first train the model without a gate (a simplified version of GMP), run evaluation, and then add gates when the model fails due to the issues above.</p>
+        <p>The memory gate helps when the policy significantly overfits to history observations. This typically happens in tasks that require high precision manipulation and where there is not enough data to cover the expanded input space that memory introduces. A concrete example is <em>Tool Hang</em> in <a href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener">RoboMimic</a>. The gate also helps when reactiveness matters: it reduces runtime and makes the model more efficient. That said, for most of the memory-intensive tasks in our benchmark, adding the gate does not significantly improve performance. A practical approach is to first train the model without a gate (a simplified version of GMP), run evaluation, and then add gates when the model fails due to the issues above.</p>
       </div>
     </details>
 
     <details class="faq-item">
       <summary>What is the inference overhead of GMP vs. a no-memory policy?</summary>
       <div class="faq-answer">
-        <p>We only include a single aggregated token from a ViT per image (e.g., the class token in CLIP or the MAP token in SigLIP), and all history tokens are cached. The cross attention module also scales linearly in history length. As a result, the total inference time is similar to that of a policy without memory. We release an in the wild checkpoint so anyone can try it in the real world.</p>
+        <p>We only include a single aggregated token from a ViT per image (e.g., the class token in <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener">CLIP</a> or the MAP token in <a href="https://arxiv.org/abs/2502.14786" target="_blank" rel="noopener">SigLIP2</a>), and all history tokens are cached. The cross attention module also scales linearly in history length. As a result, the total inference time is similar to that of a policy without memory. We release an in-the-wild checkpoint so anyone can try it in the real world.</p>
       </div>
     </details>
 
@@ -957,7 +998,7 @@
     <details class="faq-item">
       <summary>How long can our model memorize?</summary>
       <div class="faq-answer">
-        <p>Due to the strong scalability of cross attention, the history length is only bottlenecked by training GPU memory. By caching visual features and freezing a pretrained image encoder, our model is able to attend to 6,000 image frames (with paired actions), achieving memory recall of up to 10 minutes at 10 fps. Please refer to <strong>Finding 7</strong> for more details.</p>
+        <p>Due to the strong scalability of cross attention, the history length is only bottlenecked by training GPU memory. By caching visual features and freezing a pretrained image encoder, our model is able to attend to 6,000 image frames (with paired actions), achieving memory recall of up to 10 minutes at 10 fps. Please refer to <a href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener"><strong>Finding 7</strong></a> for more details.</p>
         <div class="faq-video-pair">
           <figure class="faq-video">
             <video autoplay controls muted playsinline loop preload="metadata">
@@ -1026,12 +1067,31 @@
 
 <!-- ACKNOWLEDGMENTS -->
 <section id="acknowledgments">
-  <span class="section-label">Acknowledgments</span>
-  <h2>Thanks</h2>
-  <p class="body-text">The authors would like to thank the many individuals and organizations whose contributions made this work possible. We are especially grateful to <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the excellent <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment, to <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments, and to <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for their guidance on MuJoCo simulation. We also thank all members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for their thoughtful feedback on manuscript writing and presentation, along with <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, John Yao, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for insightful discussions throughout the course of this research.</p>
-  <p class="body-text">We would like to thank TRI for providing the UR5 robot hardware and ARX for the X5 robot hardware. We thank Apple for providing the iPhone 15 Pro. We also thank Stanford Marlowe for providing computational resources.</p>
+  <h2>Acknowledgments</h2>
+  <p class="body-text">We thank <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment; <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments; and <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for guidance on MuJoCo simulation. We also thank members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for feedback on the manuscript and presentation, and <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, John Yao, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for discussions during this work.</p>
+  <p class="body-text">We thank TRI for providing the UR5 robot hardware and ARX for the X5 robot hardware. We thank Apple for providing the iPhone 15 Pro, and Stanford Marlowe for computational resources.</p>
   <p class="body-text">This work was supported in part by NSF Awards #2143601, #2037101, and #2132519. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of the sponsors.</p>
 </section>
+
+
+<!-- SOFT CTA: paired invitation cards before the footer. Each card pairs
+     a muted question with an accented action link; a hairline divides
+     them on wide screens, stacks on narrow. -->
+<div class="cta-block">
+  <div class="cta-item">
+    <p class="cta-question">Questions about the work?</p>
+    <p class="cta-action">
+      <a href="#team">Reach out to any of the authors<span class="cta-arrow" aria-hidden="true">&rarr;</span></a>
+    </p>
+  </div>
+  <div class="cta-divider" aria-hidden="true"></div>
+  <div class="cta-item">
+    <p class="cta-question">Problems with the codebase?</p>
+    <p class="cta-action">
+      <a href="#">Submit a GitHub issue<span class="cta-arrow" aria-hidden="true">&rarr;</span></a>
+    </p>
+  </div>
+</div>
 
 
 <!-- FOOTER (citation, BibTeX, year) -->
