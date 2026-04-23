@@ -12,8 +12,23 @@
  *   .tab-bar[data-tabgroup="X"]         container
  *   .tab-btn[data-tab="V"]              buttons within that bar
  *   .tab-panel[data-tabgroup="X"][data-config="V"]   matching panel
- * Activating a panel calls video.load() so autoplay resumes after display:none.
+ * Activating a panel resumes autoplay videos without forcing load(), because
+ * load() resets currentTime and breaks custom scrubbing.
  */
+function guardedVideoLoad(video) {
+  if (!video) return false;
+  // load() resets the media element to t=0. Do not call it while the user
+  // is scrubbing, or after metadata is already present and seeking works.
+  if (video.dataset.scrubbing === '1') return false;
+  if (video.readyState > 0 || video.duration > 0) return false;
+  try {
+    video.load();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   var group = tabBar.dataset.tabgroup;
 
@@ -34,11 +49,13 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
       );
       if (activePanel) {
         activePanel.classList.add('active');
-        // load() reattaches media pipeline after display:none; play() only on autoplay videos.
         activePanel.querySelectorAll('video').forEach(function (video) {
-          video.load();
+          video.preload = 'auto';
           if (video.hasAttribute('autoplay')) {
+            video.muted = true;
             video.play().catch(function () {});
+          } else {
+            guardedVideoLoad(video);
           }
         });
       }
@@ -90,6 +107,11 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     while (inflight < MAX_INFLIGHT && queue.length) {
       var v = queue.shift();
       if (!v || state.get(v) !== 'queued') continue;
+      if (v.dataset.scrubbing === '1') {
+        queue.push(v);
+        schedule(pump);
+        return;
+      }
       state.set(v, 'loading');
       inflight++;
       v.preload = 'auto';
@@ -98,7 +120,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
       v.addEventListener('loadeddata', onDone);
       v.addEventListener('error', onDone);
       timers.set(v, setTimeout(onDone.bind(v), 8000));
-      try { v.load(); } catch (e) { onDone.call(v); }
+      if (!guardedVideoLoad(v)) onDone.call(v);
     }
   }
 
@@ -165,7 +187,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
             if (v.paused) v.play().catch(function () {});
           } else {
             v.preload = 'auto';
-            try { v.load(); } catch (e) {}
+            guardedVideoLoad(v);
           }
         });
       });
@@ -416,8 +438,17 @@ function fallbackCopy(text, callback) {
     fill.className = 'vid-fill';
     var knob  = document.createElement('div');
     knob.className = 'vid-knob';
+    var range = document.createElement('input');
+    range.className = 'vid-range';
+    range.type = 'range';
+    range.min = '0';
+    range.max = '1000';
+    range.step = '1';
+    range.value = '0';
+    range.setAttribute('aria-label', 'Seek video');
     track.appendChild(fill);
     track.appendChild(knob);
+    track.appendChild(range);
 
     var time = document.createElement('div');
     time.className = 'vid-time';
@@ -457,12 +488,8 @@ function fallbackCopy(text, callback) {
     }
     btnRate.textContent = RATES[rateIdx] + '×';
 
-    // Single state variable for scrub lifecycle. Non-null id => drag
-    // owns the progress bar: syncFill() bails so async timeupdate /
-    // loadedmetadata / durationchange events can't snap the preview back
-    // to video.currentTime (which lags the pointer mid-seek, and on
-    // looped clips may have already wrapped to 0).
-    var scrubPointerId = null;
+    var RANGE_MAX = 1000;
+    var scrubbing = false;
 
     function syncPlayIcon() {
       btnPlay.innerHTML = video.paused ? SVG_PLAY : SVG_PAUSE;
@@ -475,7 +502,7 @@ function fallbackCopy(text, callback) {
       return m + ':' + (s < 10 ? '0' + s : s);
     }
     function syncFill() {
-      if (scrubPointerId !== null) return;
+      if (scrubbing) return;
       var d = video.duration;
       if (!(d > 0)) {
         fill.style.width = '0%';
@@ -487,6 +514,7 @@ function fallbackCopy(text, callback) {
       var pct = Math.max(0, Math.min(100, (video.currentTime / d) * 100));
       fill.style.width = pct + '%';
       knob.style.left = pct + '%';
+      range.value = String(Math.round((pct / 100) * RANGE_MAX));
       timeCur.textContent = fmtTime(video.currentTime);
       timeTot.textContent = fmtTime(d);
     }
@@ -564,106 +592,72 @@ function fallbackCopy(text, callback) {
     document.addEventListener('fullscreenchange', syncFsIcon);
     document.addEventListener('webkitfullscreenchange', syncFsIcon);
 
-    // Drag-to-scrub.
-    //   - setPointerCapture keeps move/up on the track regardless of
-    //     cursor position (Pointer Events: Chrome 55+, FF 41+, Safari
-    //     13+, Edge 79+; try/catch covers denied captures).
-    //   - Seeks are rAF-coalesced: one video.currentTime write per frame
-    //     even if pointermove fires at 120Hz.
-    //   - Video is paused during drag so the playback head doesn't race
-    //     the seeks we issue; prior state is restored on release.
-    //   - No video.load() on missing metadata: it resets currentTime to
-    //     0 and aborts playback. We bump preload="auto" and let the
-    //     loadedmetadata handler re-enter commitSeek().
-    //   - Target is clamped to (d - 0.05) so a near-end seek on a looped
-    //     clip does not wrap to 0 before committing.
+    // Scrubber. A transparent native <input type=range> sits on top of
+    // .vid-track; the browser owns drag capture and thumb movement. We
+    // commit on every `input` event (drag preview + tap-to-position).
+    // seekToPct no-ops while duration is unknown, so an early drag moves
+    // the knob visually and starts seeking once loadedmetadata fires.
     var wasPlaying = false;
-    var pendingPct = null;
-    var seekRafId = 0;
 
-    function clientToPct(clientX) {
-      var r = track.getBoundingClientRect();
-      if (r.width <= 0) return 0;
-      var pct = (clientX - r.left) / r.width;
-      return pct < 0 ? 0 : pct > 1 ? 1 : pct;
+    function rangePct() {
+      var v = parseFloat(range.value);
+      if (!(v >= 0)) v = 0;
+      return Math.max(0, Math.min(1, v / RANGE_MAX));
     }
     function renderPct(pct) {
-      var pctStr = (pct * 100) + '%';
-      fill.style.width = pctStr;
-      knob.style.left = pctStr;
+      var s = (pct * 100) + '%';
+      fill.style.width = s;
+      knob.style.left = s;
+      range.value = String(Math.round(pct * RANGE_MAX));
       var d = video.duration;
       if (d > 0) timeCur.textContent = fmtTime(pct * d);
     }
-    function commitSeek() {
-      seekRafId = 0;
-      if (pendingPct === null) return;
+    function seekToPct(pct) {
       var d = video.duration;
-      if (!(d > 0)) {
-        if (video.preload !== 'auto') video.preload = 'auto';
-        return;
-      }
-      var t = Math.min(pendingPct * d, Math.max(0, d - 0.05));
+      if (!(d > 0)) return;
+      // Clamp just below the end so a near-end seek on a looped clip
+      // cannot wrap to 0 before the frame lands.
+      var t = Math.min(pct * d, Math.max(0, d - 0.05));
       try { video.currentTime = t; } catch (e) {}
-      pendingPct = null;
     }
-    function scheduleSeek(pct) {
-      pendingPct = pct;
-      if (!seekRafId) seekRafId = requestAnimationFrame(commitSeek);
-    }
-    video.addEventListener('loadedmetadata', function () {
-      if (pendingPct !== null) commitSeek();
+
+    range.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      scrubbing = true;
+      wasPlaying = !video.paused;
+      overlay.classList.add('is-scrub');
+      video.dataset.scrubbing = '1';
+      if (video.preload !== 'auto') video.preload = 'auto';
+      if (wasPlaying) video.pause();
+      ev.stopPropagation();
+    });
+    range.addEventListener('input', function (ev) {
+      var pct = rangePct();
+      renderPct(pct);
+      seekToPct(pct);
+      ev.stopPropagation();
     });
 
-    function onPointerMove(ev) {
-      if (ev.pointerId !== scrubPointerId) return;
-      var pct = clientToPct(ev.clientX);
-      renderPct(pct);
-      scheduleSeek(pct);
-    }
-    function onPointerUp(ev) {
-      if (ev.pointerId !== scrubPointerId) return;
-      var pct = clientToPct(ev.clientX);
-      renderPct(pct);
-      pendingPct = pct;
-      if (seekRafId) { cancelAnimationFrame(seekRafId); seekRafId = 0; }
-      commitSeek();
-
-      track.removeEventListener('pointermove', onPointerMove);
-      track.removeEventListener('pointerup', onPointerUp);
-      track.removeEventListener('pointercancel', onPointerUp);
-      try { track.releasePointerCapture(ev.pointerId); } catch (e) {}
-
-      scrubPointerId = null;
+    function endScrub() {
+      if (!scrubbing) return;
+      scrubbing = false;
       overlay.classList.remove('is-scrub');
-
+      syncFill();
       if (wasPlaying) {
         video.muted = true;
         video.play().catch(function () {});
       }
-      // Keep data-scrubbing briefly so a late IntersectionObserver pass
+      // Hold data-scrubbing briefly so a late IntersectionObserver pass
       // doesn't auto-pause the video we just told to resume.
-      setTimeout(function () { video.dataset.scrubbing = ''; }, 220);
+      setTimeout(function () {
+        if (!scrubbing) video.dataset.scrubbing = '';
+      }, 260);
     }
-    track.addEventListener('pointerdown', function (ev) {
-      if (ev.button !== undefined && ev.button !== 0) return;
-      if (scrubPointerId !== null) return;
-      scrubPointerId = ev.pointerId;
-      wasPlaying = !video.paused;
-      overlay.classList.add('is-scrub');
-      video.dataset.scrubbing = '1';
-      if (wasPlaying) video.pause();
-
-      try { track.setPointerCapture(ev.pointerId); } catch (e) {}
-      track.addEventListener('pointermove', onPointerMove);
-      track.addEventListener('pointerup', onPointerUp);
-      track.addEventListener('pointercancel', onPointerUp);
-
-      var pct = clientToPct(ev.clientX);
-      renderPct(pct);
-      scheduleSeek(pct);
-      ev.preventDefault();
-      ev.stopPropagation();
-    });
+    range.addEventListener('change', endScrub);
+    range.addEventListener('pointerup', endScrub);
+    range.addEventListener('pointercancel', endScrub);
+    range.addEventListener('blur', endScrub);
+    range.addEventListener('click', function (ev) { ev.stopPropagation(); });
   }
 
   function wireAll() {

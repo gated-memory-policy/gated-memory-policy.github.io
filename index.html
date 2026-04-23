@@ -175,9 +175,9 @@
     </div>
 
     <div class="tf-descriptions">
-      <p><em>Tool Hang</em>.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> A robot arm assembles a frame by inserting a hook piece into a base, then hangs a wrench on the hook. It is precision-heavy across multiple stages, but each step's action is fully determined by the current frame; history adds no useful signal.</p>
-      <p><em><a href="#in-trial-place-back-real">Continuous Place Back</a>.</em> A cup and saucer are placed randomly on the table. The robot puts the cup on the saucer, then returns it to within 5 cm of its original position. The starting position is visible only at the beginning of the episode, so the policy must retain it in working memory across the intervening motion.</p>
-      <p><em><a href="#cross-trial-casting">Iterative Casting</a>.</em> The robot casts an object with unknown friction so it stops sliding between two green lines, with three attempts per episode. Friction is hidden but fixed within the episode, so the policy must infer it from the outcomes of earlier casts and adjust its casting speed across trials.</p>
+      <p><em>Tool Hang</em>.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> The robot inserts a hook into a base and hangs a wrench on it. Precision-heavy, but every action is determined by the current frame, so history adds no signal.</p>
+      <p><em><a href="#in-trial-place-back-real">Continuous Place Back</a>.</em> After placing a cup on a saucer, the robot returns it to within 5 cm of where it started. The start position is seen only once, so the policy must hold it in working memory across the motion.</p>
+      <p><em><a href="#cross-trial-casting">Iterative Casting</a>.</em> The robot casts an object to stop between two green lines across three attempts. Friction is hidden but fixed, so the policy infers it from earlier outcomes and adjusts across trials.</p>
     </div>
 
     <figcaption><strong>Memory requirements in robot manipulation</strong> range from (a) <em>Markovian</em> tasks requiring no memory, to (b) <em>in-trial</em> memory that retains a single-episode cue, and (c) <em>cross-trial</em> memory that aggregates information across attempts. Naively extending policy history degrades performance on Markovian tasks and grows expensive for cross-trial memory. GMP selectively recalls task-relevant history, achieving strong performance across all three regimes.</figcaption>
@@ -233,7 +233,7 @@
   <div class="method-row">
     <div class="method-caption">
       <h3>Model Architecture</h3>
-      <p>GMP uses the Transformer-based Diffusion Policy (DiT) as its backbone and adds a dedicated cross-attention module for history conditioning. Three design choices define the gated attention block: (1) a binary memory gate &mu;<sub>t</sub> computed from the current image and proprioception that decides, at each timestep, whether history cross-attention is applied or skipped; (2) noise-augmented history actions drawn from the same diffusion schedule as the prediction target (one step cleaner than the current denoising step) and used at both training and inference to reduce overfitting and expose the policy to imperfect history; and (3) a history cache of precomputed tokens, one aggregated visual token per past image plus the paired action tokens, which together with cross-attention keeps inference cost linear in history length rather than quadratic.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B, Fig. 2">4</a></p>
+      <p>GMP uses the Diffusion Transformer (DiT) as its backbone and adds a cross-attention module for history conditioning. A binary memory gate &mu;<sub>t</sub>, computed from the current image and proprioception, decides at each timestep whether history cross-attention is applied. The history cache stores one aggregated visual token per past frame plus the paired action tokens, so inference scales linearly in history length (and stays constant when the gate is off).<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B, Fig. 2">4</a></p>
     </div>
     <figure class="method-img">
       <img src="assets/images/architecture.svg" alt="Model architecture diagram">
@@ -243,15 +243,13 @@
   <div class="method-row method-row-flip">
     <div class="method-caption">
       <h3>Gating Mechanism</h3>
-      <p>
-        Training the memory gate jointly with the policy is unstable: without regularization, the gate collapses to always-on and the policy overfits to history; with too strong a regularizer, it collapses to always-off and non-Markovian performance is lost. We therefore calibrate the gate offline against a reference action-prediction error computed on a held-out split.
-        We split the dataset into <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>.
-        <strong>1)</strong> Train two policies on <em>D</em><sub>train</sub>, one with memory gate always off
-        <span class="math-gray">&pi;</span> and one with it always on <span class="math-blue">&pi;<sub>mem</sub></span>.
-        <strong>2)</strong> Evaluate both policies on <em>D</em><sub>val</sub> for <em>N</em> rounds and compute the action-prediction error at each timestep <em>t</em>.
-        <strong>3)</strong> At timestep <em>t</em>, if the no-memory error <span class="math-gray">&delta;<sub>t</sub></span> exceeds the memory error <span class="math-blue">&delta;<sup>mem</sup><sub>t</sub></span> by a ratio threshold &theta;, we label the timestep as <em>memory-required</em> (&mu;<sub>t</sub>=1); otherwise &mu;<sub>t</sub>=0. The gate MLP is trained on these labels with binary cross-entropy loss. This stage is the <em>Calibration</em> of the memory gate.
-        <strong>4)</strong> We freeze the gate weights and retrain the policy on the full dataset (both <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>) to obtain the final Gated Memory Policy &pi;<sub>gated</sub>.
-      </p>
+      <p>Training the memory gate jointly with the policy is unstable: without regularization the policy uses as much history as possible and overfits on Markovian tasks; too strong a regularizer suppresses history use and hurts non-Markovian performance. We sidestep this with offline calibration:</p>
+      <ol class="method-steps">
+        <li>Split the dataset into two halves, <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>. Train two policies on <em>D</em><sub>train</sub>: one with the gate always off (<span class="math-gray">&pi;</span>), one always on (<span class="math-blue">&pi;<sub>mem</sub></span>).</li>
+        <li>Draw <em>N</em> action samples from each policy on <em>D</em><sub>val</sub> and record the per-timestep action-prediction error.</li>
+        <li>Label a timestep <em>memory-required</em> (&mu;<sub>t</sub>=1) when <span class="math-gray">&delta;<sub>t</sub></span> exceeds <span class="math-blue">&delta;<sup>mem</sup><sub>t</sub></span> by a ratio threshold &theta;; otherwise &mu;<sub>t</sub>=0. Train the gate MLP on these labels with BCE loss.</li>
+        <li>Freeze the gate and retrain the policy on the full dataset (<em>D</em><sub>train</sub> + <em>D</em><sub>val</sub>) to obtain &pi;<sub>gated</sub>.</li>
+      </ol>
     </div>
     <figure class="method-img">
       <img src="assets/images/gating_training.svg" alt="Gating training pipeline">
@@ -264,22 +262,22 @@
      The token-density caveat lives inline here as a design note. -->
 <section id="design">
   <h2>Design Choices</h2>
-  <p class="body-text">The architecture above specifies the shape of the model. Three further choices determine whether it generalizes across regimes: how the memory gate is calibrated, how history tokens are read at each inference step, and what noise the history is exposed to during training and inference. Each is modest in isolation; the combination is what lets the same configuration cover Markovian, in-trial, and cross-trial tasks without per-task adjustment.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.B, Findings 4, 5, 6">5</a></p>
+  <p class="body-text">Three design choices determine whether GMP generalizes across regimes: how the memory gate is calibrated, how history tokens are read at each inference step, and what noise the history is exposed to during training and inference. Each is modest in isolation; together they let one configuration cover Markovian, in-trial, and cross-trial tasks without per-task tuning.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.B, Findings 4, 5, 6">5</a></p>
 
-  <div class="design-block">
-    <h3>Gating, calibrated offline</h3>
-    <p>Training the memory gate jointly with the policy is unstable. Without regularization, the policy tends to use as much history as possible and overfits on Markovian tasks; with too much regularization, the gate collapses to always-off and non-Markovian performance is lost. We side-step the dilemma with a self-supervised calibration procedure: two policies (gate always off and always on) are trained on a training split; their action-prediction errors on a held-out validation split are compared per timestep, and a timestep is labelled memory-required when the no-memory error exceeds the memory error by a ratio threshold. A small MLP gate is trained on these labels with binary cross-entropy loss and then frozen before the final policy is retrained on the full dataset.</p>
-  </div>
-
-  <div class="design-block">
-    <h3>Cross-attention over a per-frame token summary</h3>
-    <p>Each past frame is reduced to a single aggregated token via multi-head attention pooling over a pretrained ViT encoder (SigLIP2-B/16). History tokens are precomputed and cached in a sliding window, so they can be reused across denoising steps without recomputation. Together with using cross-attention rather than self-attention for history conditioning, this keeps inference cost linear in history length rather than quadratic; when the memory gate is off, history attention is skipped entirely and the cost stays constant.</p>
-  </div>
-
-  <div class="design-block">
-    <h3>Noise-augmented history actions</h3>
-    <p>Historical actions fed to the history module are noised on the same diffusion schedule as the current prediction target, at a noise level one denoising step cleaner than the target, during both training and inference. This exposes the policy to imperfect history throughout and keeps predictions stable when deployed action traces are stale or imprecise.</p>
-  </div>
+  <ol class="design-list">
+    <li>
+      <h3>Gating, calibrated offline</h3>
+      <p>Jointly training the gate with the policy is unstable. GMP therefore calibrates the gate on a held-out split: a memory-required label is assigned where the no-memory error exceeds the memory error by a ratio threshold, and the gate MLP is trained on those labels with BCE loss and frozen before the final policy is retrained on the full dataset.</p>
+    </li>
+    <li>
+      <h3>Cross-attention over a per-frame token summary</h3>
+      <p>Each past frame is pooled into a single aggregated visual token via multi-head attention pooling over a pretrained SigLIP2-B/16 ViT. History tokens are cached in a sliding window and reused across denoising steps without recomputation. Cross-attention (rather than self-attention) keeps cost linear in history length; when the gate is off, history attention is skipped entirely and cost stays constant.</p>
+    </li>
+    <li>
+      <h3>Noise-augmented history actions</h3>
+      <p>Historical actions fed to the module are noised on the same diffusion schedule as the prediction target, at a noise level one denoising step cleaner, during both training and inference. This keeps predictions stable when deployed action traces are stale or imprecise.</p>
+    </li>
+  </ol>
 </section>
 
 

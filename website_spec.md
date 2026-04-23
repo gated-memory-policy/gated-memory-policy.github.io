@@ -1,14 +1,16 @@
 # Gated Memory Policy website spec
 
-Single-page research site for the Gated Memory Policy (GMP) paper. Plain HTML, CSS, JS — no build step.
+Single-page research site for the Gated Memory Policy (GMP) paper. Plain HTML, CSS, JS, no build step.
 
 ## Quick start
 
 ```bash
 cd /Users/jinyun/Documents/mem_website
-python3 -m http.server 8080
-# visit http://localhost:8080
+python -m RangeHTTPServer 8000     # pip install RangeHTTPServer
+# visit http://localhost:8000
 ```
+
+Use `RangeHTTPServer`, not `python -m http.server`. The custom video scrubber needs HTTP `Range` (`206 Partial Content`) responses so the browser can seek mid-file; the stdlib server replies `200` with the full body and scrubbing silently stalls. GitHub Pages serves `Range` correctly, so production is unaffected.
 
 ## File map
 
@@ -64,7 +66,7 @@ All tokens live at the top of `style.css` under `:root`. Changing them propagate
 
 ### Layout
 
-- Unified content column: `--max-w: 808px` with `--pad-x: 24px` gives a **760px** effective reading column. One column width for body, captions, subsections — no dual body/section split.
+- Unified content column: `--max-w: 808px` with `--pad-x: 24px` gives a **760px** effective reading column. One column width for body, captions, subsections, no dual body/section split.
 - Wide elements (teaser figure, taxonomy grid, full-bleed grids) extrude past the column via:
 
   ```css
@@ -75,7 +77,7 @@ All tokens live at the top of `style.css` under `:root`. Changing them propagate
   position: relative;
   ```
 
-- Major top-level sections share compact chapter padding of `32px` top/bottom — the page reads as one continuous blog, not chapter-separated viewports. Two pairs share a single viewport and use collapsed gaps: `#method + #design` and `#team + #acknowledgments`.
+- Major top-level sections share compact chapter padding of `32px` top/bottom, so the page reads as one continuous blog rather than chapter-separated viewports. Two pairs share a single viewport and use collapsed gaps: `#method + #design` and `#team + #acknowledgments`.
 - Only network dependency: Google Fonts.
 
 ### Motion
@@ -107,7 +109,7 @@ Rendered in this order inside `index.html`:
 
 `#memmimic` subsection ids (in render order):
 
-- `#in-trial-place-back-real`, `#in-trial-match-color`, `#in-trial-place-back` — Continuous Place Back Real is intentionally first.
+- `#in-trial-place-back-real`, `#in-trial-match-color`, `#in-trial-place-back`. Continuous Place Back Real is intentionally first.
 - `#cross-trial-casting`, `#cross-trial-pushing`, `#cross-trial-flinging`.
 
 ## HTML contracts used by JS
@@ -142,10 +144,10 @@ Tab groups currently in use:
 
 ### Videos
 
-- All comparison clips: `<video autoplay loop muted playsinline preload="none">`, no `controls`.
-- The 2 attention visualization clips keep `controls` so the reader can scrub.
+- All clips: `<video autoplay loop muted playsinline preload="none">`, no `controls` attribute. `main.js` attaches a custom overlay (progress bar, play/pause, rate, fullscreen).
 - Every `<video>` lives inside a `<figure>`. The global rule `figure video { width: 100%; border-radius: 6px; display: block }` handles sizing; no inline style needed.
 - A video that must play at non-1× speed uses `data-playbackrate="<rate>"`, applied by `applyRates()` in `main.js`.
+- Two internal flags coordinate the overlay with the autoplay pipeline: `data-user-paused="1"` (user hit our pause button, skip auto-play), `data-scrubbing="1"` (user is dragging the progress bar, skip auto-pause).
 
 ### Sticky TOC
 
@@ -183,7 +185,7 @@ FAQ items use `<details id="faq-*">`. `openHashedDetails()` in `main.js` auto-op
 
 ### 1. Tab switching
 
-Generic handler attached per `.tab-bar`. On click it removes `.active` from sibling buttons and panels in the same tabgroup, activates the clicked one, and calls `video.load()` on videos inside the newly shown panel so autoplay resumes after `display:none`.
+Generic handler attached per `.tab-bar`. On click it removes `.active` from sibling buttons and panels in the same tabgroup, activates the clicked one, and resumes autoplay videos inside the newly shown panel. `load()` is only called as a last resort via `guardedVideoLoad()`, which bails if a video is already ready or if the user is scrubbing; otherwise `load()` would reset `currentTime` and break playback in progress.
 
 ### 2. Video preload + playback (three-layer)
 
@@ -215,6 +217,12 @@ Visible from the first content section through to just before the footer. Uses a
 
 Clipboard API with an `execCommand` fallback. Button shows "Copied!" for 2 seconds.
 
+### 8. Custom video controls
+
+Every `<video>` gets a hover-reveal overlay with progress bar, play/pause, playback rate, and fullscreen buttons. The scrubber is a transparent native `<input type=range>` layered over a styled `.vid-track`, so the browser owns drag capture and thumb movement; we paint `.vid-fill` and `.vid-knob` on top. One commit path: every `input` event writes `video.currentTime = pct * duration`. `seekToPct` no-ops while duration is unknown, so an early drag moves the knob visually and begins seeking as soon as `loadedmetadata` fires. `pointerdown` also nudges `preload='auto'` to pull the first metadata fetch forward.
+
+Hosting note: the progress bar relies on HTTP `Range` requests (status `206`) so the browser can seek without re-fetching from byte 0. GitHub Pages supports this out of the box. `python -m http.server` does not; for local testing use `python -m RangeHTTPServer 8000` instead.
+
 ## Maintenance how-tos
 
 ### Bump the "Updated" date
@@ -240,7 +248,7 @@ Edit `--accent` and `--accent-rgb` under `:root` in `style.css`. Tabs, links, au
 
 ```bash
 cd /Users/jinyun/Documents/mem_website/scripts
-python plot_teaser_bar.py        # (orphan at present — teaser uses text descriptions)
+python plot_teaser_bar.py        # orphan at present; teaser uses text descriptions
 python plot_success_rate.py      # per-task success-rate bars + MIKASA benchmark
 python plot_robomimic.py         # Robomimic grouped bar chart
 python make_in_the_wild_grid.py  # 8×5 grid of 40 outdoor trials (in-the-wild)

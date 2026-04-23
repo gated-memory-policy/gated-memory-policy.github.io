@@ -43,6 +43,7 @@
   /* Motion */
   --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
 }
 
 html { scroll-behavior: smooth; }
@@ -192,10 +193,10 @@ code {
 
 .body-text {
   color: var(--text-soft);
-  font-size: 1.125rem;
-  line-height: 1.72;
-  text-align: justify;
-  text-align-last: left;
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.9;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
 }
@@ -539,7 +540,7 @@ section > .body-text { margin-bottom: 2rem; }
 }
 
 #overview .body-text + .body-text {
-  margin-top: 1rem;
+  margin-top: 1.6rem;
 }
 
 @media (max-width: 768px) {
@@ -600,8 +601,7 @@ figcaption {
 /* Attention-viz captions are multi-sentence paragraphs; justify them
  * so long lines read as body text, not centered figure labels. */
 #attention figcaption {
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
 }
@@ -723,9 +723,8 @@ figcaption {
   color: var(--text-soft);
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  line-height: 1.65;
-  text-align: justify;
-  text-align-last: left;
+  line-height: 1.75;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
 }
@@ -1261,12 +1260,44 @@ a.author-card:hover .author-photo {
 .method-caption p {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.68;
+  line-height: 1.75;
   color: var(--text-soft);
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
+}
+
+/* Numbered procedure list under the Gating Mechanism figure. Same
+ * accent-numeral-in-gutter pattern as .design-list so both lists read
+ * identically; only the wrapper context differs. */
+.method-caption .method-steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0.7rem 0 0;
+  padding: 0;
+}
+.method-caption .method-steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 1.8rem;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--text-soft);
+  margin-bottom: 0.55rem;
+}
+.method-caption .method-steps li:last-child { margin-bottom: 0; }
+.method-caption .method-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.95rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.75;
+  width: 1.4rem;
 }
 
 @media (max-width: 768px) {
@@ -1298,11 +1329,10 @@ a.author-card:hover .author-photo {
 }
 
 .benchmark-caption {
-  font-size: 0.92rem;
-  line-height: 1.68;
+  font-size: 0.95rem;
+  line-height: 1.75;
   color: var(--text-soft);
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
   margin: 0;
@@ -1372,9 +1402,8 @@ a.author-card:hover .author-photo {
   padding: 0 44px 24px 0;
   color: var(--text-soft);
   font-size: 0.95rem;
-  line-height: 1.68;
-  text-align: justify;
-  text-align-last: left;
+  line-height: 1.75;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
   animation: faq-fade 0.32s var(--ease-out);
@@ -1414,8 +1443,7 @@ a.author-card:hover .author-photo {
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-top: 0.4rem;
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
 }
@@ -1554,31 +1582,55 @@ a.author-card:hover .author-photo {
 }
 
 
-/* DESIGN CHOICES: three short prose blocks, separated by hairlines. */
-.design-block {
+/* DESIGN CHOICES: three numbered items. Accent numeral sits in a
+ * left gutter so the h3 + p align flush-left. Hairline dividers
+ * between items continue the blog-chapter rhythm. */
+.design-list {
+  list-style: none;
+  counter-reset: design;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.design-list > li {
+  counter-increment: design;
+  position: relative;
+  padding: 1.6rem 0 0 2.4rem;
   margin-top: 1.75rem;
-  padding-top: 1.6rem;
   border-top: 1px solid var(--border);
 }
 
-.design-block:first-of-type {
-  margin-top: 1.5rem;
+.design-list > li:first-child {
+  margin-top: 0;
 }
 
-.design-block h3 {
-  font-size: 1.2rem;
+.design-list > li::before {
+  content: counter(design);
+  position: absolute;
+  left: 0;
+  top: 1.55rem;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.95rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  width: 1.8rem;
+}
+
+.design-list > li h3 {
+  font-size: 1.15rem;
   font-weight: 650;
   margin: 0 0 0.55rem;
   color: var(--text);
   letter-spacing: -0.014em;
 }
 
-.design-block p {
-  font-size: 0.98rem;
-  line-height: 1.7;
+.design-list > li p {
+  font-size: 0.95rem;
+  line-height: 1.75;
   color: var(--text-soft);
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
   margin: 0;
@@ -1945,8 +1997,7 @@ a.author-card:hover .author-photo {
   color: var(--text-muted);
   line-height: 1.6;
   margin-top: 0.9rem;
-  text-align: justify;
-  text-align-last: left;
+  text-align: left;
   hyphens: auto;
   -webkit-hyphens: auto;
 }
@@ -2017,10 +2068,58 @@ a.author-card:hover .author-photo {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 14px;
+  height: 28px;
   cursor: pointer;
   pointer-events: auto;
   touch-action: none;
+}
+
+.vid-range {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.vid-range::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  border: 0;
+}
+
+.vid-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 0;
+}
+
+.vid-range::-moz-range-track {
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  border: 0;
+}
+
+.vid-range::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 0;
 }
 
 .vid-track::before {
@@ -2206,7 +2305,7 @@ a.author-card:hover .author-photo {
 /* Mobile: skinnier touch target, no hover (controls stay hidden unless
  * tapped). The progress hairline remains visible. */
 @media (hover: none) {
-  .vid-track { height: 18px; }
+  .vid-track { height: 32px; }
   .vid-pill {
     opacity: 1;
     transform: translateY(0);
