@@ -890,7 +890,7 @@
     </figure>
     <div class="method-caption">
       <h3>Model Architecture</h3>
-      <p>A <a href="https://arxiv.org/abs/2212.09748" target="_blank" rel="noopener">Diffusion Transformer</a> backbone with a cross-attention module for history conditioning. Each past frame is summarized as one aggregated visual token (via attention pooling over a pretrained <a href="https://arxiv.org/abs/2502.14786" target="_blank" rel="noopener">SigLIP2-B/16</a> ViT) paired with its action tokens; these are cached across denoising steps, so inference cost stays <strong>linear</strong> in history length. When μ<sub>t</sub>=0, history attention is skipped entirely and cost is constant.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 5, Fig. 14">8</a></p>
+      <p>A <a href="https://arxiv.org/abs/2212.09748" target="_blank" rel="noopener">Diffusion Transformer</a> backbone with a cross-attention module for history conditioning. Each past frame is summarized as one aggregated visual token (via attention pooling over a pretrained <a href="https://arxiv.org/abs/2502.14786" target="_blank" rel="noopener">SigLIP2-B/16</a> ViT) paired with its action tokens; these are cached across denoising steps, so inference cost stays linear in history length. When μ<sub>t</sub>=0, history attention is skipped entirely and cost is constant.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 5, Fig. 14">8</a></p>
     </div>
   </div>
 
