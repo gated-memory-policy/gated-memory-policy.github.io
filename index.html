@@ -61,6 +61,11 @@
      Title, authors, institution, link buttons. Flows inline into the
      opening narrative below. -->
 <header id="post-header">
+  <p class="pub-meta">
+    <time datetime="2026-04-22">Published April 22, 2026</time>
+    <span class="pub-meta-sep" aria-hidden="true">&middot;</span>
+    <span class="pub-meta-updated">Updated <time datetime="2026-04-23">April 23, 2026</time></span>
+  </p>
   <h1 class="paper-title">Gated Memory Policy</h1>
   <p class="authors">
     <a href="https://yihuai-gao.github.io/" target="_blank" rel="noopener">Yihuai Gao</a>,
@@ -85,14 +90,9 @@
     </a>
 
     <!-- arXiv -->
-    <a href="https://arxiv.org/abs/2604.18933" target="_blank" rel="noopener" class="btn-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        <line x1="9" y1="9" x2="15" y2="9"/>
-        <line x1="9" y1="13" x2="13" y2="13"/>
-      </svg>
+    <a href="https://arxiv.org/abs/2604.18933" target="_blank" rel="noopener"
+       class="btn-link btn-link-arxiv" aria-label="arXiv paper">
+      <img class="arxiv-logo" src="assets/images/arxiv-logomark.svg" alt="">
       arXiv
     </a>
 
@@ -146,18 +146,24 @@
   <figure class="teaser-figure">
     <div class="tf-headers">
       <div class="tf-header">
-        <span class="tf-letter">(a)</span>
-        <span class="tf-title">No Memory</span>
+        <span class="tf-title-row">
+          <span class="tf-letter">(a)</span>
+          <span class="tf-title">No Memory</span>
+        </span>
         <span class="tf-sub">Markovian</span>
       </div>
       <div class="tf-header">
-        <span class="tf-letter">(b)</span>
-        <span class="tf-title">In-Trial Memory</span>
+        <span class="tf-title-row">
+          <span class="tf-letter">(b)</span>
+          <span class="tf-title">In-Trial Memory</span>
+        </span>
         <span class="tf-sub">Working Memory</span>
       </div>
       <div class="tf-header">
-        <span class="tf-letter">(c)</span>
-        <span class="tf-title">Cross-Trial Memory</span>
+        <span class="tf-title-row">
+          <span class="tf-letter">(c)</span>
+          <span class="tf-title">Cross-Trial Memory</span>
+        </span>
         <span class="tf-sub">Reference Memory</span>
       </div>
     </div>
@@ -963,7 +969,7 @@
 <section id="in-the-wild">
   <span class="section-label">Generalization</span>
   <h2>In-the-Wild Results</h2>
-  <p class="body-text">MemMimic's real-world tasks are evaluated in a controlled lab setting. As a stronger generalization test, we deploy GMP outdoors with no change to the checkpoint: 40 Continuous Place Back trials across backgrounds, lighting, surfaces, and cup placements never seen at training time. A subset of trials includes <span class="highlight">human perturbation</span>, where we flip the cup over by hand mid-task. Deployment uses the same checkpoint across all trials; no per-scene tuning is applied.</p>
+  <p class="body-text">MemMimic's real-world tasks are evaluated in a controlled lab setting. As a stronger generalization test, we deploy GMP outdoors with no change to the checkpoint: 40 Continuous Place Back trials across backgrounds, lighting, surfaces, and cup placements never seen at training time. A subset of trials includes <span class="highlight">human perturbation</span>, where we flip the cup over by hand mid-task. Deployment uses the same checkpoint across all trials; no per-scene tuning is applied. All videos below play at <span class="highlight">1&times; speed</span>.</p>
 
   <div class="wild-labels">
     <div class="wild-label">
@@ -997,7 +1003,7 @@
 
   <div class="tab-panel active" data-tabgroup="attn-vis" data-config="cube-pushing">
     <figure>
-      <video autoplay loop muted playsinline controls preload="none">
+      <video autoplay loop muted playsinline preload="none">
         <source src="assets/videos/attention_vis_cube_pushing.mp4" type="video/mp4">
       </video>
       <figcaption>Visualization of gated cross-attention weights for each 8-step action trajectory throughout one episode. <span class="math-blue">Blue</span> indicates the memory gate is on (&mu;<sub>t</sub>=1) and <span class="math-gray">gray</span> indicates the memory gate is off (&mu;<sub>t</sub>=0). During the pushing stage in Trial 4, attention focuses primarily on the outcomes from Trial 3 (undershoot) and Trial 2 (overshoot). The policy uses these past outcomes to adjust its action and achieve a successful push.</figcaption>
@@ -1006,7 +1012,7 @@
 
   <div class="tab-panel" data-tabgroup="attn-vis" data-config="match-color">
     <figure>
-      <video autoplay loop muted playsinline controls preload="none">
+      <video autoplay loop muted playsinline preload="none">
         <source src="assets/videos/attention_vis_match_color.mp4" type="video/mp4">
       </video>
       <figcaption>We visualize the gated cross-attention weights for each 8-step action chunk. At <em>t</em>=80, when the robot is placing the cube back, the attention focuses primarily on <em>t</em>=48, when the robot first observed the bin colors. <span class="math-blue">Blue</span> indicates the memory gate is on (&mu;<sub>t</sub>=1); <span class="math-gray">gray</span> indicates the gate is off (&mu;<sub>t</sub>=0).</figcaption>
@@ -1083,19 +1089,19 @@
         <p>Due to the strong scalability of cross attention, the history length is only bottlenecked by training GPU memory. By caching visual features and freezing a pretrained image encoder, our model is able to attend to 6,000 image frames (with paired actions), achieving memory recall of up to 10 minutes at 10 fps. Please refer to <strong>Finding 7</strong> for more details.</p>
         <div class="faq-video-pair">
           <figure class="faq-video">
-            <video autoplay controls muted playsinline loop preload="metadata">
+            <video autoplay muted playsinline loop preload="metadata">
               <source src="assets/videos/faq/long_memory_ep7.mp4" type="video/mp4">
             </video>
             <figcaption>Episode 7 &middot; ~8 min</figcaption>
           </figure>
           <figure class="faq-video">
-            <video autoplay controls muted playsinline loop preload="metadata">
+            <video autoplay muted playsinline loop preload="metadata">
               <source src="assets/videos/faq/long_memory_ep69.mp4" type="video/mp4">
             </video>
             <figcaption>Episode 69 &middot; ~10 min</figcaption>
           </figure>
         </div>
-        <p class="faq-video-note">The robot may appear frozen for long stretches, which is expected: we are stress testing the policy's memory duration. At the end, once the bin colors shuffle, the robot places the cube back in its original bin. Both clips play at real time speed (10 fps); drag the progress bar to skim through the full episode.</p>
+        <p class="faq-video-note">The robot may appear frozen for long stretches, which is expected: we are stress testing the policy's memory duration. At the end, once the bin colors shuffle, the robot places the cube back in its original bin. Both clips play at real time speed (10 fps); hover to reveal the progress bar and drag to skim through the full episode.</p>
       </div>
     </details>
 
@@ -1154,10 +1160,23 @@
 </section>
 
 
-<!-- SOFT CTA: invitation before footer. -->
+<!-- SOFT CTA: paired invitation cards before the footer. Each card pairs
+     a muted question with an accented action link; a hairline divides
+     them on wide screens, stacks on narrow. -->
 <div class="cta-block">
-  <p>Questions about the work? Reach out to any of the <a href="#team">authors</a>.</p>
-  <p>Problems with the codebase? Submit a GitHub issue.</p>
+  <div class="cta-item">
+    <p class="cta-question">Questions about the work?</p>
+    <p class="cta-action">
+      <a href="#team">Reach out to any of the authors<span class="cta-arrow" aria-hidden="true">&rarr;</span></a>
+    </p>
+  </div>
+  <div class="cta-divider" aria-hidden="true"></div>
+  <div class="cta-item">
+    <p class="cta-question">Problems with the codebase?</p>
+    <p class="cta-action">
+      <a href="#">Submit a GitHub issue<span class="cta-arrow" aria-hidden="true">&rarr;</span></a>
+    </p>
+  </div>
 </div>
 
 

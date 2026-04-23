@@ -161,6 +161,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
           if (v.hasAttribute('autoplay')) {
             enqueue(v, true);
             v.muted = true;
+            if (v.dataset.userPaused === '1') return;
             if (v.paused) v.play().catch(function () {});
           } else {
             v.preload = 'auto';
@@ -189,11 +190,17 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   // re-entry. Scrolling back to a previously seen video resumes it.
   // Safari requires the muted *property* (not just the attribute) to be true
   // at the moment play() is called, or its autoplay policy rejects the call.
+  //
+  // Custom-controls flags:
+  //   data-user-paused="1"  user clicked our pause button; skip auto play
+  //   data-scrubbing="1"    user is dragging our progress bar; skip auto pause
   var playObs = new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       var v = e.target;
+      if (v.dataset.scrubbing === '1') return;   // never fight an active drag
       if (e.isIntersecting) {
         if (state.get(v) !== 'ready') enqueue(v, true);
+        if (v.dataset.userPaused === '1') return;
         if (v.paused) { v.muted = true; v.play().catch(function () {}); }
       } else if (!v.paused) v.pause();
     });
@@ -355,3 +362,315 @@ function fallbackCopy(text, callback) {
   document.body.removeChild(ta);
   callback();
 }
+
+
+/* CUSTOM VIDEO CONTROLS
+ * Hover-reveal progress + play/rate/fullscreen pill on every <video>.
+ * Autoplay/autoloop stays wired through the IntersectionObserver above;
+ * this module coordinates via two data flags:
+ *   - data-user-paused="1"   user hit our pause button; skip auto-play
+ *   - data-scrubbing="1"     user is dragging the track; skip auto-pause
+ */
+(function () {
+  var RATES = [0.5, 1, 1.5, 2];
+
+  var SVG_PLAY  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5-13-7.5z" fill="currentColor"/></svg>';
+  var SVG_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="4.5" width="3.5" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="3.5" height="15" rx="1" fill="currentColor"/></svg>';
+  var SVG_FS    = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 9 4 4 9 4"/><polyline points="20 9 20 4 15 4"/><polyline points="4 15 4 20 9 20"/><polyline points="20 15 20 20 15 20"/></svg>';
+  var SVG_FS_EXIT = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 4 9 9 4 9"/><polyline points="15 4 15 9 20 9"/><polyline points="4 15 9 15 9 20"/><polyline points="20 15 15 15 15 20"/></svg>';
+
+  function makeBtn(cls, html, label) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = cls;
+    b.innerHTML = html;
+    b.setAttribute('aria-label', label);
+    return b;
+  }
+
+  function attach(video) {
+    if (video.dataset.customControls === '1') return;
+    video.dataset.customControls = '1';
+    // We render our own UI; kill any native controls.
+    video.removeAttribute('controls');
+    video.controls = false;
+
+    // Always wrap the video in a fresh .vid-host div so the overlay only
+    // covers the video rect (never a sibling <figcaption> below it).
+    var host = video.parentElement;
+    if (!host.classList.contains('vid-host')) {
+      var wrap = document.createElement('div');
+      wrap.className = 'vid-host';
+      host.insertBefore(wrap, video);
+      wrap.appendChild(video);
+      host = wrap;
+    }
+    if (video.classList.contains('full-bleed')) host.classList.add('vid-host-bleed');
+
+    var overlay = document.createElement('div');
+    overlay.className = 'vid-controls';
+
+    var track = document.createElement('div');
+    track.className = 'vid-track';
+    var fill  = document.createElement('div');
+    fill.className = 'vid-fill';
+    var knob  = document.createElement('div');
+    knob.className = 'vid-knob';
+    track.appendChild(fill);
+    track.appendChild(knob);
+
+    var time = document.createElement('div');
+    time.className = 'vid-time';
+    var timeCur = document.createElement('span');
+    timeCur.className = 'vid-time-cur';
+    timeCur.textContent = '0:00';
+    var timeSep = document.createElement('span');
+    timeSep.className = 'vid-time-sep';
+    timeSep.textContent = '/';
+    var timeTot = document.createElement('span');
+    timeTot.className = 'vid-time-tot';
+    timeTot.textContent = '0:00';
+    time.appendChild(timeCur);
+    time.appendChild(timeSep);
+    time.appendChild(timeTot);
+
+    var pill = document.createElement('div');
+    pill.className = 'vid-pill';
+    var btnPlay = makeBtn('vid-btn vid-btn-play', SVG_PLAY, 'Play/Pause');
+    var btnRate = makeBtn('vid-btn vid-btn-rate', '1×', 'Playback speed');
+    var btnFs   = makeBtn('vid-btn vid-btn-fs', SVG_FS, 'Fullscreen');
+    pill.appendChild(btnPlay);
+    pill.appendChild(btnRate);
+    pill.appendChild(btnFs);
+
+    overlay.appendChild(track);
+    overlay.appendChild(time);
+    overlay.appendChild(pill);
+    host.appendChild(overlay);
+
+    // Initial rate index picks up any existing data-playbackrate default.
+    var seedRate = parseFloat(video.dataset.playbackrate);
+    var rateIdx = 1;
+    if (seedRate > 0) {
+      var i = RATES.indexOf(seedRate);
+      if (i >= 0) rateIdx = i;
+    }
+    btnRate.textContent = RATES[rateIdx] + '×';
+
+    // Single state variable for scrub lifecycle. Non-null id => drag
+    // owns the progress bar: syncFill() bails so async timeupdate /
+    // loadedmetadata / durationchange events can't snap the preview back
+    // to video.currentTime (which lags the pointer mid-seek, and on
+    // looped clips may have already wrapped to 0).
+    var scrubPointerId = null;
+
+    function syncPlayIcon() {
+      btnPlay.innerHTML = video.paused ? SVG_PLAY : SVG_PAUSE;
+    }
+    function fmtTime(t) {
+      if (!isFinite(t) || t < 0) t = 0;
+      var total = Math.floor(t);
+      var m = Math.floor(total / 60);
+      var s = total % 60;
+      return m + ':' + (s < 10 ? '0' + s : s);
+    }
+    function syncFill() {
+      if (scrubPointerId !== null) return;
+      var d = video.duration;
+      if (!(d > 0)) {
+        fill.style.width = '0%';
+        knob.style.left = '0%';
+        timeCur.textContent = '0:00';
+        timeTot.textContent = '0:00';
+        return;
+      }
+      var pct = Math.max(0, Math.min(100, (video.currentTime / d) * 100));
+      fill.style.width = pct + '%';
+      knob.style.left = pct + '%';
+      timeCur.textContent = fmtTime(video.currentTime);
+      timeTot.textContent = fmtTime(d);
+    }
+    video.addEventListener('play', syncPlayIcon);
+    video.addEventListener('pause', syncPlayIcon);
+    video.addEventListener('timeupdate', syncFill);
+    video.addEventListener('loadedmetadata', syncFill);
+    video.addEventListener('durationchange', syncFill);
+    syncPlayIcon();
+    syncFill();
+
+    // Smoother scrubber while hovering the host: cheap RAF only when
+    // we're actively engaged with a video, otherwise we rely on the
+    // browser's 4Hz timeupdate event.
+    var hoverRafId = 0;
+    function tickHover() {
+      if (!video.paused) syncFill();
+      hoverRafId = requestAnimationFrame(tickHover);
+    }
+    host.addEventListener('pointerenter', function () {
+      if (!hoverRafId) hoverRafId = requestAnimationFrame(tickHover);
+    });
+    host.addEventListener('pointerleave', function () {
+      if (hoverRafId) { cancelAnimationFrame(hoverRafId); hoverRafId = 0; }
+    });
+
+    function togglePlay() {
+      if (video.paused) {
+        video.dataset.userPaused = '';
+        video.muted = true;
+        video.play().catch(function () {});
+      } else {
+        video.dataset.userPaused = '1';
+        video.pause();
+      }
+    }
+
+    // Click anywhere on the video surface toggles play/pause.
+    video.addEventListener('click', function () { togglePlay(); });
+
+    btnPlay.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      togglePlay();
+    });
+
+    btnRate.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      rateIdx = (rateIdx + 1) % RATES.length;
+      var r = RATES[rateIdx];
+      video.playbackRate = r;
+      if (video.dataset.playbackrate) video.dataset.playbackrate = String(r);
+      btnRate.textContent = r + '×';
+    });
+
+    btnFs.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fsEl) {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else if (host.requestFullscreen) {
+        host.requestFullscreen().catch(function () {
+          if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+        });
+      } else if (host.webkitRequestFullscreen) {
+        host.webkitRequestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      }
+    });
+    function syncFsIcon() {
+      var active = (document.fullscreenElement === host) ||
+                   (document.webkitFullscreenElement === host);
+      btnFs.innerHTML = active ? SVG_FS_EXIT : SVG_FS;
+    }
+    document.addEventListener('fullscreenchange', syncFsIcon);
+    document.addEventListener('webkitfullscreenchange', syncFsIcon);
+
+    // Drag-to-scrub.
+    //   - setPointerCapture keeps move/up on the track regardless of
+    //     cursor position (Pointer Events: Chrome 55+, FF 41+, Safari
+    //     13+, Edge 79+; try/catch covers denied captures).
+    //   - Seeks are rAF-coalesced: one video.currentTime write per frame
+    //     even if pointermove fires at 120Hz.
+    //   - Video is paused during drag so the playback head doesn't race
+    //     the seeks we issue; prior state is restored on release.
+    //   - No video.load() on missing metadata: it resets currentTime to
+    //     0 and aborts playback. We bump preload="auto" and let the
+    //     loadedmetadata handler re-enter commitSeek().
+    //   - Target is clamped to (d - 0.05) so a near-end seek on a looped
+    //     clip does not wrap to 0 before committing.
+    var wasPlaying = false;
+    var pendingPct = null;
+    var seekRafId = 0;
+
+    function clientToPct(clientX) {
+      var r = track.getBoundingClientRect();
+      if (r.width <= 0) return 0;
+      var pct = (clientX - r.left) / r.width;
+      return pct < 0 ? 0 : pct > 1 ? 1 : pct;
+    }
+    function renderPct(pct) {
+      var pctStr = (pct * 100) + '%';
+      fill.style.width = pctStr;
+      knob.style.left = pctStr;
+      var d = video.duration;
+      if (d > 0) timeCur.textContent = fmtTime(pct * d);
+    }
+    function commitSeek() {
+      seekRafId = 0;
+      if (pendingPct === null) return;
+      var d = video.duration;
+      if (!(d > 0)) {
+        if (video.preload !== 'auto') video.preload = 'auto';
+        return;
+      }
+      var t = Math.min(pendingPct * d, Math.max(0, d - 0.05));
+      try { video.currentTime = t; } catch (e) {}
+      pendingPct = null;
+    }
+    function scheduleSeek(pct) {
+      pendingPct = pct;
+      if (!seekRafId) seekRafId = requestAnimationFrame(commitSeek);
+    }
+    video.addEventListener('loadedmetadata', function () {
+      if (pendingPct !== null) commitSeek();
+    });
+
+    function onPointerMove(ev) {
+      if (ev.pointerId !== scrubPointerId) return;
+      var pct = clientToPct(ev.clientX);
+      renderPct(pct);
+      scheduleSeek(pct);
+    }
+    function onPointerUp(ev) {
+      if (ev.pointerId !== scrubPointerId) return;
+      var pct = clientToPct(ev.clientX);
+      renderPct(pct);
+      pendingPct = pct;
+      if (seekRafId) { cancelAnimationFrame(seekRafId); seekRafId = 0; }
+      commitSeek();
+
+      track.removeEventListener('pointermove', onPointerMove);
+      track.removeEventListener('pointerup', onPointerUp);
+      track.removeEventListener('pointercancel', onPointerUp);
+      try { track.releasePointerCapture(ev.pointerId); } catch (e) {}
+
+      scrubPointerId = null;
+      overlay.classList.remove('is-scrub');
+
+      if (wasPlaying) {
+        video.muted = true;
+        video.play().catch(function () {});
+      }
+      // Keep data-scrubbing briefly so a late IntersectionObserver pass
+      // doesn't auto-pause the video we just told to resume.
+      setTimeout(function () { video.dataset.scrubbing = ''; }, 220);
+    }
+    track.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      if (scrubPointerId !== null) return;
+      scrubPointerId = ev.pointerId;
+      wasPlaying = !video.paused;
+      overlay.classList.add('is-scrub');
+      video.dataset.scrubbing = '1';
+      if (wasPlaying) video.pause();
+
+      try { track.setPointerCapture(ev.pointerId); } catch (e) {}
+      track.addEventListener('pointermove', onPointerMove);
+      track.addEventListener('pointerup', onPointerUp);
+      track.addEventListener('pointercancel', onPointerUp);
+
+      var pct = clientToPct(ev.clientX);
+      renderPct(pct);
+      scheduleSeek(pct);
+      ev.preventDefault();
+      ev.stopPropagation();
+    });
+  }
+
+  function wireAll() {
+    document.querySelectorAll('video').forEach(attach);
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', wireAll)
+    : wireAll();
+})();

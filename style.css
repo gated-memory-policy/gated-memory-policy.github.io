@@ -391,7 +391,48 @@ section > .body-text { margin-bottom: 2rem; }
   font-size: 1.05rem;
   color: var(--text-muted);
   letter-spacing: 0;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.4rem;
+}
+
+#post-header .pub-meta {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.55rem;
+  font-weight: 500;
+}
+
+#post-header .pub-meta time {
+  font-variant-numeric: tabular-nums;
+}
+
+#post-header .pub-meta-sep {
+  opacity: 0.55;
+}
+
+#post-header .pub-meta-updated {
+  letter-spacing: 0.12em;
+  opacity: 0.78;
+}
+
+#post-header .pub-meta time {
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+}
+
+#post-header .pub-meta-sep {
+  color: inherit;
+  opacity: 0.6;
+}
+
+#post-header .pub-meta-updated {
+  font-style: italic;
+  opacity: 0.85;
 }
 
 #post-header .link-buttons {
@@ -476,6 +517,15 @@ section > .body-text { margin-bottom: 2rem; }
 .btn-link:hover .hf-logo {
   width: 18px;
   height: 18px;
+  opacity: 1;
+  flex-shrink: 0;
+  display: block;
+}
+
+.btn-link .arxiv-logo,
+.btn-link:hover .arxiv-logo {
+  width: 13px;
+  height: auto;
   opacity: 1;
   flex-shrink: 0;
   display: block;
@@ -1103,9 +1153,9 @@ a.author-card:hover .author-photo {
 /* Method + Design Choices read as one chapter: tighten the seam. */
 #design { padding-top: 16px; }
 
-/* Team + Acknowledgments share a single viewport: collapse the gap. */
-#team { padding-bottom: 20px; }
-#acknowledgments { padding-top: 0; padding-bottom: 40px; }
+/* Team + Acknowledgments share a single viewport: keep a modest gap. */
+#team { padding-bottom: 50px; }
+#acknowledgments { padding-top: 8px; padding-bottom: 40px; }
 
 @media (max-width: 768px) {
   #taxonomy,
@@ -1123,8 +1173,8 @@ a.author-card:hover .author-photo {
     padding-bottom: 24px;
   }
   #design { padding-top: 12px; }
-  #team { padding-bottom: 16px; }
-  #acknowledgments { padding-top: 0; padding-bottom: 32px; }
+  #team { padding-bottom: 28px; }
+  #acknowledgments { padding-top: 4px; padding-bottom: 32px; }
 }
 
 /* Acknowledgments: prose spans the full section column so the block
@@ -1691,28 +1741,93 @@ a.author-card:hover .author-photo {
 }
 
 
-/* SOFT CTA: one-line invitation before the footer. */
+/* SOFT CTA: two paired invitation blocks before the footer. A muted
+ * question sits above an accented action link; the two blocks are
+ * separated by a hairline divider on wide viewports and stack with
+ * a short centered hairline on mobile. */
 .cta-block {
   width: 100%;
   max-width: var(--max-w);
   margin: 0 auto;
   padding: 0 var(--pad-x) 72px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(24px, 5vw, 56px);
+}
+
+.cta-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 4px;
   text-align: center;
 }
 
-.cta-block p {
-  font-size: 0.95rem;
+.cta-question {
+  font-size: 0.84rem;
   color: var(--text-muted);
   font-style: italic;
   margin: 0;
+  letter-spacing: 0;
+  line-height: 1.4;
 }
 
-.cta-block p + p {
-  margin-top: 4px;
+.cta-action {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: -0.008em;
+  line-height: 1.4;
 }
 
-.cta-block a {
+.cta-action a {
   color: var(--accent);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 180ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+              gap 180ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.cta-action a:hover {
+  text-decoration: none;
+  gap: 10px;
+  border-bottom-color: currentColor;
+}
+
+.cta-arrow {
+  display: inline-block;
+  transition: transform 180ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.cta-action a:hover .cta-arrow {
+  transform: translateX(2px);
+}
+
+.cta-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+  margin: 10px 0;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .cta-block {
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 56px;
+  }
+  .cta-divider {
+    width: 48px;
+    height: 1px;
+    margin: 0 auto;
+  }
 }
 
 
@@ -1753,15 +1868,25 @@ a.author-card:hover .author-photo {
 .tf-header {
   display: flex;
   flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding-bottom: 6px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
 
+.tf-title-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  justify-content: center;
+}
+
 .tf-letter {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 .tf-title {
@@ -1769,14 +1894,13 @@ a.author-card:hover .author-photo {
   font-weight: 650;
   color: var(--text);
   letter-spacing: -0.012em;
-  margin-top: 2px;
 }
 
 .tf-sub {
   font-size: 0.8rem;
   color: var(--text-muted);
   font-style: italic;
-  margin-top: 1px;
+  margin-top: 3px;
 }
 
 .tf-photos { align-items: end; }
@@ -1842,4 +1966,260 @@ a.author-card:hover .author-photo {
   }
   .tf-photos img { height: 130px; }
   .tf-descriptions p { font-size: 0.9rem; }
+}
+
+
+/* CUSTOM VIDEO CONTROLS
+ * Hover-reveal minimal overlay attached to every <video>. The progress
+ * hairline is always visible at the bottom edge; on hover the track grows,
+ * a scrubber knob appears, and a control pill fades in at the bottom-right
+ * with play/pause, playback speed, and fullscreen. Dragging scrubs. The
+ * autoplay IntersectionObserver in main.js respects data-user-paused and
+ * data-scrubbing so user intent is never overridden by visibility events.
+ */
+.vid-host {
+  position: relative;
+  line-height: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vid-host > video { display: block; width: 100%; }
+
+/* Full-bleed banner: the wrapper takes over the full-bleed width so the
+ * video sits normally inside and the overlay's progress hairline tracks
+ * the actual video rect. Without this, .vid-host's overflow:hidden would
+ * clip the 100vw video down to the content column. */
+.vid-host.vid-host-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  border-radius: 0;
+}
+.vid-host.vid-host-bleed > video,
+.vid-host.vid-host-bleed > video.full-bleed {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.vid-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.vid-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.vid-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.26);
+  transition: height 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.vid-host:hover .vid-track::before,
+.vid-controls.is-scrub .vid-track::before {
+  height: 3.5px;
+}
+
+.vid-fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--accent);
+  transition: height 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+}
+
+.vid-host:hover .vid-fill,
+.vid-controls.is-scrub .vid-fill {
+  height: 3.5px;
+}
+
+.vid-knob {
+  position: absolute;
+  left: 0;
+  bottom: 1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9),
+              0 1px 3px rgba(0, 0, 0, 0.35);
+  transform: translate(-50%, 50%) scale(0);
+  transform-origin: center;
+  transition: transform 180ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+}
+
+.vid-host:hover .vid-knob,
+.vid-controls.is-scrub .vid-knob {
+  transform: translate(-50%, 50%) scale(1);
+}
+
+.vid-pill {
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 4px;
+  background: rgba(18, 14, 10, 0.68);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.vid-time {
+  position: absolute;
+  left: 10px;
+  bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 5px 10px;
+  background: rgba(18, 14, 10, 0.68);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  color: #f6f1e4;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform 160ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+
+.vid-host:hover .vid-time,
+.vid-controls.is-scrub .vid-time {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vid-time-sep { opacity: 0.45; }
+.vid-time-tot { opacity: 0.72; }
+
+.vid-host:hover .vid-pill,
+.vid-controls.is-scrub .vid-pill {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.vid-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f6f1e4;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background 140ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+              color 140ms var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.vid-btn:hover { background: rgba(255, 255, 255, 0.14); }
+.vid-btn:active { background: rgba(255, 255, 255, 0.22); }
+.vid-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 1px; }
+
+.vid-btn svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.vid-btn.vid-btn-rate {
+  width: auto;
+  min-width: 30px;
+  padding: 0 7px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Cursor feedback on the video surface itself. */
+.vid-host > video { cursor: pointer; }
+
+/* Fullscreen: video fills the screen on a black backdrop. */
+.vid-host:fullscreen,
+.vid-host:-webkit-full-screen {
+  background: #000;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vid-host:fullscreen > video,
+.vid-host:-webkit-full-screen > video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Mobile: skinnier touch target, no hover (controls stay hidden unless
+ * tapped). The progress hairline remains visible. */
+@media (hover: none) {
+  .vid-track { height: 18px; }
+  .vid-pill {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+/* Reduced motion: no knob scale transition, controls just appear. */
+@media (prefers-reduced-motion: reduce) {
+  .vid-track::before,
+  .vid-fill,
+  .vid-knob,
+  .vid-pill {
+    transition: none;
+  }
 }
