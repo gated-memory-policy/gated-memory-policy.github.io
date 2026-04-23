@@ -157,7 +157,7 @@
       <figcaption><strong>Memory requirements in robot manipulation</strong> range from (a) <em>Markovian</em> tasks requiring no memory, to (b) <em>in-trial</em> memory that retains a single-episode cue, and (c) <em>cross-trial</em> memory that aggregates information across attempts. Naively extending policy history degrades performance on Markovian tasks and grows expensive for cross-trial memory. GMP selectively recalls task-relevant history, achieving strong performance across all three regimes.</figcaption>
     </figure>
 
-    <p>To address these issues, we propose <em>Gated Memory Policy</em> (GMP), a visuomotor
+    <p>To address these issues, we propose <em><a href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener">Gated Memory Policy</a></em> (GMP), a visuomotor
        policy that learns both <strong>when</strong> to recall memory and <strong>what</strong> to recall. To learn
        when to recall memory, GMP employs a learned memory gate mechanism that selectively activates
        history context only when necessary, improving robustness and reactivity. To learn what to
@@ -165,7 +165,7 @@
        effective latent memory representations. To further enhance robustness, GMP injects diffusion
        noise into historical actions, mitigating sensitivity to noisy or inaccurate histories during
        both training and inference.</p>
-    <p>On our proposed non-Markovian benchmark <em>MemMimic</em>, GMP achieves a
+    <p>On our proposed non-Markovian benchmark <em><a href="#cross-trial">MemMimic</a></em>, GMP achieves a
        <strong>30.1% average success rate improvement</strong> over long-history baselines
        (including <a href="https://arxiv.org/abs/2303.04137" target="_blank" rel="noopener">Diffusion Policy</a>
        with long history, and the LSTM-based <a href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener">BC-RNN</a>), while
@@ -900,7 +900,7 @@
     </figure>
     <div class="method-caption">
       <h3>Gating Mechanism</h3>
-      <p>Joint training of gate + policy collapses to always-on (overfitting Markovian tasks) or always-off (failing non-Markovian ones). We calibrate the gate offline instead:</p>
+      <p>Training the gate jointly with the policy tends to collapse into one of two failure modes: the gate stays always on and the policy overfits on Markovian tasks, or the gate stays always off and the policy fails on non-Markovian ones. To avoid both, we calibrate the gate offline on a held-out validation set:</p>
       <ol class="method-steps">
         <li>Split the dataset into <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>. Train two policies on <em>D</em><sub>train</sub>: gate always off <span class="math-gray">π</span>, always on <span class="math-blue">π<sub>mem</sub></span>.</li>
         <li>Roll both on <em>D</em><sub>val</sub> for <em>N</em> samples; record per-timestep action-prediction error.</li>

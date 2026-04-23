@@ -588,7 +588,7 @@ section > .body-text { margin-bottom: 2rem; }
   text-align: justify;
   text-align-last: left;}
 
-#abstract p {
+#abstract > p {
   margin: 0;
   text-align: justify;
   text-align-last: left;
@@ -600,7 +600,7 @@ section > .body-text { margin-bottom: 2rem; }
   line-height: 1.6;
 }
 
-#abstract p + p {
+#abstract > p + p {
   margin-top: 0.6rem;
 }
 
@@ -647,7 +647,8 @@ figcaption {
 .fig-centered img { width: 100%; }
 
 #attention {
-  padding-bottom: 48px;
+  padding-top: 12px;
+  padding-bottom: 16px;
 }
 
 #attention .tab-panel figure {
@@ -927,8 +928,8 @@ figcaption {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-top: 1.6rem;
-  margin-bottom: 0.9rem;
+  margin-top: 1.1rem;
+  margin-bottom: 0.6rem;
   display: flex;
 }
 .wild-label {
@@ -1189,6 +1190,9 @@ a.author-card:hover .author-photo {
 /* MAJOR SECTIONS
  * Extra vertical padding on top level sections gives the eye breathing
  * room between chapters. */
+/* Uniform vertical rhythm across major sections: 40px top/bottom means
+ * ~80px of breathing room between any two sections (slightly less than
+ * the doubled base padding so the page reads tight without cramping). */
 #cross-trial,
 #in-trial,
 #in-the-wild,
@@ -1198,15 +1202,16 @@ a.author-card:hover .author-photo {
 #faq,
 #team,
 #acknowledgments {
-  padding-top: 140px;
-  padding-bottom: 140px;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
-/* Team + Acknowledgments share a single viewport: collapse the gap
- * between them and shorten their outer padding so both fit above the
- * footer without scroll on ~900px+ displays. */
-#team { padding-bottom: 56px; }
-#acknowledgments { padding-top: 0; padding-bottom: 88px; }
+/* In-the-Wild is a full-bleed banner and needs to fit in one viewport on
+ * typical laptops, so it gets tighter padding than the uniform rhythm. */
+#in-the-wild {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
 
 @media (max-width: 768px) {
   #cross-trial,
@@ -1218,11 +1223,13 @@ a.author-card:hover .author-photo {
   #faq,
   #team,
   #acknowledgments {
-    padding-top: 88px;
-    padding-bottom: 88px;
+    padding-top: 28px;
+    padding-bottom: 28px;
   }
-  #team { padding-bottom: 40px; }
-  #acknowledgments { padding-top: 0; padding-bottom: 64px; }
+  #in-the-wild {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+  }
 }
 
 /* Acknowledgments: prose spans the full section column so the block
@@ -1298,40 +1305,68 @@ a.author-card:hover .author-photo {
 .method-img img:hover { opacity: 0.92; }
 
 /* Click-to-zoom lightbox: dim backdrop, image scales up to the viewport
- * measure minus a 4vw inset on each side. Click anywhere or press Esc
+ * measure minus a 3vw inset on each side. Click backdrop or press Esc
  * to close. The backdrop's cursor signals zoom-out. */
 .img-lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(26, 22, 18, 0.86);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: rgba(20, 16, 12, 0);
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4vw;
+  padding: 3vw;
   cursor: zoom-out;
-  opacity: 0;
-  transition: opacity 180ms var(--ease-out);
+  transition: background 280ms var(--ease-out),
+              backdrop-filter 280ms var(--ease-out),
+              -webkit-backdrop-filter 280ms var(--ease-out);
+  will-change: background, backdrop-filter;
 }
 
-.img-lightbox.is-open { opacity: 1; }
+.img-lightbox.is-open {
+  background: rgba(20, 16, 12, 0.88);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
 
 .img-lightbox img {
-  max-width: min(92vw, 1600px);
-  max-height: 92vh;
-  width: auto;
+  /* Force the image to scale up to the viewport measure even when the
+   * SVG has a small intrinsic width/height attribute baked in. Both
+   * width and max-height are set so the aspect ratio is preserved
+   * against whichever viewport dimension is the tighter constraint. */
+  width: min(94vw, 1800px);
   height: auto;
+  max-height: 94vh;
   object-fit: contain;
-  border-radius: 6px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
   background: var(--bg);
-  transform: scale(0.96);
-  transition: transform 180ms var(--ease-out);
+  opacity: 0;
+  transform: scale(0.88);
+  transform-origin: center;
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+  cursor: zoom-out;
 }
 
-.img-lightbox.is-open img { transform: scale(1); }
+.img-lightbox.is-open img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.img-lightbox.is-closing {
+  background: rgba(20, 16, 12, 0);
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+}
+
+.img-lightbox.is-closing img {
+  opacity: 0;
+  transform: scale(0.94);
+}
 
 .img-lightbox-close {
   position: absolute;
@@ -1624,6 +1659,8 @@ a.author-card:hover .author-photo {
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
+
+.tf-descriptions { align-items: start; }
 
 .tf-headers { align-items: end; }
 

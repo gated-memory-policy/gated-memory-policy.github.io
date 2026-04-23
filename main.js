@@ -277,8 +277,6 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   }, { threshold: 0.04 });
 
   sections.forEach(function (s) {
-    var rect = s.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) return;
     s.classList.add('section-reveal');
     obs.observe(s);
   });
@@ -671,55 +669,98 @@ function fallbackCopy(text, callback) {
 
 
 /* METHOD IMAGE LIGHTBOX
- * Click any .method-img img to open a centered zoomed view on a dimmed
- * backdrop. Close with a click on the backdrop, the × button, or Esc.
+ * Click any .method-img img to open a centered zoomed view on a dimmed,
+ * blurred backdrop. Close with a click on the backdrop, the × button,
+ * or Esc. Image is preloaded before the open animation fires so the
+ * transition isn't interrupted by decode/paint.
  */
 (function () {
   var overlay = null;
+  var opening = false;
+
+  function removeOverlay() {
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    overlay = null;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onKey);
+  }
 
   function close() {
     if (!overlay) return;
     overlay.classList.remove('is-open');
+    overlay.classList.add('is-closing');
     var node = overlay;
-    setTimeout(function () { if (node && node.parentNode) node.parentNode.removeChild(node); }, 200);
-    overlay = null;
-    document.body.style.overflow = '';
-    document.removeEventListener('keydown', onKey);
+    setTimeout(function () {
+      if (overlay === node) removeOverlay();
+    }, 320);
   }
 
   function onKey(ev) {
     if (ev.key === 'Escape') close();
   }
 
-  function open(src, alt) {
-    close();
-    overlay = document.createElement('div');
-    overlay.className = 'img-lightbox';
-    var img = document.createElement('img');
-    img.src = src;
-    img.alt = alt || '';
-    overlay.appendChild(img);
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'img-lightbox-close';
-    btn.setAttribute('aria-label', 'Close');
-    btn.textContent = '×';
-    overlay.appendChild(btn);
-    document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
-    // next frame so the transition fires
-    requestAnimationFrame(function () { overlay.classList.add('is-open'); });
-    overlay.addEventListener('click', function (ev) {
-      if (ev.target === img) return;   // clicking on the image itself doesn't dismiss
-      close();
+  function animateOpen(el) {
+    // Double rAF so the initial (hidden) styles apply before the
+    // `is-open` class triggers the transition. Without this the browser
+    // can collapse both states into the same paint and skip the animation.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        el.classList.add('is-open');
+      });
     });
-    btn.addEventListener('click', function (ev) { ev.stopPropagation(); close(); });
-    document.addEventListener('keydown', onKey);
+  }
+
+  function open(src, alt) {
+    if (opening) return;
+    opening = true;
+
+    // Preload the image so the opening animation has decoded pixels to show.
+    var preload = new Image();
+    preload.onload = preload.onerror = function () {
+      opening = false;
+      if (overlay) return; // another open already in flight
+
+      overlay = document.createElement('div');
+      overlay.className = 'img-lightbox';
+
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = alt || '';
+      img.draggable = false;
+      overlay.appendChild(img);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'img-lightbox-close';
+      btn.setAttribute('aria-label', 'Close');
+      btn.textContent = '×';
+      overlay.appendChild(btn);
+
+      document.body.appendChild(overlay);
+      document.body.style.overflow = 'hidden';
+
+      animateOpen(overlay);
+
+      overlay.addEventListener('click', function (ev) {
+        if (ev.target === img) return;
+        close();
+      });
+      btn.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        close();
+      });
+      document.addEventListener('keydown', onKey);
+    };
+    preload.src = src;
   }
 
   function wire() {
     document.querySelectorAll('.method-img img').forEach(function (img) {
-      img.addEventListener('click', function () { open(img.src, img.alt); });
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        open(img.currentSrc || img.src, img.alt);
+      });
     });
   }
 
