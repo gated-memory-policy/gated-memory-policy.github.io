@@ -218,7 +218,7 @@
     </div>
   </div>
 
-  <p class="body-text taxonomy-outro">Every demo that follows is tagged with the regime it belongs to. The method is evaluated on at least one task per regime, across simulation and real hardware.</p>
+  <p class="body-text taxonomy-outro">Every demo that follows is tagged with the regime it belongs to. GMP targets all three with one architecture, and is evaluated on at least one task per regime across simulation and real hardware.</p>
 </section>
 
 
@@ -228,12 +228,27 @@
 <section id="method">
   <h2>Method</h2>
 
-  <p class="body-text">GMP uses a single architecture across all three regimes. It factors the problem into two questions, <strong>when</strong> to recall history and <strong>what</strong> to recall, and gives each question its own learnable component: a binary memory gate that controls whether the history path is active at each timestep, and a cross-attention block that reads from a per-frame token cache when it is.</p>
+  <p class="body-text">GMP factors the memory problem into two questions: <strong>when</strong> to read history, and <strong>what</strong> to read. Each is handled by a dedicated component. A memory gate decides at each timestep whether history should be read; a cross-attention block reads from a per-frame token cache when the gate is active. A third component applies noise to the cached history actions during both training and inference, keeping predictions stable when deployed action traces are stale or imprecise. Whether a single configuration covers all three regimes depends on three factors: how the gate is calibrated, how past frames are summarized into tokens, and how history actions are noised.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.B, Findings 4, 5, 6">5</a></p>
+
+  <ol class="design-list">
+    <li>
+      <h3>Gating, calibrated offline</h3>
+      <p>Joint training of the gate and policy collapses to an extreme: the gate remains either always-on, overfitting Markovian tasks, or always-off, failing non-Markovian ones. GMP calibrates the gate offline instead. On a held-out split, timesteps at which omitting history increases action error are labeled memory-required, and the gate MLP is trained on those labels with BCE loss before the policy is retrained with the gate frozen. The full procedure is shown in the diagram below.</p>
+    </li>
+    <li>
+      <h3>Cross-attention over a per-frame token summary</h3>
+      <p>Each past frame is pooled into a single aggregated visual token via multi-head attention pooling over a pretrained SigLIP2-B/16 ViT. These tokens are retained in a sliding-window cache and reused across denoising steps without recomputation. Cross-attention (rather than self-attention) keeps cost linear in history length; when the gate is inactive, history attention is skipped entirely and cost remains constant.</p>
+    </li>
+    <li>
+      <h3>Noise-augmented history actions</h3>
+      <p>Historical actions fed to the module are noised on the same diffusion schedule as the prediction target, at a noise level one denoising step cleaner, during both training and inference. This keeps predictions stable when deployed action traces are stale or imprecise.</p>
+    </li>
+  </ol>
 
   <div class="method-row">
     <div class="method-caption">
       <h3>Model Architecture</h3>
-      <p>GMP uses the Diffusion Transformer (DiT) as its backbone and adds a cross-attention module for history conditioning. A binary memory gate &mu;<sub>t</sub>, computed from the current image and proprioception, decides at each timestep whether history cross-attention is applied. The history cache stores one aggregated visual token per past frame plus the paired action tokens, so inference scales linearly in history length (and stays constant when the gate is off).<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B, Fig. 2">4</a></p>
+      <p>The backbone is a Diffusion Transformer (DiT) with a cross-attention module added for history conditioning. The gate &mu;<sub>t</sub> is conditioned on the current image and proprioception; the cache stores one aggregated visual token per past frame together with its paired action tokens.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B, Fig. 2">4</a></p>
     </div>
     <figure class="method-img">
       <img src="assets/images/architecture.svg" alt="Model architecture diagram">
@@ -243,7 +258,7 @@
   <div class="method-row method-row-flip">
     <div class="method-caption">
       <h3>Gating Mechanism</h3>
-      <p>Training the memory gate jointly with the policy is unstable: without regularization the policy uses as much history as possible and overfits on Markovian tasks; too strong a regularizer suppresses history use and hurts non-Markovian performance. We sidestep this with offline calibration:</p>
+      <p>The offline calibration procedure, in four steps:</p>
       <ol class="method-steps">
         <li>Split the dataset into two halves, <em>D</em><sub>train</sub> and <em>D</em><sub>val</sub>. Train two policies on <em>D</em><sub>train</sub>: one with the gate always off (<span class="math-gray">&pi;</span>), one always on (<span class="math-blue">&pi;<sub>mem</sub></span>).</li>
         <li>Draw <em>N</em> action samples from each policy on <em>D</em><sub>val</sub> and record the per-timestep action-prediction error.</li>
@@ -258,29 +273,6 @@
 </section>
 
 
-<!-- DESIGN CHOICES: three short prose blocks distilling the findings.
-     The token-density caveat lives inline here as a design note. -->
-<section id="design">
-  <h2>Design Choices</h2>
-  <p class="body-text">Three design choices determine whether GMP generalizes across regimes: how the memory gate is calibrated, how history tokens are read at each inference step, and what noise the history is exposed to during training and inference. Each is modest in isolation; together they let one configuration cover Markovian, in-trial, and cross-trial tasks without per-task tuning.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.B, Findings 4, 5, 6">5</a></p>
-
-  <ol class="design-list">
-    <li>
-      <h3>Gating, calibrated offline</h3>
-      <p>Jointly training the gate with the policy is unstable. GMP therefore calibrates the gate on a held-out split: a memory-required label is assigned where the no-memory error exceeds the memory error by a ratio threshold, and the gate MLP is trained on those labels with BCE loss and frozen before the final policy is retrained on the full dataset.</p>
-    </li>
-    <li>
-      <h3>Cross-attention over a per-frame token summary</h3>
-      <p>Each past frame is pooled into a single aggregated visual token via multi-head attention pooling over a pretrained SigLIP2-B/16 ViT. History tokens are cached in a sliding window and reused across denoising steps without recomputation. Cross-attention (rather than self-attention) keeps cost linear in history length; when the gate is off, history attention is skipped entirely and cost stays constant.</p>
-    </li>
-    <li>
-      <h3>Noise-augmented history actions</h3>
-      <p>Historical actions fed to the module are noised on the same diffusion schedule as the prediction target, at a noise level one denoising step cleaner, during both training and inference. This keeps predictions stable when deployed action traces are stale or imprecise.</p>
-    </li>
-  </ol>
-</section>
-
-
 <!-- MEMMIMIC: merged benchmark section. Two groups of three tasks.
      In-trial first (Match Color, Discrete Place Back, Continuous Place
      Back Real), then cross-trial (Casting Real, Pushing Sim, Flinging
@@ -289,7 +281,7 @@
 <section id="memmimic">
   <span class="section-label">Benchmark</span>
   <h2>MemMimic</h2>
-  <p class="body-text">We evaluate GMP on MemMimic, a suite we developed to probe in-trial and cross-trial memory in simulation and on real hardware. In-trial tasks require the policy to recall a single cue observed earlier in the same episode. Cross-trial tasks require it to infer a hidden physical parameter (surface friction or object mass) from the outcomes of multiple attempts within an episode. Recent benchmarks such as <em>MIKASA-Robo</em> have sharpened single-trial retention evaluation; MemMimic extends that direction with multi-trial in-context adaptation and pairs several simulated tasks with matched real-world setups so transfer can be measured directly.</p>
+  <p class="body-text">MemMimic is the evaluation suite we built for GMP. It spans in-trial and cross-trial tasks in simulation and on real hardware, extends earlier single-trial retention benchmarks like <em>MIKASA-Robo</em> with multi-trial in-context adaptation, and pairs several simulated tasks with matched real-world setups so sim-to-real transfer can be measured directly.</p>
 
 
   <!-- ================================================================ -->

@@ -1214,7 +1214,7 @@ a.author-card:hover .author-photo {
   margin-top: 56px;
 }
 
-.method-row:first-of-type { margin-top: 1.25rem; }
+.method-row:first-of-type { margin-top: 56px; }
 
 .method-img {
   margin: 0;
@@ -1620,11 +1620,11 @@ a.author-card:hover .author-photo {
 }
 
 .design-list > li h3 {
-  font-size: 1.2rem;
-  font-weight: 650;
-  margin: 0 0 0.55rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
   color: var(--text);
-  letter-spacing: -0.014em;
+  letter-spacing: -0.01em;
 }
 
 .design-list > li p {
