@@ -199,6 +199,14 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     });
   }, { threshold: VISIBLE });
 
+  // When an anchor points at a <details> (e.g. a link from the overview
+  // into the FAQ), open it automatically so the user lands on the answer.
+  function openHashedDetails() {
+    if (!location.hash) return;
+    var el = document.querySelector(location.hash);
+    if (el && el.tagName === 'DETAILS') el.open = true;
+  }
+
   // Boot
   function wire() {
     videos = [].slice.call(document.querySelectorAll('video[autoplay]'));
@@ -222,6 +230,8 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
     advance(AHEAD - 1);   // cold seed for everything further down
     wireDetails();
     applyRates();
+    openHashedDetails();
+    window.addEventListener('hashchange', openHashedDetails);
   }
   document.readyState === 'loading'
     ? document.addEventListener('DOMContentLoaded', wire)
@@ -236,7 +246,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
  */
 (function () {
   var sections = document.querySelectorAll(
-    '#cross-trial, #in-trial, #in-the-wild, #method, #attention, #benchmark, #faq, #team, #acknowledgments'
+    '#taxonomy, #method, #design, #memmimic, #attention, #in-the-wild, #benchmark, #whats-next, #faq, #team, #acknowledgments'
   );
 
   var obs = new IntersectionObserver(function (entries, self) {
@@ -264,7 +274,7 @@ document.querySelectorAll('.tab-bar[data-tabgroup]').forEach(function (tabBar) {
   var nav = document.getElementById('toc-nav');
   if (!nav) return;
 
-  var firstMainSection = document.getElementById('cross-trial');
+  var firstMainSection = document.getElementById('taxonomy');
   var links = nav.querySelectorAll('.toc-link');
 
   // Visible once the first content section enters view, hidden at the footer

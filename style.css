@@ -31,8 +31,10 @@
   --shadow-md:   0 8px 24px -8px rgba(15, 23, 42, 0.12), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
   --shadow-lg:   0 20px 40px -16px rgba(15, 23, 42, 0.18), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
 
-  /* Layout */
-  --max-w:       960px;
+  /* Layout: one unified content column across the whole site.
+   * --max-w 808px with --pad-x 24px on each side gives a content
+   * width of exactly 760px, matching the body-text reading measure. */
+  --max-w:       808px;
   --pad-x:       24px;
   --tab-active:  var(--accent);
   --task-bleed:  0px;
@@ -191,7 +193,6 @@ code {
 .body-text {
   color: var(--text-soft);
   font-size: 1.125rem;
-  max-width: 760px;
   line-height: 1.72;
   text-align: justify;
   text-align-last: left;
@@ -327,66 +328,45 @@ section > .body-text { margin-bottom: 2rem; }
   }
 }
 
-/* HERO TITLE CARD */
-/* Full-viewport hero: title, authors, institution, tagline, buttons fill
- * the first screen. Next section (#intro-split) starts on the second. */
-#hero-title {
-  background: var(--bg);
-  text-align: center;
-  padding: 40px var(--pad-x);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+/* POST HEADER (compact, document-style).
+ * Replaces the full-viewport hero. Title, authors, institution, and
+ * link buttons sit left-aligned at the top of the page. The opening
+ * narrative (#overview) flows in directly below. */
+#post-header {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 72px var(--pad-x) 20px;
+  text-align: left;
 }
 
-#hero-title .paper-title {
+#post-header .paper-title {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2.8rem, 6.8vw, 4.8rem);
+  font-size: clamp(2.2rem, 5.2vw, 3.6rem);
   font-weight: 800;
   font-style: normal;
-  letter-spacing: -0.042em;
-  margin: 0 auto 1.5rem;
+  letter-spacing: -0.038em;
+  margin: 0 0 1rem;
   line-height: 1.1;
   color: var(--text);
-  max-width: 900px;
-  padding: 0.05em 0;
 }
 
-.hero-tagline {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.125rem;
-  font-weight: 400;
-  color: var(--text-soft);
-  max-width: 620px;
-  margin: 0.75rem auto 2rem;
-  line-height: 1.6;
-  letter-spacing: -0.005em;
-  text-align: justify;
-  text-align-last: left;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-}
-
-
-#hero-title .authors {
-  font-size: 1.2rem;
+#post-header .authors {
+  font-size: 1.1rem;
   color: var(--text-soft);
   font-weight: 450;
-  margin-bottom: 0.4rem;
+  margin: 0 0 0.35rem;
   letter-spacing: -0.005em;
 }
 
-#hero-title .authors a {
+#post-header .authors a {
   color: inherit;
   text-decoration: none;
   position: relative;
   transition: color 0.18s ease;
 }
 
-#hero-title .authors a::after {
+#post-header .authors a::after {
   content: '';
   position: absolute;
   left: 0;
@@ -399,25 +379,34 @@ section > .body-text { margin-bottom: 2rem; }
   transition: transform 0.25s var(--ease-out);
 }
 
-#hero-title .authors a:hover {
+#post-header .authors a:hover {
   color: var(--text);
 }
 
-#hero-title .authors a:hover::after {
+#post-header .authors a:hover::after {
   transform: scaleX(1);
 }
 
-#hero-title .institution {
-  font-size: 1.15rem;
+#post-header .institution {
+  font-size: 1.05rem;
   color: var(--text-muted);
   letter-spacing: 0;
-  margin-bottom: 1.75rem;
+  margin: 0 0 1.5rem;
+}
+
+#post-header .link-buttons {
+  justify-content: flex-start;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 640px) {
+  #post-header { padding: 48px var(--pad-x) 24px; }
 }
 
 .link-buttons {
   display: flex;
   gap: 10px;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
 
@@ -493,30 +482,18 @@ section > .body-text { margin-bottom: 2rem; }
 }
 
 
-/* ABSTRACT (folded into the hero, below the buttons).
- * Left-aligned prose; wider than a typical reading column so the
- * whole hero (title, authors, buttons, abstract) has a chance of
- * fitting in a single viewport. Tighter line-height for the same
- * reason. */
-#abstract {
-  max-width: 960px;
-  margin: 1.6rem auto 0;
-  text-align: left;
+/* OVERVIEW: opening narrative flows directly out of the post-header. */
+#overview {
+  padding-top: 8px;
+  padding-bottom: 24px;
 }
 
-#abstract p {
-  margin: 0;
-  text-align: justify;
-  text-align-last: left;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  font-size: 0.96rem;
-  color: var(--text-soft);
-  line-height: 1.6;
+#overview .body-text + .body-text {
+  margin-top: 1rem;
 }
 
-#abstract p + p {
-  margin-top: 0.6rem;
+@media (max-width: 768px) {
+  #overview { padding-top: 0; padding-bottom: 20px; }
 }
 
 /* FIGURES & MEDIA */
@@ -624,6 +601,7 @@ figcaption {
 .task-chart {
   flex-shrink: 0;
   width: 240px;
+  margin-top: 22px;
 }
 
 .task-chart .col-header {
@@ -695,7 +673,6 @@ figcaption {
   color: var(--text-soft);
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  max-width: 760px;
   line-height: 1.65;
   text-align: justify;
   text-align-last: left;
@@ -1022,7 +999,7 @@ a.author-card:hover .author-photo {
 }
 
 /* Reset the inline code pill styling when <code> sits inside a <pre>
- * block (e.g. the BibTeX box) — the pre supplies its own colors, font,
+ * block (e.g. the BibTeX box); the pre supplies its own colors, font,
  * and padding, so the inline rule would otherwise override the dark bg. */
 .bibtex-wrapper pre code {
   font-family: inherit;
@@ -1105,42 +1082,49 @@ a.author-card:hover .author-photo {
 }
 
 /* MAJOR SECTIONS
- * Extra vertical padding on top level sections gives the eye breathing
- * room between chapters. */
-#cross-trial,
-#in-trial,
-#in-the-wild,
+ * Tight padding so the page reads as one continuous blog post.
+ * Sections do not occupy separate viewports; they flow directly into
+ * each other with a small breathing gap. */
+#taxonomy,
 #method,
+#design,
+#memmimic,
 #attention,
+#in-the-wild,
 #benchmark,
+#whats-next,
 #faq,
 #team,
 #acknowledgments {
-  padding-top: 140px;
-  padding-bottom: 140px;
+  padding-top: 32px;
+  padding-bottom: 32px;
 }
 
-/* Team + Acknowledgments share a single viewport: collapse the gap
- * between them and shorten their outer padding so both fit above the
- * footer without scroll on ~900px+ displays. */
-#team { padding-bottom: 56px; }
-#acknowledgments { padding-top: 0; padding-bottom: 88px; }
+/* Method + Design Choices read as one chapter: tighten the seam. */
+#design { padding-top: 16px; }
+
+/* Team + Acknowledgments share a single viewport: collapse the gap. */
+#team { padding-bottom: 20px; }
+#acknowledgments { padding-top: 0; padding-bottom: 40px; }
 
 @media (max-width: 768px) {
-  #cross-trial,
-  #in-trial,
-  #in-the-wild,
+  #taxonomy,
   #method,
+  #design,
+  #memmimic,
   #attention,
+  #in-the-wild,
   #benchmark,
+  #whats-next,
   #faq,
   #team,
   #acknowledgments {
-    padding-top: 88px;
-    padding-bottom: 88px;
+    padding-top: 24px;
+    padding-bottom: 24px;
   }
-  #team { padding-bottom: 40px; }
-  #acknowledgments { padding-top: 0; padding-bottom: 64px; }
+  #design { padding-top: 12px; }
+  #team { padding-bottom: 16px; }
+  #acknowledgments { padding-top: 0; padding-bottom: 32px; }
 }
 
 /* Acknowledgments: prose spans the full section column so the block
@@ -1174,31 +1158,19 @@ a.author-card:hover .author-photo {
 
 
 /* METHOD
- * Zigzag layout: figure on one side, caption on the other, alternating
- * per row, vertically centered. */
-.method-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 56px;
-  align-items: start;
-  margin-top: 90px;
+ * Single-column stack: figure above, caption below, full column width.
+ * The .method-row-flip class is kept in HTML for compatibility but has
+ * no effect on layout. */
+.method-row,
+.method-row-flip {
+  display: block;
+  margin-top: 56px;
 }
 
-.method-row:first-of-type { margin-top: 1rem; }
-
-/* Flipped row: image on right, caption on left (reverse order) */
-.method-row-flip .method-img {
-  grid-column: 2;
-  grid-row: 1;
-}
-.method-row-flip .method-caption {
-  grid-column: 1;
-  grid-row: 1;
-}
+.method-row:first-of-type { margin-top: 1.25rem; }
 
 .method-img {
   margin: 0;
-  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1210,8 +1182,23 @@ a.author-card:hover .author-photo {
   display: block;
 }
 
+/* Architecture diagram scaled slightly under full width for balance. */
+.method-row:not(.method-row-flip) .method-img img {
+  width: 88%;
+  max-width: 680px;
+}
+
+/* Gating mechanism diagram has a wider aspect ratio than the architecture
+ * diagram, so at 100% it dominates the column. Scale it down further; the
+ * parent flex container keeps it centered. */
+.method-row-flip .method-img img {
+  width: 65%;
+  max-width: 500px;
+}
+
 .method-caption {
   min-width: 0;
+  margin-bottom: 1rem;
 }
 
 .method-caption h3 {
@@ -1223,7 +1210,7 @@ a.author-card:hover .author-photo {
 
 .method-caption p {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   line-height: 1.68;
   color: var(--text-soft);
   text-align: justify;
@@ -1234,17 +1221,7 @@ a.author-card:hover .author-photo {
 
 @media (max-width: 768px) {
   .method-row,
-  .method-row-flip {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    margin-top: 40px;
-  }
-  .method-img { min-height: auto; }
-  /* On mobile, caption always below image regardless of flip */
-  .method-row-flip .method-img { grid-column: 1; grid-row: 1; }
-  .method-row-flip .method-caption { grid-column: 1; grid-row: 2; }
-  .method-row .method-img { grid-row: 1; }
-  .method-row .method-caption { grid-row: 2; }
+  .method-row-flip { margin-top: 32px; }
 }
 
 /* BENCHMARK: two stacked horizontal blocks (RoboMimic, Mikasa) */
@@ -1415,20 +1392,454 @@ a.author-card:hover .author-photo {
 @media (max-width: 640px) {
   .video-grid.three-col { grid-template-columns: 1fr; }
 
-  .link-buttons { flex-direction: column; align-items: center; }
+  .link-buttons { flex-direction: column; align-items: stretch; }
 
   section { padding: 40px var(--pad-x); }
-
-  #hero-title { padding: var(--pad-x); }
-  #intro-split {
-    gap: 24px;
-    padding: 36px var(--pad-x);
-  }
-  #hero-video { border-radius: 8px; }
 
   .team-grid { gap: 28px 24px; }
   .author-card { width: 100px; }
   .author-photo { width: 68px; height: 68px; }
 
   #toc-nav { display: none; }
+}
+
+
+/* ================================================================
+ * NEW COMPONENTS (taxonomy, design, task tags, group headers, TOC
+ * descriptor, soft CTA). Added for the technical-blog restructure.
+ * ================================================================ */
+
+/* TAXONOMY GRID: three square panels, one per memory type.
+ * The grid extrudes beyond the 760px content column (up to 900px wide)
+ * and is centered via margin-left:50% + translateX(-50%). Each card is
+ * locked to a 1:1 aspect ratio so the row reads as a visual triptych. */
+.taxonomy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 2rem 0 1.5rem;
+  width: calc(100vw - 40px);
+  max-width: 900px;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  position: relative;
+}
+
+.taxonomy-card {
+  aspect-ratio: 1 / 1;
+  padding: 24px 22px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.22s var(--ease-out);
+}
+
+.taxonomy-card:hover {
+  border-color: var(--accent-line);
+}
+
+.taxonomy-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.55rem;
+}
+
+.taxonomy-card h3 {
+  font-size: 1.15rem;
+  font-weight: 650;
+  margin: 0 0 0.55rem;
+  color: var(--text);
+  letter-spacing: -0.012em;
+}
+
+.taxonomy-card h3 a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--border-hi);
+  padding-bottom: 1px;
+  transition: color 0.2s var(--ease-out),
+              border-color 0.2s var(--ease-out);
+}
+
+.taxonomy-card h3 a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  text-decoration: none;
+}
+
+.taxonomy-card p {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+.taxonomy-outro {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .taxonomy-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    transform: none;
+  }
+  .taxonomy-card {
+    aspect-ratio: auto;
+    min-height: 160px;
+  }
+}
+
+
+/* DESIGN CHOICES: three short prose blocks, separated by hairlines. */
+.design-block {
+  margin-top: 1.75rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.design-block:first-of-type {
+  margin-top: 1.5rem;
+}
+
+.design-block h3 {
+  font-size: 1.2rem;
+  font-weight: 650;
+  margin: 0 0 0.55rem;
+  color: var(--text);
+  letter-spacing: -0.014em;
+}
+
+.design-block p {
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--text-soft);
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  margin: 0;
+}
+
+
+/* TASK TAG + PURPOSE LINE
+ * Tag: eyebrow above the task h3, ties the task to the taxonomy.
+ * Purpose: small italic line after the intro, tying to a design choice. */
+.task-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+.task-purpose {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0 0 1rem;
+  line-height: 1.55;
+}
+
+
+/* GROUP HEADER within MemMimic (In-Trial Tasks / Cross-Trial Tasks).
+ * Sits between the section h2 and the per-task h3s. */
+.group-header {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin: 3.5rem 0 0.6rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--border-hi);
+}
+
+.group-header:first-of-type {
+  margin-top: 2.5rem;
+}
+
+.group-intro {
+  font-size: 1rem;
+  color: var(--text-soft);
+  margin-bottom: 1.5rem;
+}
+
+
+/* TOC LINK: multi-line (title + muted descriptor). */
+.toc-link-title {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.toc-link-desc {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-top: 2px;
+  line-height: 1.3;
+  opacity: 0.9;
+}
+
+.toc-link.active .toc-link-desc {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.toc-link {
+  padding: 8px 8px 8px 20px;
+  line-height: 1.3;
+}
+
+
+/* INLINE FOOTNOTES (tooltip style)
+ * The claim ends with a small superscript link. Clicking opens the paper
+ * PDF directly. Hovering (or focusing via keyboard) reveals a dark pill
+ * above the number indicating the paper section the claim comes from. */
+.fn-ref {
+  display: inline-block;
+  font-size: 0.7em;
+  font-weight: 600;
+  vertical-align: super;
+  line-height: 0;
+  margin-left: 2px;
+  padding: 0 3px;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: help;
+  position: relative;
+  border-radius: 3px;
+  transition: background 0.18s var(--ease-out);
+}
+
+.fn-ref:hover,
+.fn-ref:focus {
+  background: rgba(var(--accent-rgb), 0.12);
+  text-decoration: none;
+  outline: none;
+}
+
+/* Tooltip bubble, above the number */
+.fn-ref::after {
+  content: attr(data-fn);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 7px 11px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  max-width: 320px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s var(--ease-out),
+              transform 0.18s var(--ease-out);
+  z-index: 10;
+  box-shadow: var(--shadow-md);
+}
+
+/* Little arrow under the bubble, pointing at the number */
+.fn-ref::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s var(--ease-out);
+  z-index: 10;
+}
+
+.fn-ref:hover::after,
+.fn-ref:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.fn-ref:hover::before,
+.fn-ref:focus::before {
+  opacity: 1;
+}
+
+
+/* SOFT CTA: one-line invitation before the footer. */
+.cta-block {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--pad-x) 72px;
+  text-align: center;
+}
+
+.cta-block p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.cta-block p + p {
+  margin-top: 4px;
+}
+
+.cta-block a {
+  color: var(--accent);
+}
+
+
+/* METHOD section: accent underline under the h2 matches other sections,
+ * but the section-label is optional here since it's a core chapter. */
+#method .method-caption h3 {
+  letter-spacing: -0.014em;
+}
+
+
+/* TEASER FIGURE (Fig. 1)
+ * Three columns: header, photo, short task description per regime.
+ * Extrudes beyond the 760px body column (up to 900px) and centers via
+ * margin-left:50% + translateX(-50%). Caption spans full width below at
+ * the narrower body measure. */
+.teaser-figure {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 12px;
+  margin: 2rem 0;
+  width: calc(100vw - 40px);
+  max-width: 1080px;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  position: relative;
+}
+
+.tf-headers,
+.tf-photos,
+.tf-descriptions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.tf-headers { align-items: end; }
+
+.tf-header {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tf-letter {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tf-title {
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--text);
+  letter-spacing: -0.012em;
+  margin-top: 2px;
+}
+
+.tf-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 1px;
+}
+
+.tf-photos { align-items: end; }
+
+/* Each SVG keeps its natural aspect ratio; widths vary, and each image
+ * is centered horizontally in its grid cell. align-items: end keeps the
+ * bottom edges of the three photos aligned so the description row below
+ * sits flush against them regardless of height.
+ *
+ * Markovian (1:1) and in-trial (~1.13:1) are narrow, so they appear
+ * visually small at the same height as the wider cross-trial (1.65:1).
+ * Making the first two slightly taller balances the row's visual
+ * weight. Background matches the page bg so any letterbox bands on the
+ * wider cross-trial are invisible. */
+.tf-photos img {
+  width: auto;
+  max-width: 100%;
+  height: 150px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.tf-photos img:nth-child(1),
+.tf-photos img:nth-child(2) {
+  height: 175px;
+}
+
+.tf-descriptions p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-soft);
+  margin: 0;
+  text-align: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+.teaser-figure figcaption {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-top: 0.9rem;
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+@media (max-width: 768px) {
+  .teaser-figure {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    transform: none;
+  }
+  .tf-headers,
+  .tf-photos,
+  .tf-descriptions {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .tf-photos img { height: 130px; }
+  .tf-descriptions p { font-size: 0.9rem; }
 }
