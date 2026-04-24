@@ -71,7 +71,7 @@
     </a>
 
     <!-- GitHub: filled / inverted as primary CTA -->
-    <a href="#" class="btn-link">
+    <a href="https://github.com/real-stanford/gated-memory-policy" target="_blank" rel="noopener" class="btn-link">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482
                  0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462
@@ -154,7 +154,7 @@
         <p><em><a href="#cross-trial-casting">Iterative Casting</a>.</em> The robot casts an object to stop between two green lines across three attempts. Friction is hidden but fixed, so the policy infers it from earlier outcomes and adjusts across trials via <a href="https://www.sciencedirect.com/topics/psychology/reference-memory" target="_blank" rel="noopener">reference memory</a>.</p>
       </div>
 
-      <figcaption><strong>Memory requirements in robot manipulation</strong> range from (a) <em>Markovian</em> tasks requiring no memory, to (b) <em>in-trial</em> memory that retains a single-episode cue, and (c) <em>cross-trial</em> memory that aggregates information across attempts. Naively extending policy history degrades performance on Markovian tasks and grows expensive for cross-trial memory. GMP selectively recalls task-relevant history, achieving strong performance across all three regimes.</figcaption>
+      <figcaption><strong>Three memory regimes span robot manipulation.</strong> Naively extending policy history degrades performance on (a) and grows prohibitively expensive for (c); GMP selectively recalls task-relevant history and handles all three.</figcaption>
     </figure>
 
     <p>To address these issues, we propose <em><a href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener">Gated Memory Policy</a></em> (GMP), a visuomotor
@@ -169,7 +169,7 @@
        <strong>30.1% average success rate improvement</strong> over long-history baselines
        (including <a href="https://arxiv.org/abs/2303.04137" target="_blank" rel="noopener">Diffusion Policy</a>
        with long history, and the LSTM-based <a href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener">BC-RNN</a>), while
-       maintaining competitive performance on Markovian tasks in RoboMimic<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a>. All code and data will
+       maintaining competitive performance on Markovian tasks in RoboMimic.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> All code and data will
        be publicly available.</p>
   </div>
 
@@ -1068,7 +1068,7 @@
 <!-- ACKNOWLEDGMENTS -->
 <section id="acknowledgments">
   <h2>Acknowledgments</h2>
-  <p class="body-text">We thank <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment; <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments; and <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for guidance on MuJoCo simulation. We also thank members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for feedback on the manuscript and presentation, and <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, John Yao, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for discussions during this work.</p>
+  <p class="body-text">We thank <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment; <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments; and <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for guidance on MuJoCo simulation. We also thank members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for feedback on the manuscript and presentation, and <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, <a href="https://profiles.stanford.edu/367246" target="_blank" rel="noopener">John Yao</a>, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for discussions during this work.</p>
   <p class="body-text">We thank TRI for providing the UR5 robot hardware and ARX for the X5 robot hardware. We thank Apple for providing the iPhone 15 Pro, and Stanford Marlowe for computational resources.</p>
   <p class="body-text">This work was supported in part by NSF Awards #2143601, #2037101, and #2132519. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of the sponsors.</p>
 </section>
@@ -1088,7 +1088,7 @@
   <div class="cta-item">
     <p class="cta-question">Problems with the codebase?</p>
     <p class="cta-action">
-      <a href="#">Submit a GitHub issue<span class="cta-arrow" aria-hidden="true">&rarr;</span></a>
+      <a href="https://github.com/real-stanford/gated-memory-policy/issues/new" target="_blank" rel="noopener">Submit a GitHub issue<span class="cta-arrow" aria-hidden="true">&rarr;</span></a>
     </p>
   </div>
 </div>
