@@ -434,6 +434,16 @@ section > .body-text { margin-bottom: 2rem; }
   padding: 0.05em 0;
 }
 
+#hero-title .paper-title .paper-subtitle {
+  display: block;
+  font-size: clamp(1.35rem, 3.2vw, 2.1rem);
+  font-weight: 650;
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+  color: var(--text-soft);
+  margin-top: 0.45em;
+}
+
 .hero-tagline {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.125rem;

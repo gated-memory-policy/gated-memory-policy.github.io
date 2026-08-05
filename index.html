@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gated Memory Policy</title>
+  <title>Gated Memory Policy: In-Context Memorization and Adaptation</title>
 
   <!-- Google Fonts: only external network dependency -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,10 +36,10 @@
 <!-- HERO TITLE CARD (paper title, authors, institution, link buttons) -->
 <div id="hero-title">
   <!-- <p class="hero-venue">RSS 2026</p> -->
-  <h1 class="paper-title">Gated Memory Policy</h1>
+  <h1 class="paper-title">Gated Memory Policy<span class="paper-subtitle">In-Context Memorization and Adaptation</span></h1>
   <p class="authors">
     <a href="https://yihuai-gao.github.io/" target="_blank" rel="noopener">Yihuai Gao</a>,
-    Jinyun Liu,
+    Jeff Jinyun Liu,
     <a href="https://shuangli59.github.io/" target="_blank" rel="noopener">Shuang Li</a>,
     <a href="https://shurans.github.io/" target="_blank" rel="noopener">Shuran Song</a>
   </p>
@@ -47,13 +47,13 @@
   <p class="pub-meta">
     <time datetime="2026-04-22">Published April 22, 2026</time>
     <span class="pub-meta-sep" aria-hidden="true">&middot;</span>
-    <span class="pub-meta-updated">Updated <time datetime="2026-04-23">April 23, 2026</time></span>
+    <span class="pub-meta-updated">Updated <time datetime="2026-08-05">August 5, 2026</time></span>
   </p>
 
   <div class="link-buttons">
 
     <!-- Paper: update href to the newest PDF under paper/ on each iteration -->
-    <a href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" class="btn-link">
+    <a href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener" class="btn-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -109,8 +109,9 @@
        pitch: title, authors, buttons, and the technical summary). -->
   <div id="abstract">
     <p>Robotic manipulation tasks exhibit varying memory requirements, ranging from Markovian tasks
-       that require no memory to non-Markovian tasks that depend on historical information spanning
-       single or multiple interaction trials. Surprisingly, simply extending observation histories of
+       that require no memory to non-Markovian tasks that demand <em>in-context memorization</em> of
+       historical information within a single trial or <em>in-context adaptation</em> based on the
+       outcomes of multiple past trials. Surprisingly, simply extending observation histories of
        a visuomotor policy often leads to a significant performance drop due to distribution shift
        and overfitting.</p>
 
@@ -131,14 +132,14 @@
             <span class="tf-letter">(b)</span>
             <span class="tf-title">In-Trial Memory</span>
           </span>
-          <span class="tf-sub">Working Memory</span>
+          <span class="tf-sub">In-Context Memorization</span>
         </div>
         <div class="tf-header">
           <span class="tf-title-row">
             <span class="tf-letter">(c)</span>
             <span class="tf-title">Cross-Trial Memory</span>
           </span>
-          <span class="tf-sub">Reference Memory</span>
+          <span class="tf-sub">In-Context Adaptation</span>
         </div>
       </div>
 
@@ -157,8 +158,9 @@
       <figcaption><strong>Three memory regimes span robot manipulation.</strong> Naively extending policy history degrades performance on (a) and grows prohibitively expensive for (c); GMP selectively recalls task-relevant history and handles all three.</figcaption>
     </figure>
 
-    <p>To address these issues, we propose <em><a href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener">Gated Memory Policy</a></em> (GMP), a visuomotor
-       policy that learns both <strong>when</strong> to recall memory and <strong>what</strong> to recall. To learn
+    <p>To address these issues, we propose <em><a href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener">Gated Memory Policy</a></em> (GMP), a visuomotor
+       policy that learns both <strong>when</strong> to recall memory and <strong>what</strong> to recall,
+       enabling both in-context memorization and adaptation. To learn
        when to recall memory, GMP employs a learned memory gate mechanism that selectively activates
        history context only when necessary, improving robustness and reactivity. To learn what to
        recall efficiently, GMP introduces a lightweight cross-attention module that constructs
@@ -168,9 +170,10 @@
     <p>On our proposed non-Markovian benchmark <em><a href="#cross-trial">MemMimic</a></em>, GMP achieves a
        <strong>30.1% average success rate improvement</strong> over long-history baselines
        (including <a href="https://arxiv.org/abs/2303.04137" target="_blank" rel="noopener">Diffusion Policy</a>
-       with long history, and the LSTM-based <a href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener">BC-RNN</a>), while
-       maintaining competitive performance on Markovian tasks in RoboMimic.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> All code and data will
-       be publicly available.</p>
+       with long history, and the LSTM-based <a href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener">BC-RNN</a>), and a
+       <strong>26.6% improvement</strong> over VLA baselines on the <a href="#benchmark">MIKASA-Robo benchmark</a>, while
+       maintaining competitive performance on Markovian tasks in RoboMimic.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> All code, data, and
+       in-the-wild deployment instructions are publicly available.</p>
   </div>
 
 
@@ -184,7 +187,7 @@
 <section id="cross-trial">
   <span class="section-label">MemMimic Benchmark</span>
   <h2>Cross-Trial Memory Tasks</h2>
-  <p class="body-text">In cross-trial tasks, a physical parameter (such as surface friction or object mass) is sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Tasks T4&ndash;T6, Figs. 8&ndash;10">6</a></p>
+  <p class="body-text">Cross-trial tasks test <em>in-context adaptation</em>: a physical parameter (such as surface friction or object mass) is sampled per episode and hidden from the policy. The robot is given multiple trials and must leverage outcomes from earlier attempts to adapt its actions in context. GMP's memory gate selectively activates history context only when it is informative, enabling robust cross-trial adaptation without overfitting to irrelevant past observations.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Tasks T4&ndash;T6, Figs. 8&ndash;10">6</a></p>
 
 
   <!-- 4B CASTING: 2 friction regimes. 3 column video grid, persistent
@@ -534,7 +537,7 @@
 <section id="in-trial">
   <span class="section-label">MemMimic Benchmark</span>
   <h2>In-Trial Memory Tasks</h2>
-  <p class="body-text">In-trial tasks require the robot to recall a cue observed earlier within a single episode (such as an object's starting position or a bin's color). The relevant context appears only once; the policy must encode and retain it until a later decision point. GMP's lightweight cross-attention module constructs an effective latent memory on demand, gating out irrelevant history to stay focused.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Tasks T1&ndash;T3, Figs. 4&ndash;6">7</a></p>
+  <p class="body-text">In-trial tasks test <em>in-context memorization</em>: the robot must recall a cue observed earlier within a single episode (such as an object's starting position or a bin's color). The relevant context appears only once; the policy must encode and retain it until a later decision point. GMP's lightweight cross-attention module constructs an effective latent memory on demand, gating out irrelevant history to stay focused.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Tasks T1&ndash;T3, Figs. 4&ndash;6">7</a></p>
 
 
   <!-- 5A CUP: multiple locations, initial position accordion below.
@@ -854,7 +857,7 @@
 <section id="in-the-wild">
   <span class="section-label">Generalization</span>
   <h2>In-the-Wild Results</h2>
-  <p class="body-text">To stress-test robustness in the wild, we deploy GMP outdoors on <em><a href="#in-trial-place-back-real">Continuous Place Back</a></em>, one of our <a href="#in-trial">in-trial memory tasks</a>. The robot places the cup on the saucer and returns it to within 5&nbsp;cm of where it started. Because the start position is visible <strong>only once, at the beginning of the episode</strong>, and leaves the camera view the moment the cup is lifted, the policy must <span class="highlight">retain the start location in memory</span> for the entire pick-and-place. We show two variants side by side: a clean version on the left, and a perturbation version on the right in which a human flips the cup over by ~90 degrees mid-task, forcing the policy to right the cup and still find its way back. Trials span backgrounds, lighting, surfaces, and cup placements never seen in training, collected and deployed via <a href="https://austinapatel.github.io/" target="_blank" rel="noopener"><em>iPhUMI</em></a>. All clips play at <strong>1&times; real-time speed</strong>.</p>
+  <p class="body-text">To stress-test robustness in the wild, we deploy GMP outdoors on <em><a href="#in-trial-place-back-real">Continuous Place Back</a></em>, one of our <a href="#in-trial">in-trial memory tasks</a>. The robot places the cup on the saucer and returns it to within 5&nbsp;cm of where it started. Because the start position is visible <strong>only once, at the beginning of the episode</strong>, and leaves the camera view the moment the cup is lifted, the policy must <span class="highlight">retain the start location in memory</span> for the entire pick-and-place. We show two variants side by side: a clean version on the left, and a perturbation version on the right in which a human flips the cup over by ~90 degrees mid-task, forcing the policy to right the cup and still find its way back. Trials span backgrounds, lighting, surfaces, and cup placements never seen in training, collected and deployed via <a href="https://arxiv.org/abs/2606.30457" target="_blank" rel="noopener"><em>iPhUMI</em></a>. All clips play at <strong>1&times; real-time speed</strong>.</p>
 
   <!-- Left half of the grid (cols 0-3) = Continuous Place Back outdoors;
        right half (cols 4-7) = Flip and Place Back (T3' in the paper). -->
@@ -882,7 +885,7 @@
 <section id="method">
   <h2>Method</h2>
 
-  <p class="body-text">GMP decomposes the memory problem into two coupled decisions: <strong>when</strong> to read history, and <strong>what</strong> to read. A binary memory gate μ<sub>t</sub>, conditioned on the current observation, controls the former; when the gate is active, a cross-attention block reads from a cache of per-frame summary tokens to produce the latter. A third component augments cached action traces with diffusion noise one step cleaner than the prediction target, stabilizing predictions under imperfect history at deployment.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B">4</a></p>
+  <p class="body-text">GMP decomposes the memory problem into two coupled decisions: <strong>when</strong> to read history, and <strong>what</strong> to read. A binary memory gate μ<sub>t</sub>, conditioned on the current observation, controls the former; when the gate is active, a cross-attention block reads from a cache of per-frame summary tokens to produce the latter. A third component augments cached action traces with diffusion noise one step cleaner than the prediction target, stabilizing predictions under imperfect history at deployment.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; &sect;III.A, &sect;III.B">4</a></p>
 
   <div class="method-row">
     <figure class="method-img">
@@ -890,7 +893,7 @@
     </figure>
     <div class="method-caption">
       <h3>Model Architecture</h3>
-      <p>A <a href="https://arxiv.org/abs/2212.09748" target="_blank" rel="noopener">Diffusion Transformer</a> backbone with a cross-attention module for history conditioning. Each past frame is summarized as one aggregated visual token (via attention pooling over a pretrained <a href="https://arxiv.org/abs/2502.14786" target="_blank" rel="noopener">SigLIP2-B/16</a> ViT) paired with its action tokens; these are cached across denoising steps, so inference cost stays linear in history length. When μ<sub>t</sub>=0, history attention is skipped entirely and cost is constant.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 5, Fig. 14">8</a></p>
+      <p>A <a href="https://arxiv.org/abs/2212.09748" target="_blank" rel="noopener">Diffusion Transformer</a> backbone with a cross-attention module for history conditioning. Each past frame is summarized as one aggregated visual token (via attention pooling over a pretrained <a href="https://arxiv.org/abs/2502.14786" target="_blank" rel="noopener">SigLIP2-B/16</a> ViT) paired with its action tokens; these are cached across denoising steps, so inference cost stays linear in history length. When μ<sub>t</sub>=0, history attention is skipped entirely and cost is constant.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 5, Fig. 14">8</a></p>
     </div>
   </div>
 
@@ -917,7 +920,7 @@
 <section id="attention">
   <h2>What Is the Policy Attending To?</h2>
 
-  <p class="body-text">We visualize causal cross-attention weights to understand which past timesteps the policy attends to when computing the next action. Across tasks, attention concentrates on frames that carry task-relevant information (the moment a cue was first observed, or the outcome of a prior trial) rather than spreading uniformly across the available history.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 2, Figs. 4c, 8c">5</a></p>
+  <p class="body-text">We visualize causal cross-attention weights to understand which past timesteps the policy attends to when computing the next action. Across tasks, attention concentrates on frames that carry task-relevant information (the moment a cue was first observed, or the outcome of a prior trial) rather than spreading uniformly across the available history.<a class="fn-ref" href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener" data-fn="Paper &middot; Finding 2, Figs. 4c, 8c">5</a></p>
 
   <div class="tab-bar" role="tablist" data-tabgroup="attn-vis">
     <button class="tab-btn active" data-tab="cube-pushing" role="tab">Cube Pushing</button>
@@ -998,7 +1001,7 @@
     <details class="faq-item">
       <summary>How long can our model memorize?</summary>
       <div class="faq-answer">
-        <p>Due to the strong scalability of cross attention, the history length is only bottlenecked by training GPU memory. By caching visual features and freezing a pretrained image encoder, our model is able to attend to 6,000 image frames (with paired actions), achieving memory recall of up to 10 minutes at 10 fps. Please refer to <a href="paper/Gated_Memory_Policy_2026-04-22.pdf" target="_blank" rel="noopener"><strong>Finding 7</strong></a> for more details.</p>
+        <p>Due to the strong scalability of cross attention, the history length is only bottlenecked by training GPU memory. By caching visual features and freezing a pretrained image encoder, our model is able to attend to 6,000 image frames (with paired actions), achieving memory recall of up to 10 minutes at 10 fps. Please refer to <a href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener"><strong>Finding 7</strong></a> for more details.</p>
         <div class="faq-video-pair">
           <figure class="faq-video">
             <video autoplay controls muted playsinline loop preload="metadata">
@@ -1039,9 +1042,9 @@
 
     <div class="author-card">
       <div class="author-photo">
-        <img src="assets/images/team/jeff_liu.jpg" alt="Jinyun Liu">
+        <img src="assets/images/team/jeff_liu.jpg" alt="Jeff Jinyun Liu">
       </div>
-      <p class="author-name">Jinyun Liu</p>
+      <p class="author-name">Jeff Jinyun Liu</p>
       <p class="author-affil">Stanford University</p>
     </div>
 
@@ -1068,7 +1071,7 @@
 <!-- ACKNOWLEDGMENTS -->
 <section id="acknowledgments">
   <h2>Acknowledgments</h2>
-  <p class="body-text">We thank <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the <em>iPhUMI</em> app, which enabled in-the-wild data collection and deployment; <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments; and <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for guidance on MuJoCo simulation. We also thank members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for feedback on the manuscript and presentation, and <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, <a href="https://profiles.stanford.edu/367246" target="_blank" rel="noopener">John Yao</a>, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for discussions during this work.</p>
+  <p class="body-text">We thank <a href="https://austinapatel.github.io/" target="_blank" rel="noopener">Austin Patel</a> for developing the <a href="https://arxiv.org/abs/2606.30457" target="_blank" rel="noopener"><em>iPhUMI</em></a> app, which enabled in-the-wild data collection and deployment; <a href="https://www.linkedin.com/in/chilinghan/" target="_blank" rel="noopener">Chiling Han</a> for assistance with the baseline experiments; and <a href="https://mengdaxu.github.io/" target="_blank" rel="noopener">Mengda Xu</a> and <a href="https://huy-ha.github.io/" target="_blank" rel="noopener">Huy Ha</a> for guidance on MuJoCo simulation. We also thank members of <a href="https://real.stanford.edu/" target="_blank" rel="noopener">REALab</a> for feedback on the manuscript and presentation, and <a href="https://sites.google.com/view/yuejiangliu/home" target="_blank" rel="noopener">Yuejiang Liu</a>, <a href="https://moojink.com/" target="_blank" rel="noopener">Moo Jin Kim</a>, <a href="https://profiles.stanford.edu/367246" target="_blank" rel="noopener">John Yao</a>, <a href="https://ys-2020.github.io/" target="_blank" rel="noopener">Shang Yang</a>, <a href="https://zhang677.github.io/" target="_blank" rel="noopener">Genghan Zhang</a>, and <a href="https://scholar.google.com/citations?user=wv3U3tkAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">Dongchen Han</a> for discussions during this work.</p>
   <p class="body-text">We thank TRI for providing the UR5 robot hardware and ARX for the X5 robot hardware. We thank Apple for providing the iPhone 15 Pro, and Stanford Marlowe for computational resources.</p>
   <p class="body-text">This work was supported in part by NSF Awards #2143601, #2037101, and #2132519. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of the sponsors.</p>
 </section>
@@ -1100,13 +1103,13 @@
 
     <div class="footer-section-label">Citation</div>
     <p class="citation-block">
-      Yihuai Gao, Jinyun Liu, Shuang Li, and Shuran Song. Gated Memory Policy. <em>arXiv preprint arXiv:2604.18933</em>, 2026.
+      Yihuai Gao, Jeff Jinyun Liu, Shuang Li, and Shuran Song. Gated Memory Policy: In-Context Memorization and Adaptation. <em>arXiv preprint arXiv:2604.18933</em>, 2026.
     </p>
 
     <div class="bibtex-wrapper">
       <pre><code id="bibtex-content">@misc{gao2026gatedmemorypolicy,
-  title         = {Gated Memory Policy},
-  author        = {Yihuai Gao and Jinyun Liu and Shuang Li and Shuran Song},
+  title         = {Gated Memory Policy: In-Context Memorization and Adaptation},
+  author        = {Yihuai Gao and Jeff Jinyun Liu and Shuang Li and Shuran Song},
   year          = {2026},
   eprint        = {2604.18933},
   archivePrefix = {arXiv},
