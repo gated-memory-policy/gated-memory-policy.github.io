@@ -434,14 +434,16 @@ section > .body-text { margin-bottom: 2rem; }
   padding: 0.05em 0;
 }
 
+/* Second row of the two-row paper title. Same weight/color as row one;
+ * sized so the longer line stays on a single row at the hero max-width. */
 #hero-title .paper-title .paper-subtitle {
   display: block;
-  font-size: clamp(1.35rem, 3.2vw, 2.1rem);
-  font-weight: 650;
-  letter-spacing: -0.022em;
-  line-height: 1.25;
-  color: var(--text-soft);
-  margin-top: 0.45em;
+  font-size: clamp(1.55rem, 3.9vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.034em;
+  line-height: 1.15;
+  color: var(--text);
+  margin-top: 0.3em;
 }
 
 .hero-tagline {
@@ -1749,6 +1751,92 @@ a.author-card:hover .author-photo {
   text-align: left;
 }
 
+/* Success-rate bar row (mirrors the paper teaser's bottom half).
+ * Bar heights are driven by --v (success rate in %) at 0.9px per point,
+ * leaving headroom inside the 112px cell for the value labels. */
+.tf-charts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: -4px;
+}
+
+.tf-chart-title {
+  margin-top: 6px;
+  margin-bottom: -6px;
+  width: 100%;
+  text-align: center;
+  /* #abstract sets text-align-last: left, which inherits and wins over
+   * text-align for this single-line label */
+  text-align-last: center;
+}
+
+.tf-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12%;
+  height: 112px;
+  padding: 0 10%;
+  border-bottom: 1px solid var(--border-hi);
+}
+
+.tf-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 18%;
+  min-width: 26px;
+}
+
+.tf-bar-val {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
+
+.tf-bar-val.ours {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tf-bar-fill {
+  width: 100%;
+  height: calc(var(--v) * 0.9px);
+  min-height: 2px;
+  background: #d9cab0;
+  border-radius: 3px 3px 0 0;
+}
+
+.tf-bar-lh   { background: #b29a73; }
+.tf-bar-ours { background: var(--accent); }
+
+.tf-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.6rem;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+.tf-legend-item { display: inline-flex; align-items: center; gap: 7px; }
+
+.tf-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: #d9cab0;
+}
+
+.tf-swatch-lh   { background: #b29a73; }
+.tf-swatch-ours { background: var(--accent); }
+
 .teaser-figure figcaption {
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -1766,10 +1854,12 @@ a.author-card:hover .author-photo {
   }
   .tf-headers,
   .tf-photos,
-  .tf-descriptions {
+  .tf-descriptions,
+  .tf-charts {
     grid-template-columns: 1fr;
     gap: 14px;
   }
+  .tf-chart { padding: 0 18%; }
   .tf-photos img { height: 130px; }
   .tf-descriptions p { font-size: 0.9rem; }
 }

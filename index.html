@@ -123,23 +123,23 @@
         <div class="tf-header">
           <span class="tf-title-row">
             <span class="tf-letter">(a)</span>
-            <span class="tf-title">No Memory</span>
+            <span class="tf-title">Markovian</span>
           </span>
-          <span class="tf-sub">Markovian</span>
+          <span class="tf-sub">No Memory</span>
         </div>
         <div class="tf-header">
           <span class="tf-title-row">
             <span class="tf-letter">(b)</span>
-            <span class="tf-title">In-Trial Memory</span>
+            <span class="tf-title">In-Context Memorization</span>
           </span>
-          <span class="tf-sub">In-Context Memorization</span>
+          <span class="tf-sub">In-Trial Memory</span>
         </div>
         <div class="tf-header">
           <span class="tf-title-row">
             <span class="tf-letter">(c)</span>
-            <span class="tf-title">Cross-Trial Memory</span>
+            <span class="tf-title">In-Context Adaptation</span>
           </span>
-          <span class="tf-sub">In-Context Adaptation</span>
+          <span class="tf-sub">Cross-Trial Memory</span>
         </div>
       </div>
 
@@ -149,13 +149,41 @@
         <img src="assets/images/teaser/cross-trial.svg" alt="Cross-trial memory task example">
       </div>
 
+      <!-- Success-rate bar row (mirrors the paper's Fig. 1 bottom half):
+           per column, three bars = No-history / Long-history / GMP on the
+           pictured task. Values from the paper teaser. -->
+      <div class="tf-chart-title col-header">Success Rate (%)</div>
+      <div class="tf-charts" role="img"
+           aria-label="Success rates. Tool Hang: no-history 82, long-history 42, GMP 79. Continuous Place Back: no-history 10, long-history 62.5, GMP 85. Iterative Casting: no-history 5, long-history 20, GMP 95.">
+        <div class="tf-chart">
+          <div class="tf-bar"><span class="tf-bar-val">82</span><span class="tf-bar-fill" style="--v: 82"></span></div>
+          <div class="tf-bar"><span class="tf-bar-val">42</span><span class="tf-bar-fill tf-bar-lh" style="--v: 42"></span></div>
+          <div class="tf-bar"><span class="tf-bar-val ours">79</span><span class="tf-bar-fill tf-bar-ours" style="--v: 79"></span></div>
+        </div>
+        <div class="tf-chart">
+          <div class="tf-bar"><span class="tf-bar-val">10</span><span class="tf-bar-fill" style="--v: 10"></span></div>
+          <div class="tf-bar"><span class="tf-bar-val">62.5</span><span class="tf-bar-fill tf-bar-lh" style="--v: 62.5"></span></div>
+          <div class="tf-bar"><span class="tf-bar-val ours">85</span><span class="tf-bar-fill tf-bar-ours" style="--v: 85"></span></div>
+        </div>
+        <div class="tf-chart">
+          <div class="tf-bar"><span class="tf-bar-val">5</span><span class="tf-bar-fill" style="--v: 5"></span></div>
+          <div class="tf-bar"><span class="tf-bar-val">20</span><span class="tf-bar-fill tf-bar-lh" style="--v: 20"></span></div>
+          <div class="tf-bar"><span class="tf-bar-val ours">95</span><span class="tf-bar-fill tf-bar-ours" style="--v: 95"></span></div>
+        </div>
+      </div>
+      <div class="tf-legend" aria-hidden="true">
+        <span class="tf-legend-item"><span class="tf-swatch"></span>No-History Policy</span>
+        <span class="tf-legend-item"><span class="tf-swatch tf-swatch-lh"></span>Long-History Policy</span>
+        <span class="tf-legend-item"><span class="tf-swatch tf-swatch-ours"></span>GMP (Ours)</span>
+      </div>
+
       <div class="tf-descriptions">
         <p><em>Tool Hang</em>.<a class="fn-ref" href="https://arxiv.org/abs/2108.03298" target="_blank" rel="noopener" data-fn="Robomimic &middot; Mandlekar et al., 2021">1</a> The robot inserts a hook into a base and hangs a wrench on it. Precision-heavy, but every action is determined by the current frame, so history adds no signal.</p>
         <p><em><a href="#in-trial-place-back-real">Continuous Place Back</a>.</em> After placing a cup on a saucer, the robot returns it to within 5&nbsp;cm of where it started. The start position is seen only once, so the policy must hold it in <a href="https://dictionary.apa.org/working-memory" target="_blank" rel="noopener">working memory</a> across the motion.</p>
         <p><em><a href="#cross-trial-casting">Iterative Casting</a>.</em> The robot casts an object to stop between two green lines across three attempts. Friction is hidden but fixed, so the policy infers it from earlier outcomes and adjusts across trials via <a href="https://www.sciencedirect.com/topics/psychology/reference-memory" target="_blank" rel="noopener">reference memory</a>.</p>
       </div>
 
-      <figcaption><strong>Three memory regimes span robot manipulation.</strong> Naively extending policy history degrades performance on (a) and grows prohibitively expensive for (c); GMP selectively recalls task-relevant history and handles all three.</figcaption>
+      <figcaption><strong>Three memory regimes span robot manipulation.</strong> Naively extending policy history degrades performance on (a) and grows prohibitively expensive for (c); GMP selectively recalls task-relevant history and achieves strong success rates across all three (bars above, on the pictured tasks).</figcaption>
     </figure>
 
     <p>To address these issues, we propose <em><a href="paper/Gated_Memory_Policy_2026-08-05.pdf" target="_blank" rel="noopener">Gated Memory Policy</a></em> (GMP), a visuomotor
@@ -858,6 +886,8 @@
   <span class="section-label">Generalization</span>
   <h2>In-the-Wild Results</h2>
   <p class="body-text">To stress-test robustness in the wild, we deploy GMP outdoors on <em><a href="#in-trial-place-back-real">Continuous Place Back</a></em>, one of our <a href="#in-trial">in-trial memory tasks</a>. The robot places the cup on the saucer and returns it to within 5&nbsp;cm of where it started. Because the start position is visible <strong>only once, at the beginning of the episode</strong>, and leaves the camera view the moment the cup is lifted, the policy must <span class="highlight">retain the start location in memory</span> for the entire pick-and-place. We show two variants side by side: a clean version on the left, and a perturbation version on the right in which a human flips the cup over by ~90 degrees mid-task, forcing the policy to right the cup and still find its way back. Trials span backgrounds, lighting, surfaces, and cup placements never seen in training, collected and deployed via <a href="https://arxiv.org/abs/2606.30457" target="_blank" rel="noopener"><em>iPhUMI</em></a>. All clips play at <strong>1&times; real-time speed</strong>.</p>
+
+  <p class="body-text"><span class="highlight">All of the deployment code is open-sourced</span> — the <a href="https://github.com/real-stanford/gated-memory-policy" target="_blank" rel="noopener">full deployment stack</a>, the <a href="https://huggingface.co/yihuai-gao/gated-memory-policy/tree/main" target="_blank" rel="noopener">in-the-wild checkpoint</a>, and the <a href="https://huggingface.co/datasets/yihuai-gao/gated-memory-policy" target="_blank" rel="noopener">training data</a>, along with step-by-step instructions. If you are interested, you can run GMP on your own iPhone-based setup and reproduce these results yourself.</p>
 
   <!-- Left half of the grid (cols 0-3) = Continuous Place Back outdoors;
        right half (cols 4-7) = Flip and Place Back (T3' in the paper). -->
